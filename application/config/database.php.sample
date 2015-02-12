@@ -77,7 +77,7 @@ $db['hr']['hostname'] = 'hr';
 $db['hr']['port'] = '3306';
 $db['hr']['database'] = 'orange';
 $db['hr']['username'] = 'sumc';
-$db['hr']['password'] = 'password';
+$db['hr']['password'] = '123456';
 
 
 /* End of file database.php */
