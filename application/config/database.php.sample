@@ -66,11 +66,12 @@ $db['default']['stricton'] = FALSE;
 
 
 // Config settings for the students' database (AMS)
-$db['students']['hostname'] = 'ams';
-$db['students']['port'] = '1521';
-$db['students']['database'] = 'orcl';
-$db['students']['username'] = 'AMS_QUERIES';
-$db['students']['password'] = 's3cr3t';
+global $db_students;
+$db_students['hostname'] = 'ams';
+$db_students['port'] = '1521';
+$db_students['database'] = 'orcl';
+$db_students['username'] = 'AMS_QUERIES';
+$db_students['password'] = 's3cr3t';
 
 // Config settings for the staff database (OrangeHRM)
 global $db_hr;
