@@ -160,13 +160,16 @@ class Strathmore_population extends CI_Model
 	// }
 
 	public function get_hr_staff($staff_number = NULL)
-	{	
+	{
+		include_once(__DIR__.'/../../../config/database.php');
+		global $db_hr;
+		
 		//connect to database
-        $connect = mysql_connect($db['hr']['hostname'], $db['hr']['username'], $db['hr']['password'])
+        $connect_hr = mysqli_connect($db_hr['hostname'], $db_hr['username'], $db_hr['password'])
                     or die("Unable to connect to MySQL".mysql_error());
 
         //selecting a database
-        mysql_select_db($db['hr']['database'], $connect)
+        mysqli_select_db($connect_hr, $db_hr['database'])
                     or die("Could not select database".mysql_error());
 		
 		if($staff_number != NULL)
@@ -209,24 +212,24 @@ class Strathmore_population extends CI_Model
 					where 1=1  
 					ORDER BY emp_no ASC";
 		}
-				
-        $rs1 = mysql_query($sql1)
-        	or die ("unable to Select ".mysql_error());
-		$rows2 = mysql_num_rows($rs1);
+		
+        $rs1 = mysqli_query($connect_hr, $sql1);        	
+		$rows2 = mysqli_num_rows($rs1);		
+		
 		if($rows2 > 0){
-			for($a=0; $a< $rows2; $a++){
-	       		$staff_system_id=mysql_result($rs1, $a,'staff_system_id');
-				$staff_no=mysql_result($rs1, $a,'staff_no');
-				$emp_lastname=mysql_result($rs1, $a,'emp_lastname');
-				$emp_firstname=mysql_result($rs1, $a,'emp_firstname');
-				$emp_middle_name =mysql_result($rs1, $a,'emp_middle_name');
-				$emp_birthday=mysql_result($rs1, $a,'emp_birthday');
-				$emp_gender=mysql_result($rs1, $a,'emp_gender');
-				$marital_status=mysql_result($rs1, $a,'marital_status');
-				$emp_mobile=mysql_result($rs1, $a,'emp_mobile');
-				$department=mysql_result($rs1, $a,'department');
-				$nationality=mysql_result($rs1, $a,'nationality');	
-				$emp_work_email=mysql_result($rs1, $a,'emp_work_email');
+			while ($row = mysqli_fetch_assoc($rs1)) {	 
+	       		$staff_system_id = $row['staff_system_id'];
+				$staff_no = $row['staff_no'];
+				$emp_lastname = $row['emp_lastname'];
+				$emp_firstname = $row['emp_firstname'];
+				$emp_middle_name = $row['emp_middle_name'];
+				$emp_birthday = $row['emp_birthday'];
+				$emp_gender = $row['emp_gender'];
+				$marital_status = $row['marital_status'];
+				$emp_mobile = $row['emp_mobile'];
+				$department = $row['department'];
+				$nationality = $row['nationality'];	
+				$emp_work_email = $row['emp_work_email'];
 
 				$other_name = $emp_firstname." ".$emp_middle_name;
 				
@@ -250,8 +253,7 @@ class Strathmore_population extends CI_Model
 				{
 					//echo 'title='.$Title.'<br/>Surname='.$Surname1.'<br/>Other_names='.$Other_Name1.'<br/>DOB='.$DOB.'<br/>contact='.$Tel_1.'<br/>gender='.$Gender.'<br/>Staff_Number='.$Employee_Code.'<br/>staff_system_id='.$E_ID;
 					$this->db->insert('staff', $data);
-				}
-				
+				}				
 				else
 				{
 					$this->db->where('Staff_Number', $staff_no);
@@ -260,8 +262,7 @@ class Strathmore_population extends CI_Model
 				}
 			}
 			return TRUE;
-		}
-		
+		}		
 		else
 		{
 			$this->session->set_userdata("error_message","Staff could not be found");

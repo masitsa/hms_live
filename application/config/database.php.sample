@@ -73,11 +73,12 @@ $db['students']['username'] = 'AMS_QUERIES';
 $db['students']['password'] = 's3cr3t';
 
 // Config settings for the staff database (OrangeHRM)
-$db['hr']['hostname'] = 'hr';
-$db['hr']['port'] = '3306';
-$db['hr']['database'] = 'orange';
-$db['hr']['username'] = 'sumc';
-$db['hr']['password'] = '123456';
+global $db_hr;
+$db_hr['hostname'] = 'hr';
+$db_hr['port'] = '3306';
+$db_hr['database'] = 'orange';
+$db_hr['username'] = 'sumc';
+$db_hr['password'] = '123456';
 
 
 /* End of file database.php */
