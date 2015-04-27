@@ -54,7 +54,7 @@ class Reports extends auth
 		$this->all_time_reports();
 	}
 	
-	public function debtors_report($bill_to_id)
+	public function debtors_report($bill_to_id = 0)
 	{
 		$_SESSION['all_transactions_search'] = NULL;
 		$_SESSION['all_transactions_tables'] = NULL;
@@ -245,7 +245,7 @@ class Reports extends auth
 		$v_data['bill_to_query'] = $this->reports_model->get_bill_to();
 		
 		//select first debtor from query
-		if($bill_to_id == NULL)
+		if($bill_to_id == 0)
 		{
 			if($v_data['bill_to_query']->num_rows() > 0)
 			{
@@ -941,6 +941,10 @@ class Reports extends auth
 		
 		$this->session->unset_userdata('search_title');
 		redirect('administration/reports/debtors_report_data/'.$bill_to_id);
+	}
+	
+	public function custom_invoices()
+	{
 	}
 }
 ?>

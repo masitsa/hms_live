@@ -86,7 +86,7 @@ else
             	<strong>
                 	Strathmore University Medical Center<br/>
                     P.O. Box 59857 00200, Nairobi, Kenya<br/>
-                    E-mail: sumedicalcentre@strathmore.edu. Tel : +254703034011<br/>
+                    E-mail: sumedicalcentre@strathmore.edu. Tel : +254703034001<br/>
                     Madaraka Estate<br/>
                 </strong>
             </div>
