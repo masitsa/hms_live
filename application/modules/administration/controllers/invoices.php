@@ -76,6 +76,7 @@ class Invoices extends auth
 			$order_method = 'DESC';
 		}
 		$v_data['query'] = $query;
+		$v_data['personnel_query'] = $this->personnel_model->get_all_personnel();
 		$v_data['title'] = 'Custom invoices';
 		$v_data['order_method'] = $order_method;
 		$v_data['page'] = $page;
@@ -96,6 +97,7 @@ class Invoices extends auth
 		//form validation rules
 		$this->form_validation->set_rules('custom_invoice_debtor', 'Debtor', 'required|xss_clean');
 		$this->form_validation->set_rules('custom_invoice_debtor_contacts', 'Debtor contacts', 'xss_clean');
+		$this->form_validation->set_rules('payable_by', 'Quantity', 'required|xss_clean');
 		
 		//if form has been submitted
 		if ($this->form_validation->run())
@@ -151,7 +153,12 @@ class Invoices extends auth
 		
 		else
 		{
-			$this->session->set_userdata('error_message', validation_errors().' Please try again');
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', validation_errors().' Please try again');
+			}
 		}
 		
 		//get custom invoice items
@@ -166,6 +173,35 @@ class Invoices extends auth
 		$data['sidebar'] = 'admin_sidebar';
 		
 		$this->load->view('auth/template_sidebar', $data);
+	}
+	
+	public function print_invoice($custom_invoice_id)
+	{
+		$data['custom_invoice_query'] = $this->invoices_model->get_invoice_items($custom_invoice_id);
+		$data['personnel_query'] = $this->personnel_model->get_all_personnel();
+		$query = $this->invoices_model->get_custom_invoice_items($custom_invoice_id);
+		$data['query'] = $query;
+		$data['custom_invoice_id'] = $custom_invoice_id;
+		$this->load->view('invoices/print_invoice', $data);
+	}
+	
+	/*
+	*	Delete an existing invoice item
+	*	@param int $custom_invoice_item_id
+	*
+	*/
+	public function delete_invoice_item($custom_invoice_item_id, $custom_invoice_id)
+	{
+		if($this->invoices_model->delete_invoice_item($custom_invoice_item_id))
+		{
+			$this->session->set_userdata('success_message', 'Item deleted successfully');
+		}
+		else
+		{
+			$this->session->set_userdata('error_message', 'Item not deleted. Please try again');
+		}
+		
+		redirect('/administration/invoices/add_invoice_items/'.$custom_invoice_id);
 	}
 }
 ?>

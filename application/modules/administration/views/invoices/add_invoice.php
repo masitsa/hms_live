@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-md-12">
 		<div class="pull-right">
-		 <a href="<?php echo site_url()?>/administration/services" class="btn btn-sm btn-primary"> Back to Service List </a>
+		 <a href="<?php echo site_url()?>/administration/invoices/custom_invoices" class="btn btn-sm btn-primary"> Back to invoices list </a>
 
 		</div>
 	</div>
@@ -38,10 +38,6 @@
                   $this->session->unset_userdata('error_message');
                 }
                 
-                if(!empty($validation_error))
-                {
-                  echo '<div class="alert alert-danger">'.$validation_error.'</div>';
-                }
                 
                 if(!empty($success))
                 {
@@ -63,7 +59,8 @@
 							$invoice_number = $row->custom_invoice_number;
 							$debtor = $row->custom_invoice_debtor;
 							$contacts = $row->custom_invoice_debtor_contacts;	
-							$status = $row->custom_invoice_status;			
+							$status = $row->custom_invoice_status;	
+							$payable_by = date('jS M Y',strtotime($row->payable_by));		
 							
 							//get status
 							if($status == 0)
@@ -120,52 +117,17 @@
                                     <td><?php echo $created_by;?></td>
                                 </tr>
                             	<tr>
+                                	<th>Payable by: </th>
+                                    <td><?php echo $payable_by;?></td>
+                                </tr>
+                            	<tr>
                                 	<th>Status: </th>
                                     <td><?php echo $status;?></td>
-                                </tr>
-                            <?php
-						}
-						
-						//invoice items
-						if($query->num_rows() > 0)
-						{
-							?>
-                            <table class="table table-condensed table-striped table-hover">
-                            	<tr>
-                                	<th>#</th>
-                                	<th>Description</th>
-                                	<th>Cost</th>
-                                	<th>Quantity</th>
-                                	<th>Total</th>
-                                </tr>
-                            <?php
-							$total = $count = 0;
-							foreach($query->result() as $res)
-							{
-								$description = $res->custom_invoice_item_description;
-								$cost = $res->custom_invoice_item_cost;
-								$quantity = $res->custom_invoice_item_quantity;
-								$total += ($cost*$quantity);
-								$count++;
-								
-								?>
-                                <tr>
-                                	<td><?php echo $count;?></td>
-                                	<td><?php echo $description;?></td>
-                                	<td><?php echo $cost;?></td>
-                                	<td><?php echo $quantity;?></td>
-                                	<td><?php echo ($cost*$quantity);?></td>
-                                </tr>
-                                <?php
-							}
-							?>
-                            	<tr>
-                                	<th colspan="5">Total</th>
-                                	<td><?php echo $total;?></td>
                                 </tr>
                             </table>
                             <?php
 						}
+						
 					?>
                 </div>
                 
@@ -204,8 +166,67 @@
                         <?php echo form_close();
                     ?>
                 </div>
-          </div>
+			</div>
+            
+            <div class="row">
+            	<div class="col-md-12">
+                	<a href="<?php echo site_url().'/administration/invoices/print_invoice/'.$custom_invoice_id;?>" class="btn btn-success pull-right" target="_blank">Print invoice</a>
+                	<h4 class="center-align">Invoice items</h4>
+                	<?php
+                    //invoice items
+					if($query->num_rows() > 0)
+					{
+						?>
+						<table class="table table-condensed table-striped table-hover">
+							<tr>
+								<th>#</th>
+								<th>Description</th>
+								<th>Quantity</th>
+								<th>Cost (Ksh)</th>
+								<th>Total (Ksh)</th>
+								<th>Actions</th>
+							</tr>
+						<?php
+						$total = $count = 0;
+						foreach($query->result() as $res)
+						{
+							$custom_invoice_item_id = $res->custom_invoice_item_id;
+							$description = $res->custom_invoice_item_description;
+							$cost = $res->custom_invoice_item_cost;
+							$quantity = $res->custom_invoice_item_quantity;
+							$total += ($cost*$quantity);
+							$count++;
+							
+							?>
+							<tr>
+								<td><?php echo $count;?></td>
+								<td><?php echo $description;?></td>
+								<td><?php echo $quantity;?></td>
+								<td><?php echo number_format($cost, 2);?></td>
+								<td><?php echo number_format(($cost*$quantity), 2);?></td>
+                                <td><a href="<?php echo site_url().'/administration/invoices/delete_invoice_item/'.$custom_invoice_item_id.'/'.$custom_invoice_id;?>" class="btn btn-sm btn-danger" onclick="return confirm('Do you really want to delete this item?');">Delete</a></td>
+							</tr>
+							<?php
+						}
+						?>
+							<tr>
+								<th colspan="4">Total</th>
+								<td><?php echo number_format($total, 2);?></td>
+							</tr>
+						</table>
+						<?php
+					}
+					
+					else
+					{
+						echo '<p>This invoice does not contain particulars</p>';
+					}
+				?>
+                    
+                </div>
+            </div>
         </div>
-      </div>
+    </div>
   </div>
+</div>
 </div>

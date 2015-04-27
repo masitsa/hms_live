@@ -1,5 +1,5 @@
 <!-- search -->
-<?php echo $this->load->view('invoices/search_custom_invoices', '', TRUE);?>
+<?php //echo $this->load->view('invoices/search_custom_invoices', '', TRUE);?>
 <!-- end search -->
 <style type="text/css">
 .bootstrap-datetimepicker-widget{z-index:2000;}
@@ -60,14 +60,26 @@
                                     <input class="form-control" type="text" name="custom_invoice_debtor" placeholder="Debtor" value="'.set_value('custom_invoice_debtor').'">
                                 </div>
                             </div>
-                    	</div>
-                        
-                        <div class="col-md-12">
+							
                             <div class="form-group">
                                 <label class="col-lg-4 control-label">Debtor contacts: </label>
                                 
                                 <div class="col-lg-8">
                                     <textarea class="form-control" name="custom_invoice_debtor_contacts" placeholder="Debtor contacts">'.set_value('custom_invoice_debtor_contacts').'</textarea>
+                                </div>
+                            </div>
+							
+							<div class="form-group">
+                                <label class="col-lg-4 control-label">Payable by: </label>
+                                
+                                <div class="col-lg-8">
+                                    <div id="datetimepicker4" class="input-append">
+                                        <input data-format="yyyy-MM-dd" class="form-control" type="text" name="payable_by" placeholder="Payable by">
+                                        <span class="add-on" style="cursor:pointer;">
+                                            &nbsp;<i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                                            </i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                     	</div>
@@ -94,254 +106,76 @@
 			
 			$result .= 
 			'
-				<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
-				  <thead>
+				<table class="table table-condensed table-striped table-hover">
 					<tr>
-					  <th class="table-sortable:default table-sortable" title="Click to sort">Date Created</th>
-					  <th class="table-sortable:default table-sortable" title="Click to sort">Order Number</th>
-					  <th class="table-sortable:default table-sortable" title="Click to sort">Customer</th>
-					  <th>Total Items</th>
-					  <th>Order Total ($)</th>
-					  <th class="table-sortable:default table-sortable" title="Click to sort">Status</th>
-					  <th colspan="2">Actions</th>
+						<th>#</th>
+						<th>Invoice number</th>
+						<th>Debtor</th>
+						<th>Created on</th>
+						<th>Created by</th>
+						<th>Status</th>
+						<th>Actions</th>
 					</tr>
-				  </thead>
-				  <tbody>
 			';
-			
-			//get all administrators
-			$administrators = $this->users_model->get_all_administrators();
-			if ($administrators->num_rows() > 0)
-			{
-				$admins = $administrators->result();
-			}
-			
-			else
-			{
-				$admins = NULL;
-			}
 			
 			foreach ($query->result() as $row)
 			{
-				$order_id = $row->order_id;
-				$order_number = $row->order_number;
-				$order_status = $row->order_status_id;
-				$order_instructions = $row->order_instructions;
-				$order_status_name = $row->order_status_name;
-				$created_by = $row->order_created_by;
-				$created = $row->order_created;
-				$modified_by = $row->order_modified_by;
-				$last_modified = $row->order_last_modified;
-				$user = $row->first_name.' '.$row->other_names;
+				$created =  date('jS M Y H:i a',strtotime($row->custom_invoice_created));
+				$personnel_id = $row->custom_invoice_created_by;
+				$invoice_number = $row->custom_invoice_number;
+				$debtor = $row->custom_invoice_debtor;
+				$contacts = $row->custom_invoice_debtor_contacts;	
+				$status = $row->custom_invoice_status;			
+				$last_modified = $row->custom_invoice_last_modified;
+				$modified_by = $row->custom_invoice_modified_by;	
+				$custom_invoice_id = $row->custom_invoice_id;		
 				
-				$order_details = $this->orders_model->get_order_items($order_id);
+				//get status
+				if($status == 0)
+				{
+					$status = '<span class="label label-danger">Unpaid</span>';
+				}
+				
+				else
+				{
+					$status = '<span class="label label-success">Paid</span>';
+				}
+				
+				if($personnel_query->num_rows() > 0)
+				{
+					$personnel_result = $personnel_query->result();
+					
+					foreach($personnel_result as $adm)
+					{
+						$personnel_id2 = $adm->personnel_id;
+						
+						if($personnel_id == $personnel_id2)
+						{
+							$created_by = $adm->personnel_onames.' '.$adm->personnel_fname;
+							break;
+						}
+						
+						else
+						{
+							$created_by = '-';
+						}
+					}
+				}
+				
 				$total_price = 0;
 				$total_items = 0;
-				//creators & editors
-				if($admins != NULL)
-				{
-					foreach($admins as $adm)
-					{
-						$user_id = $adm->user_id;
-						
-						if($user_id == $modified_by)
-						{
-							$modified_by = $adm->first_name;
-						}
-					}
-				}
 				
-				else
-				{
-					$modified_by = '-- Not modified --';
-				}
-				if($order_details->num_rows() > 0)
-				{
-					$items = '
-					<p><strong>Last Modified:</strong> '.date('jS M Y H:i a',strtotime($last_modified)).'<br/>
-					<strong>Modified by:</strong> '.$modified_by.'</strong></br>
-					<strong>Instructions:</strong> '.$order_instructions.'</strong></p>
-					
-					<table class="table table-striped table-condensed table-hover">
-					<tr>
-						<th>Item</th>
-						<th>Quantity</th>
-						<th>Price ($)</th>
-						<th>Added price ($)</th>
-						<th>Total ($)</th>
-					</tr>';
-					$order_items = $order_details->result();
-					$total_price = 0;
-					$total_items = 0;
-					
-					foreach($order_items as $res)
-					{
-						$order_item_id = $res->order_item_id;
-						$product = $res->product_name;
-						$quantity = $res->order_item_quantity;
-						$price = $res->order_item_price;
-						$product_id = $res->product_id;
-						$vendor_id = $res->vendor_id;
-						$vendor_store_name = $res->vendor_store_name;
-						$web_name = $this->site_model->create_web_name($vendor_store_name);
-						$vendor_link = site_url().'businesses/'.$web_name.'&'.$vendor_id;
-						$order_item_features = $this->orders_model->get_order_item_features($order_item_id);
-						
-						$total_items += $quantity;
-						
-						//display features
-						$features_display = '';
-						$cancel = '<a class="btn btn-sm btn-danger" href="'.site_url().'reverse-product/'.$product_id.'/'.$order_number.'">Reverse product</a>';
-						$cancel = '';
-						$total_additional_price = 0;
-						
-						if($order_item_features->num_rows() > 0)
-						{
-							$features_display = '<table class="table table-condensed">
-								<tr>
-									<th>Feature</th>
-									<th>Selected</th>
-									<th>Added price ($)</th>
-								</tr>';
-							foreach($order_item_features->result() as $feat)
-							{
-								$product_feature_id = $feat->product_feature_id;
-								$added_price = $feat->additional_price;
-								$feature_name = $feat->feature_name;
-								$feature_value = $feat->feature_value;
-								$feature_image = $feat->thumb;
-								$total_additional_price += $added_price;
-								
-								$feature_location = base_url().'assets/images/products/features/';
-								$feature_path = realpath(APPPATH . '../assets/images/products/features');
-								$feature_image_display = $this->products_model->image_display($feature_path, $feature_location, $feature_image);
-								
-								//display feature images
-								if($feature_image != 'None')
-								{
-									$features_display.= '
-										<tr>
-											<td>'.$feature_name.'</td>
-											<td><img src="'.$feature_image_display.'" /></td>
-											<td>'.number_format($added_price, 2).'</td>
-										</tr>';
-								}
-								
-								//display features in dropdown
-								else
-								{
-									$features_display.= '
-										<tr>
-											<td>'.$feature_name.'</td>
-											<td>'.$feature_value.'</td>
-											<td>'.number_format($added_price, 2).'</td>
-										</tr>';
-								}
-							}
-							$features_display .= '
-								<tr>
-									<th></th>
-									<th></th>
-									<th>'.number_format($total_additional_price, 2).'</th>
-								</tr>
-							</table>';
-						}
-						
-						$total_price += (($quantity*$price) + $total_additional_price);
-						
-						$items .= '
-						<tr>
-							<td>
-							'.$product.'
-							'.$features_display.'
-							</td>
-							<td>'.$quantity.'</td>
-							<td>'.number_format($price, 2, '.', ',').'</td>
-							<td>'.number_format($total_additional_price, 2, '.', ',').'</td>
-							<td>'.number_format(($quantity*$price)+$total_additional_price, 2, '.', ',').'</td>
-						</tr>
-						';
-					}
-						
-					$items .= '
-						<tr>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td colspan="4">'.number_format($total_price, 2, '.', ',').'</td>
-						</tr>
-					</table>
-					';
-				}
-				
-				else
-				{
-					$items = 'This order has no items';
-				}
-				
-				$button = '';
-				
-				//pending order
-				if($order_status == 0)
-				{
-					$status = '<span class="label label-info">'.$order_status_name.'</span>';
-					$button = '<a href="'.site_url().'vendor/complete-order/'.$order_id.'" class="btn btn-info" onclick="return confirm(\'Do you really want to complete this order '.$order_number.'?\');">Complete</a>
-					<a href="'.site_url().'vendor/cancel-order/'.$order_number.'" class="btn btn-danger pull-right" onclick="return confirm(\'Do you really want to cancel this order '.$order_number.'?\');">Cancel</a>';
-					$button2 = '';
-				}
-				else if($order_status == 1)
-				{
-					$status = '<span class="label label-success">'.$order_status_name.'</span>';
-					$button = '<a href="'.site_url().'vendor/cancel-order/'.$order_id.'" class="btn btn-danger" onclick="return confirm(\'Do you really want to cancel this order '.$order_number.'?\');">Cancel</a>';
-					$button2 = '';
-				}
-				else if($order_status == 2)
-				{
-					$status = '<span class="label label-warning">'.$order_status_name.'</span>';
-					$button = '';
-				}
-				else if($order_status == 6)
-				{
-					$status = '<span class="label label-danger">'.$order_status_name.'</span>';
-					$button = '<a href="'.site_url().'vendor/cancel-order/'.$order_id.'" class="btn btn-danger" onclick="return confirm(\'Do you really want to cancel this order '.$order_number.'?\');">Cancel</a>';
-					$button2 = '';
-				}
 				$count++;
 				$result .= 
 				'
 					<tr>
-						<td>'.date('jS M Y H:i a',strtotime($created)).'</td>
-						<td>'.$order_number.'</td>
-						<td>'.$user.'</td>
-						<td>'.$total_items.'</td>
-						<td>'.number_format($total_price, 2, '.', ',').'</td>
+						<td>'.$count.'</td>
+						<td>'.$invoice_number.'</td>
+						<td>'.$debtor.'</td>
+						<td>'.$created.'</td>
+						<td>'.$created_by.'</td>
 						<td>'.$status.'</td>
-						<td>
-							<!-- Button to trigger modal -->
-							<a href="#user'.$order_id.'" class="btn btn-primary" data-toggle="modal">View</a>
-							
-							<!-- Modal -->
-							<div id="user'.$order_id.'" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-								<div class="modal-dialog">
-									<div class="modal-content">
-										<div class="modal-header">
-											<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-											<h4 class="modal-title">'.$order_number.'</h4>
-										</div>
-										
-										<div class="modal-body">
-											'.$items.'
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-											'.$button.'
-										</div>
-									</div>
-								</div>
-							</div>
-						</td>
-						<td>'.$button.'</td>
+						<td><a href="'.site_url().'/administration/invoices/add_invoice_items/'.$custom_invoice_id.'" class="btn btn-info">View invoice</a></td>
 					</tr> 
 				';
 			}

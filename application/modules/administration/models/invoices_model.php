@@ -46,7 +46,7 @@ class Invoices_model extends CI_Model
 	
 	public function get_custom_invoice_items($custom_invoice_id)
 	{
-		$this->db->where('custom_invoice_id = '.$custom_invoice_id);
+		$this->db->where('custom_invoice_item_status = 1 AND custom_invoice_id = '.$custom_invoice_id);
 		$query = $this->db->get('custom_invoice_item');
 		
 		return $query;
@@ -117,6 +117,7 @@ class Invoices_model extends CI_Model
 		
 		$data = array(
 				'custom_invoice_number'=>$invoice_number,
+				'payable_by'=>$this->input->post('payable_by'),
 				'custom_invoice_debtor_contacts'=>$this->input->post('custom_invoice_debtor_contacts'),
 				'custom_invoice_debtor'=>$this->input->post('custom_invoice_debtor'),
 				'custom_invoice_created'=>date('Y-m-d H:i:s'),
@@ -295,7 +296,8 @@ class Invoices_model extends CI_Model
 	*/
 	public function delete_invoice_item($invoice_item_id)
 	{
-		if($this->db->delete('invoice_item', array('invoice_item_id' => $invoice_item_id)))
+		$this->db->where(array('custom_invoice_item_id' => $invoice_item_id));
+		if($this->db->update('custom_invoice_item', array('custom_invoice_item_status' => 0)))
 		{
 			return TRUE;
 		}

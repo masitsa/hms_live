@@ -1,26 +1,14 @@
 <?php
 
-$row = $query->row();
-$invoice_date = date('jS M Y H:i a',strtotime($row->debtor_invoice_created));
-$debtor_invoice_id = $row->debtor_invoice_id;
-$bill_to_name = $row->bill_to_name;
-$batch_no = $row->batch_no;
-$status = $row->debtor_invoice_status;
-$personnel_id = $row->debtor_invoice_created_by;
-$date_from = date('jS M Y',strtotime($row->date_from));
-$date_to = date('jS M Y',strtotime($row->date_to));
-$total_invoiced = number_format($this->reports_model->calculate_debt_total($debtor_invoice_id, $where, $table), 2);
-				
-//get status
-if($status == 0)
-{
-	$status = '<span class="label label-danger">Unpaid</span>';
-}
-
-else
-{
-	$status = '<span class="label label-success">Paid</span>';
-}
+$row = $custom_invoice_query->row();
+							
+$created =  date('jS M Y H:i a',strtotime($row->custom_invoice_created));
+$personnel_id = $row->custom_invoice_created_by;
+$invoice_number = $row->custom_invoice_number;
+$debtor = $row->custom_invoice_debtor;
+$contacts = $row->custom_invoice_debtor_contacts;	
+$status = $row->custom_invoice_status;
+$payable_by = date('jS M Y',strtotime($row->payable_by));	
 
 //creators and editors
 if($personnel_query->num_rows() > 0)
@@ -106,7 +94,7 @@ else
                     	
                     	<div class="title-item">Invoice to:</div>
                         
-                    	<?php echo $bill_to_name; ?>
+                    	<?php echo $debtor; ?>
                     </div>
                 </div>
             	
@@ -125,7 +113,7 @@ else
                 	<div class="col-md-12">
                     	<div class="title-item">Invoice Number:</div>
                         
-                    	<?php echo $batch_no; ?>
+                    	<?php echo $invoice_number; ?>
                     </div>
                 </div>
             	
@@ -133,7 +121,7 @@ else
                 	<div class="col-md-12">
                     	<div class="title-item">Invoice date:</div> 
                         
-                    	<?php echo $invoice_date; ?>
+                    	<?php echo $created; ?>
                     </div>
                 </div>
             </div>
@@ -147,37 +135,78 @@ else
         
     	<div class="row">
         	<div class="col-md-12">
-            				<table class="table table-hover table-bordered col-md-12">
-                                <thead>
-                                <tr>
-                                  <th>Description</th>
-                                  <th>Cost</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                  
-                                <tr>
-                                  <td>Invoice for services rendered between <?php echo $date_from;?> and <?php echo $date_to;?> as per the attached invoices</td>
-                                  <td><?php echo $total_invoiced;?></td>
-                                </tr>
-                                  
-                                <tr>
-                                  <th align="center">Total</td>
-                                  <th align="center"><?php echo $total_invoiced;?></th>
-                                </tr>
-                                    
-                                </tbody>
-                              </table>
+                <table class="table table-hover table-bordered col-md-12">
+                    <thead>
+                        <tr>
+                              <th>#</th>
+                              <th>Description</th>
+                              <th>Quantity</th>
+                              <th>Cost (Ksh)</th>
+                              <th>Total (Ksh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      
+                    <?php
+                    //invoice items
+					if($query->num_rows() > 0)
+					{
+						$total = $count = 0;
+						foreach($query->result() as $res)
+						{
+							$description = $res->custom_invoice_item_description;
+							$cost = $res->custom_invoice_item_cost;
+							$quantity = $res->custom_invoice_item_quantity;
+							$total += ($cost*$quantity);
+							$count++;
+							
+							?>
+							<tr>
+								<td><?php echo $count;?></td>
+								<td><?php echo $description;?></td>
+								<td><?php echo $quantity;?></td>
+								<td><?php echo number_format($cost, 2);?></td>
+								<td><?php echo number_format(($cost*$quantity), 2);?></td>
+							</tr>
+							<?php
+						}
+						?>
+							<tr>
+								<th colspan="4">Total</th>
+								<td><?php echo number_format($total, 2);?></td>
+							</tr>
+						<?php
+					}
+					
+					else
+					{
+						echo '<tr>
+								<th colspan="4">This invoice does not contain particulars</th>
+							</tr>';
+					}
+				?>
+                    </tbody>
+                  </table>
             </div>
         </div>
         
     	<div class="row" style="font-style:italic; font-size:11px;">
         	<div class="col-md-8 pull-left">
                 <div class="col-md-4 pull-left">
-                    Raised by: <?php echo $created_by;?> 
+                	<div class="row">
+                    	<div class="col-md-12">
+                  			Raised by: <?php echo $created_by;?>
+                        </div>
+                    </div>
+                  	
+                	<div class="row" style="margin-top:20px;">
+                    	<div class="col-md-12">
+                  			Signature: .....................................................................
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-8pull-left">
-                  Signature by: .....................................................................
+                <div class="col-md-8 center-align">
+                	This invoice is payable on or before <?php echo $payable_by;?>
                 </div>
             
           	</div>
