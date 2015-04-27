@@ -718,7 +718,7 @@ class Nurse_model extends CI_Model
 	
 
 
-	function get_nurse_notes($patient_id,$visit_id){
+	function get_nurse_notes($patient_id, $visit_id){
 		// $table = "nurse_notes";
 		// $where = "patient_id = ".$patient_id;
 		// $items = "*";

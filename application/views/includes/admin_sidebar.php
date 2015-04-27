@@ -12,6 +12,7 @@
                 <li class="current"><a href="<?php echo site_url();?>/control-panel/<?php echo $this->session->userdata('personnel_id');?>"><i class="icon-home"></i> Control Panel</a></li>
                 <li class="current"><a href="<?php echo site_url();?>/administration/patient_statement"><i class="icon-list"></i> Patients</a></li>
                 <li class="current"><a href="<?php echo site_url();?>/reception/general_queue/administration"><i class="icon-list"></i> General Queue</a></li>
+                <li class="current"><a href="<?php echo site_url();?>/administration/invoices/custom_invoices"><i class="icon-list"></i> Custom Invoices</a></li>
                
                 <!--<li class="current"><a href="<?php echo base_url();?>index.php/welcome/control_panel/<?php echo $this->session->userdata('personnel_id');?>"><i class="icon-list"></i> Appointments</a></li>-->
              	<li class="has_submenu">
@@ -21,7 +22,6 @@
                     <ul>
                         <li><a href="<?php echo site_url();?>/administration/reports/all_reports">All Transactions</a></li>
                         <li><a href="<?php echo site_url();?>/administration/reports/cash_report">Cash Report</a></li>
-                        <li><a href="<?php echo site_url();?>/administration/reports/custom_invoices">Custom Invoices</a></li>
                         <li><a href="<?php echo site_url();?>/administration/reports/debtors_report">Debtors Report</a></li>
                         <li><a href="<?php echo site_url();?>/administration/reports/department_reports">Department Report</a></li>
                         <li><a href="<?php echo site_url();?>/administration/reports/doctor_reports">Doctor Report</a></li>

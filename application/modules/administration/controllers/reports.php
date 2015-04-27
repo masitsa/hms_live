@@ -942,9 +942,5 @@ class Reports extends auth
 		$this->session->unset_userdata('search_title');
 		redirect('administration/reports/debtors_report_data/'.$bill_to_id);
 	}
-	
-	public function custom_invoices()
-	{
-	}
 }
 ?>
