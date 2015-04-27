@@ -209,6 +209,7 @@ class Reports_model extends CI_Model
 		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
 		$this->db->where($where);
 		$this->db->order_by('visit.visit_date, visit.visit_time','DESC');
+		$this->db->group_by('visit.visit_id');
 		$query = $this->db->get('', $per_page, $page);
 		
 		return $query;
@@ -228,6 +229,21 @@ class Reports_model extends CI_Model
 		
 		return $query;
 	}
+	/*
+	*	Retrieve all active services
+	*
+	*/
+	public function get_all_active_payment_method()
+	{
+		//retrieve all users
+		$this->db->from('payment_method');
+		$this->db->where('payment_method_id > 0');
+		$this->db->order_by('payment_method_id','ASC');
+		$query = $this->db->get();
+		
+		return $query;
+	}
+	
 	
 	/*
 	*	Retrieve all visit payments
@@ -239,6 +255,7 @@ class Reports_model extends CI_Model
 		$this->db->from('payments');
 		$this->db->select('SUM(payments.amount_paid) AS total_paid');
 		$this->db->where('visit_id', $visit_id);
+		// $this->db->group_by('visit_id');
 		$query = $this->db->get();
 		
 		$cash = $query->row();
@@ -279,6 +296,27 @@ class Reports_model extends CI_Model
 		}
 	}
 	
+	public function get_all_payment_values($visit_id,$payment_method_id)
+	{
+		# code...
+		//retrieve all users
+		$this->db->from('payments');
+		$this->db->select('SUM(amount_paid) AS total_paid');
+		$this->db->where('visit_id = '.$visit_id.' AND payment_method_id = '.$payment_method_id.'');
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		
+		if($cash->total_paid > 0)
+		{
+			return $cash->total_paid;
+		}
+		
+		else
+		{
+			return 0;
+		}
+	}
 	/*
 	*	Retrieve total revenue
 	*
@@ -306,6 +344,18 @@ class Reports_model extends CI_Model
 		
 		return $total_invoiced;
 	}
+	/*
+	*	Retrieve total visits
+	*
+	*/
+	public function get_total_visits($where, $table)
+	{
+		$this->db->from($table);
+		$this->db->where($where);
+		$total = $this->db->count_all_results();
+		
+		return $total;
+	}
 	
 	/*
 	*	Retrieve total revenue
@@ -314,8 +364,8 @@ class Reports_model extends CI_Model
 	public function get_total_cash_collection($where, $table)
 	{
 		//payments
-		$table_search = $this->session->userdata('all_transactions_tables');
-		if(!empty($table_search))
+		$table_search = $_SESSION['all_transactions_tables'];
+		if(!empty($table_search) && ($table_search != ', debtor_invoice_item'))
 		{
 			$this->db->from($table);
 		}
@@ -349,8 +399,8 @@ class Reports_model extends CI_Model
 	public function get_normal_payments($where, $table)
 	{
 		//payments
-		$table_search = $this->session->userdata('all_transactions_tables');
-		if(!empty($table_search))
+		$table_search = $_SESSION['all_transactions_tables'];
+		if(!empty($table_search) && ($table_search != ', debtor_invoice_item'))
 		{
 			$this->db->from($table);
 		}
@@ -374,6 +424,16 @@ class Reports_model extends CI_Model
 		return $query;
 	}
 	
+	function export_debt_transactions($debtor_invoice_id)
+	{
+		$where = ' AND visit.visit_id = debtor_invoice_item.visit_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id;
+		$table = ', debtor_invoice_item';
+		$_SESSION['all_transactions_search'] = $where;
+		$_SESSION['all_transactions_tables'] = $table;
+		
+		$this->export_transactions();
+	}
+	
 	/*
 	*	Export Transactions
 	*
@@ -383,10 +443,10 @@ class Reports_model extends CI_Model
 		$this->load->library('excel');
 		
 		//get all transactions
-		$where = 'visit.patient_id = patients.patient_id  ';
+		$where = 'visit.patient_id = patients.patient_id ';
 		$table = 'visit, patients';
-		$visit_search = $this->session->userdata('all_transactions_search');
-		$table_search = $this->session->userdata('all_transactions_tables');
+		$visit_search = $_SESSION['all_transactions_search'];
+		$table_search = $_SESSION['all_transactions_tables'];
 		
 		if(!empty($visit_search))
 		{
@@ -401,6 +461,7 @@ class Reports_model extends CI_Model
 		$this->db->where($where);
 		$this->db->order_by('visit_date', 'ASC');
 		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.dependant_id');
+		$this->db->group_by('visit_id');
 		$visits_query = $this->db->get($table);
 		
 		$title = 'Transactions Export';
@@ -421,12 +482,8 @@ class Reports_model extends CI_Model
 			$report[$row_count][4] = 'Doctor';
 			$report[$row_count][5] = 'School/faculty/department';
 			$report[$row_count][6] = 'Staff/Student/ID No.';
-			$report[$row_count][7] = 'Payment method';
-			$report[$row_count][8] = 'Cash';
-			$current_column1  = 9 ;
-			$current_column2 = 10;
-			$current_column = 11;
-			$current_column3 = 12;
+			$current_column = 7 ;
+			
 			
 			//get & display all services
 			$services_query = $this->get_all_active_services();
@@ -435,15 +492,28 @@ class Reports_model extends CI_Model
 			{
 				$report[$row_count][$current_column] = $service->service_name;
 				$current_column++;
-				$current_column1++;
-				$current_column2++;
-				$current_column3++;
 			}
-			$report[$row_count][$current_column1] = 'Credit Note Total';
-			$report[$row_count][$current_column2] = 'Debit Note Total';
+			$report[$row_count][$current_column] = 'Debit Note Total';
+			$current_column++;
+			$report[$row_count][$current_column] = 'Credit Note Total';
+			$current_column++;
 			$report[$row_count][$current_column] = 'Invoice Total';
-			$report[$row_count][$current_column3] = 'Balance';
+			$current_column++;
+
 			
+			
+			//get & display all services
+			$payment_method_query = $this->get_all_active_payment_method();
+			
+			foreach($payment_method_query->result() as $paymentmethod)
+			{
+				$report[$row_count][$current_column] = $paymentmethod->payment_method;
+				$current_column++;
+			}
+			$report[$row_count][$current_column] = 'Payments Total';
+			$current_column++;
+			$report[$row_count][$current_column] = 'Balance';
+			$current_column++;
 			//display all patient data in the leftmost columns
 			foreach($visits_query->result() as $row)
 			{
@@ -489,8 +559,13 @@ class Reports_model extends CI_Model
 				$debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 				// end of total debit and credit notes amount
 
+				// get all the payment methods used in payments
+				//$payment_type = $this->accounts_model->get_visit_payment_method($visit_id);
+				// end of all payments details
+
 
 				$patient = $this->reception_model->patient_names2($patient_id, $visit_id);
+
 				$visit_type = $patient['visit_type'];
 				$patient_type = $patient['patient_type'];
 				$patient_othernames = $patient['patient_othernames'];
@@ -552,12 +627,8 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$report[$row_count][7] = '';
-					$report[$row_count][8] = $payments_value;
-					$current_column1  = 9 ;
-					$current_column2 = 10;
-					$current_column = 11;
-					$current_column3 = 12;
+					$current_column = 7;
+
 					
 					//display services charged to patient
 					foreach($services_query->result() as $service)
@@ -568,16 +639,27 @@ class Reports_model extends CI_Model
 						
 						$report[$row_count][$current_column] = $visit_charge;
 						$current_column++;
-						$current_column1++;
-						$current_column2++;
-						$current_column3++;
 					}
-				
-					//display total for the current visit
-					$report[$row_count][$current_column1] = $credit_note_amount;
-					$report[$row_count][$current_column2] = $debit_note_amount;
+					$report[$row_count][$current_column] = $debit_note_amount;
+					$current_column++;
+					$report[$row_count][$current_column] = $credit_note_amount;
+					$current_column++;
 					$report[$row_count][$current_column] = $total_invoiced;
-					$report[$row_count][$current_column3] = $balance;
+					$current_column++;
+					// display amounts collected on every payment method
+					foreach($payment_method_query->result() as $paymentmethod)
+					{
+						$payment_method_id = $paymentmethod->payment_method_id;
+						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
+						$report[$row_count][$current_column] = $amount_paid;
+						$current_column++;
+					}
+					// //display total for the current visit
+
+					$report[$row_count][$current_column] = $payments_value;
+					$current_column++;
+					$report[$row_count][$current_column] = $balance;
+					$current_column++;
 				}
 				
 				//display cash & all transactions
@@ -591,13 +673,10 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$report[$row_count][7] = '';
-					$report[$row_count][8] = $payments_value;
-					$current_column1  = 9 ;
-					$current_column2 = 10;
-					$current_column = 11;
-					$current_column3 = 12;
+					$current_column= 7;
 					
+					
+
 					//display services charged to patient
 					foreach($services_query->result() as $service)
 					{
@@ -607,16 +686,27 @@ class Reports_model extends CI_Model
 						
 						$report[$row_count][$current_column] = $visit_charge;
 						$current_column++;
-						$current_column1++;
-						$current_column2++;
-						$current_column3++;
+					}
+					$report[$row_count][$current_column] = $credit_note_amount;
+					$current_column++;
+					$report[$row_count][$current_column] = $debit_note_amount;
+					$current_column++;
+					$report[$row_count][$current_column] = $invoice_total;
+					$current_column++;
+					foreach($payment_method_query->result() as $paymentmethod)
+					{
+						$payment_method_id = $paymentmethod->payment_method_id;
+						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
+						$report[$row_count][$current_column] = $amount_paid;
+						$current_column++;
 					}
 				
 					//display total for the current visit
-					$report[$row_count][$current_column1] = $credit_note_amount;
-					$report[$row_count][$current_column2] = $debit_note_amount;
-					$report[$row_count][$current_column] = $invoice_total;
-					$report[$row_count][$current_column3] = $balance;
+					
+					$report[$row_count][$current_column] = $payments_value;
+					$current_column++;
+					$report[$row_count][$current_column] = $balance;
+					$current_column++;
 				}
 			}
 		}
@@ -746,6 +836,155 @@ class Reports_model extends CI_Model
 		$this->db->select('visit_department.*');
 		$this->db->where($where.' AND visit.visit_id = visit_department.visit_id');
 		$query = $this->db->get();
+		
+		return $query;
+	}
+	
+	public function get_bill_to()
+	{
+		//invoiced
+		$this->db->from('bill_to');
+		$this->db->select('*');
+		$this->db->order_by('bill_to_name');
+		$query = $this->db->get();
+		
+		return $query;
+	}
+	
+	/*
+	*	Retrieve debtors_invoices
+	*	@param string $table
+	* 	@param string $where
+	*	@param int $per_page
+	* 	@param int $page
+	*
+	*/
+	public function get_all_debtors_invoices($table, $where, $per_page, $page, $order, $order_method)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('*');
+		$this->db->where($where);
+		$this->db->order_by($order, $order_method);
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+	
+	public function add_debtor_invoice($bill_to_id)
+	{
+		$data = array(
+			'debtor_invoice_created'=>date('Y-m-d H:i:s'),
+			'debtor_invoice_created_by'=>$this->session->userdata('personnel_id'),
+			'batch_no'=>$this->create_batch_number(),
+			'bill_to_id'=>$bill_to_id,
+			'debtor_invoice_modified_by'=>$this->session->userdata('personnel_id'),
+			'date_from' => $this->input->post('invoice_date_from'),
+			'date_to' => $this->input->post('invoice_date_to')
+		);
+		
+		if($this->db->insert('debtor_invoice', $data))
+		{
+			$debtor_invoice_id = $this->db->insert_id();
+			
+			if($debtor_invoice_id > 0)
+			{
+				//get all invoices within the selected dates
+				$this->db->where(
+					array(
+						'bill_to_id' => $bill_to_id,
+						'visit_date >= ' => $this->input->post('invoice_date_from'),
+						'visit_date <= ' => $this->input->post('invoice_date_to')
+					)
+				);
+				$this->db->select('visit_id');
+				$query = $this->db->get('visit');
+				
+				if($query->num_rows() > 0)
+				{
+					$invoice_data['debtor_invoice_id'] = $debtor_invoice_id;
+					
+					foreach($query->result() as $res)
+					{
+						$visit_id = $res->visit_id;
+						
+						$invoice_data['visit_id'] = $visit_id;
+						
+						if($this->db->insert('debtor_invoice_item', $invoice_data))
+						{
+						}
+						
+						else
+						{
+							$this->session->set_userdata('error_message', 'Unable to add details for visit ID '.$visit_id);
+						}
+					}
+					$this->session->set_userdata('success_message', 'Batch added successfully');
+					return TRUE;
+				}
+				
+				else
+				{
+					$this->session->set_userdata('error_message', 'The selected date range does not contain any invoices');
+					return FALSE;
+				}
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'The selected date range does not contain any invoices');
+				return FALSE;
+			}
+		}
+		else{
+			return FALSE;
+		}
+	}
+	
+	/*
+	*	Create batch number
+	*
+	*/
+	public function create_batch_number()
+	{
+		//select product code
+		$this->db->from('debtor_invoice');
+		$this->db->where("batch_no LIKE 'BAT".date('y')."/%'");
+		$this->db->select('MAX(batch_no) AS number');
+		$query = $this->db->get();
+		$preffix = "BAT".date('y').'/';
+		
+		if($query->num_rows() > 0)
+		{
+			$result = $query->result();
+			$number =  $result[0]->number;
+			$real_number = str_replace($preffix, "", $number);
+			$real_number++;//go to the next number
+			$number = $preffix.sprintf('%06d', $real_number);
+		}
+		else{//start generating receipt numbers
+			$number = $preffix.sprintf('%06d', 1);
+		}
+		
+		return $number;
+	}
+	
+	public function calculate_debt_total($debtor_invoice_id, $where, $table)
+	{
+		$where .= ' AND debtor_invoice.debtor_invoice_id = '.$debtor_invoice_id;
+		
+		$total_services_revenue = $this->reports_model->get_total_services_revenue($where, $table);
+		
+		$where2 = $where.' AND payments.payment_type = 1';
+		$total_cash_collection = $this->reports_model->get_total_cash_collection($where2, $table);
+		
+		return $total_services_revenue - $total_cash_collection;
+	}
+	
+	public function get_debtor_invoice($where, $table)
+	{
+		$this->db->where($where);
+		$query = $this->db->get($table);
 		
 		return $query;
 	}
