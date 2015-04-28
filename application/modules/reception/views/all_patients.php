@@ -213,7 +213,7 @@
 							<td><a href="'.site_url().'/reception/set_visit/'.$patient_id.'" class="btn btn-sm btn-success">Visit</a></td>
 							<td><a href="'.site_url().'/reception/edit_patient/'.$patient_id.'" class="btn btn-sm btn-warning">Edit </a></td>
 							<td><a href="'.site_url().'/administration/individual_statement/'.$patient_id.'/2" class="btn btn-sm btn-danger" target="_blank">Patient Statement</a></td>
-							<td><a href="'.site_url().'/reception/change_patient_type/'.$patient_id.'" class="btn btn-sm btn-primary">Change patient type</a></td>
+							<td><a href="'.site_url().'/reception/change_patient_type/'.$patient_id.'" class="btn btn-sm btn-primary">Change patient status</a></td>
 							<!--<td><a href="'.site_url().'/reception/delete_patient/'.$patient_id.'/1" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete ?\');">Delete</a></td>-->
 						</tr> 
 					';
