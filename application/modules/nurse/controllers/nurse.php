@@ -199,7 +199,7 @@ class Nurse extends auth
 		$query = $this->db->get('visit');
 		
 		//if exists open card
-		if($query->num_rows() > 0)
+		if(($query->num_rows() > 0) || ($module == 0))
 		{
 			redirect('nurse/patient_card/'.$visit_id.'/a/1');
 		}

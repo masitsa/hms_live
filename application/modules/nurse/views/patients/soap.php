@@ -6,6 +6,12 @@ if($dental == 1)
 }
 else{
 ?>
+<div class='row'>
+    <div class='center-align '>
+        <a class='btn btn-info btn-lg' type='submit' onclick='save_soap("<?php echo $visit_id;?>")'>Save SOAP</a>
+    </div>
+</div>
+    
 <div class="row">
 	<div class="col-md-12">
         <div class="row">
@@ -229,6 +235,11 @@ else{
             </div>
         </div>
         </div>
+    </div>
+</div>
+<div class='row'>
+    <div class='center-align '>
+        <a class='btn btn-info btn-lg' type='submit' onclick='save_soap("<?php echo $visit_id;?>")'>Save SOAP</a>
     </div>
 </div>
 <?php echo form_close();?>
@@ -538,7 +549,7 @@ function save_assessment(visit_id){
   data:{notes: assessment},
   dataType: 'text',
   success:function(data){
-    window.alert("You have successfully updated the assessment");
+    //window.alert("You have successfully updated the assessment");
   //obj.innerHTML = XMLHttpRequestObject.responseText;
   },
   error: function(xhr, status, error) {
@@ -646,7 +657,7 @@ function save_symptoms(visit_id){
   data:{notes: symptoms},
   dataType: 'text',
   success:function(data){
-    window.alert("You have successfully updated the symptoms");
+  //window.alert("You have successfully updated the symptoms");
   //obj.innerHTML = XMLHttpRequestObject.responseText;
   },
   error: function(xhr, status, error) {
@@ -669,7 +680,7 @@ function save_objective_findings(visit_id){
   data:{notes: objective_findings},
   dataType: 'text',
   success:function(data){
-    window.alert("You have successfully updated the objective findings");
+    //window.alert("You have successfully updated the objective findings");
   //obj.innerHTML = XMLHttpRequestObject.responseText;
   },
   error: function(xhr, status, error) {
@@ -691,7 +702,7 @@ function save_plan(visit_id){
   data:{notes: plan},
   dataType: 'text',
   success:function(data){
-    window.alert("You have successfully updated the visit plan");
+    //window.alert("You have successfully updated the visit plan");
   //obj.innerHTML = XMLHttpRequestObject.responseText;
   },
   error: function(xhr, status, error) {
@@ -749,4 +760,13 @@ $(document).on("click","a.delete_diagnosis",function()
 	
 	return false;
 });
+
+function save_soap(visit_id)
+{
+	save_symptoms(visit_id);
+	save_objective_findings(visit_id);
+	save_assessment(visit_id);
+	save_plan(visit_id);
+	window.alert("You have successfully updated the SOAP");
+}
 </script>
