@@ -942,13 +942,37 @@ class Reports extends auth
 		$this->session->unset_userdata('search_title');
 		redirect('administration/reports/debtors_report_data/'.$bill_to_id);
 	}
-	public function doctor_reports()
+	public function doctor_reports($date_from = NULL, $date_to = NULL)
 	{
 		//get all service types
 		$v_data['doctor_results'] = $this->reports_model->get_all_doctors();
 		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$title = 'Doctors report from '.date('jS M Y',strtotime($date_from)).' to '.date('jS M Y',strtotime($date_to));
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_to));
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
+		}
+		
+		else
+		{
+			$date_from = date('Y-m-d');
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
+		}
+		
+		$v_data['date_from'] = $date_from;
+		$v_data['date_to'] = $date_to;
+		
+		$v_data['title'] = $title;
 		$data['title'] = 'Doctor Reports';
-		$v_data['title'] = 'Doctor Reports';
 		
 		$data['content'] = $this->load->view('reports/doctor_reports', $v_data, true);
 		
@@ -963,32 +987,17 @@ class Reports extends auth
 		$visit_date_from = $this->input->post('visit_date_from');
 		$visit_date_to = $this->input->post('visit_date_to');
 		
-		if(!empty($visit_date_from) && !empty($visit_date_to))
-		{
-			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
-		}
-		
-		else if(!empty($visit_date_from))
-		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
-		}
-		
-		else if(!empty($visit_date_to))
-		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
-		}
-		
-		else
-		{
-			$visit_date = '';
-		}
-		
-		$search = $visit_date;
-		
-		$this->session->set_userdata('all_doctors_search', $search);
-		
-		$this->doctor_reports();
+		redirect('/administration/reports/doctor_reports/'.$visit_date_from.'/'.$visit_date_to);
 	}
 	
+	public function doctor_reports_export($date_from = NULL, $date_to = NULL)
+	{
+		$this->reports_model->doctor_reports_export($date_from, $date_to);
+	}
+	
+	public function doctor_patients_export($personnel_id, $date_from = NULL, $date_to = NULL)
+	{
+		$this->reports_model->doctor_patients_export($personnel_id, $date_from, $date_to);
+	}
 }
 ?>

@@ -445,8 +445,15 @@ class Reports_model extends CI_Model
 		//get all transactions
 		$where = 'visit.patient_id = patients.patient_id ';
 		$table = 'visit, patients';
-		$visit_search = $_SESSION['all_transactions_search'];
-		$table_search = $_SESSION['all_transactions_tables'];
+		if(isset($_SESSION['all_transactions_search']))
+		{
+			$visit_search = $_SESSION['all_transactions_search'];
+		}
+		
+		if(isset($_SESSION['all_transactions_tables']))
+		{
+			$table_search = $_SESSION['all_transactions_tables'];
+		}
 		
 		if(!empty($visit_search))
 		{
@@ -464,7 +471,7 @@ class Reports_model extends CI_Model
 		$this->db->group_by('visit_id');
 		$visits_query = $this->db->get($table);
 		
-		$title = 'Transactions Export';
+		$title = 'Transactions export '.date('jS M Y H:i a');;
 		
 		if($visits_query->num_rows() > 0)
 		{
@@ -745,7 +752,7 @@ class Reports_model extends CI_Model
 		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.dependant_id');
 		$visits_query = $this->db->get($table);
 		
-		$title = 'Time report Export';
+		$title = 'Time report export '.date('jS M Y H:i a');;
 		
 		if($visits_query->num_rows() > 0)
 		{
@@ -999,22 +1006,31 @@ class Reports_model extends CI_Model
 		return $query;
 	}
 
-	public function get_total_collected($doctor_id,$date = NULL)
+	public function get_total_collected($doctor_id, $date_from = NULL, $date_to = NULL)
 	{
-		if($date == NULL)
-		{
-			$date = date('Y-m-d');
-		}
-		
 		$table = 'visit_charge, visit';
 		
-		$where = 'visit_charge_timestamp LIKE \''.$date.'%\' AND visit_charge.visit_id = visit.visit_id AND visit.personnel_id = '.$doctor_id;
+		$where = 'visit_charge.visit_id = visit.visit_id AND visit.personnel_id = '.$doctor_id;
 		
 		$visit_search = $this->session->userdata('all_doctors_search');
 		if(!empty($visit_search))
 		{
 			$where = 'visit_charge.visit_id = visit.visit_id AND visit.personnel_id = '.$doctor_id.' '. $visit_search;
+		}
 		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND (visit_charge_timestamp >= \''.$date_from.'%\' AND visit_charge_timestamp <= \''.$date_to.'%\') ';
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND visit_charge_timestamp LIKE \''.$date_to.'%\'';
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$where .= ' AND visit_charge_timestamp LIKE \''.$date_from.'%\'';
 		}
 		
 		$this->db->select('SUM(visit_charge_units*visit_charge_amount) AS service_total');
@@ -1030,5 +1046,130 @@ class Reports_model extends CI_Model
 		}
 		
 		return $total;
+	}
+
+	public function get_total_patients($doctor_id, $date_from = NULL, $date_to = NULL)
+	{
+		$table = 'visit';
+		
+		$where = 'visit.personnel_id = '.$doctor_id;
+		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND (visit_date >= \''.$date_from.'\' AND visit_date <= \''.$date_to.'\') ';
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND visit_date = \''.$date_to.'\'';
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$where .= ' AND visit_date = \''.$date_from.'\'';
+		}
+		
+		$this->db->where($where);
+		$total = $this->db->count_all_results('visit');
+		
+		return $total;
+	}
+	
+	/*
+	*	Export Time report
+	*
+	*/
+	function doctor_reports_export($date_from = NULL, $date_to = NULL)
+	{
+		$this->load->library('excel');
+		
+		//export title
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$title = 'Doctors report from '.date('jS M Y',strtotime($date_from)).' to '.date('jS M Y',strtotime($date_to));
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_to));
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
+		}
+		
+		else
+		{
+			$date_from = date('Y-m-d');
+			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
+		}
+		
+		//document ehader
+		$row_count = 0;
+		$report[$row_count][0] = '#';
+		$report[$row_count][1] = 'Doctor\'s name';
+		$report[$row_count][2] = 'Total collection';
+		$report[$row_count][3] = 'Patients seen';
+		
+		//get all doctors
+		$doctor_results = $this->reports_model->get_all_doctors();
+		$result = $doctor_results->result();
+		$grand_total = 0;
+		$patients_total = 0;
+		$count = 0;
+		
+		foreach($result as $res)
+		{
+			$personnel_id = $res->personnel_id;
+			$personnel_onames = $res->personnel_onames;
+			$personnel_fname = $res->personnel_fname;
+			$count++;
+			$row_count++;
+			
+			//get service total
+			$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to);
+			$patients = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to);
+			$grand_total += $total;
+			$patients_total += $patients;
+			
+			$report[$row_count][0] = $count;
+			$report[$row_count][1] = $personnel_fname.' '.$personnel_onames;
+			$report[$row_count][2] = number_format($total, 0);
+			$report[$row_count][3] = $patients;
+		}
+		$row_count++;
+		
+		$report[$row_count][0] = '';
+		$report[$row_count][1] = '';
+		$report[$row_count][2] = number_format($grand_total, 0);
+		$report[$row_count][3] = $patients_total;
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+	}
+	
+	function doctor_patients_export($personnel_id, $date_from = NULL, $date_to = NULL)
+	{
+		$where = ' AND visit.personnel_id = '.$personnel_id;
+		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND (visit_date >= \''.$date_from.'\' AND visit_date <= \''.$date_to.'\') ';
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND visit_date = \''.$date_to.'\'';
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$where .= ' AND visit_date = \''.$date_from.'\'';
+		}
+		$_SESSION['all_transactions_search'] = $where;
+		
+		$this->export_transactions();
 	}
 }
