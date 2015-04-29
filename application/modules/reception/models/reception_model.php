@@ -84,6 +84,18 @@ class Reception_model extends CI_Model
 		return $query;
 	}
 	
+	public function get_dependant_patient($strath_no)
+	{
+		$this->db->from('staff,patients');
+		$this->db->select('*');
+		$this->db->where('patients.visit_type_id = 2 AND patients.dependant_id IS NOT NULL AND patients.dependant_id = staff.Staff_Number  AND patients.patient_delete = 0
+ AND patients.dependant_id = \''.$strath_no.'\'');
+		$query = $this->db->get();
+		
+		return $query;
+	}
+	
+
 	/*
 	*	Retrieve a single staff
 	*	@param int $strath_no

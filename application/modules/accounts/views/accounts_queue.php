@@ -93,7 +93,7 @@
 						  <th>Balance</th>';
 
 						  if($type_links == 3){
-							  $result .=  '<th colspan="2">Actions</th>';
+							  $result .=  '<th colspan="3">Actions</th>';
 						  }
 						  else{
 							  $result .= '<th colspan="5">Actions</th>';
@@ -121,7 +121,7 @@
 						  <th>Balance</th>';
 
 						  	if($type_links == 3){
-						  		$result .=  '<th colspan="2">Actions</th>';
+						  		$result .=  '<th colspan="3">Actions</th>';
 						  	}else{
 						  		$result .= '<th colspan="5">Actions</th>';
 						  	}
@@ -209,7 +209,7 @@
 				$invoice_total = $this->accounts_model->total_invoice($visit_id);
 
 				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
-				
+				$v_data = array('visit_id'=>$visit_id);
 				$result .= 
 					'
 						<tr>
@@ -232,7 +232,8 @@
 							<td>'.$invoice_total.'</td>
 							<td>'.$payments_value.'</td>
 							<td>'.$balance.'</td>
-							
+							<td><a  class="btn btn-sm btn-danger" id="open_visit'.$visit_id.'" onclick="get_visit_trail('.$visit_id.');">Visit Trail</a>
+							<a  class="btn btn-sm btn-danger" id="close_visit'.$visit_id.'" style="display:none;" onclick="close_visit_trail('.$visit_id.');">Close Trail</a></td>
 							<td><a href="'.site_url().'/accounts/print_receipt_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-info">Receipt</a></td>
 							<td><a href="'.site_url().'/accounts/print_invoice_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-success">Invoice </a></td>';
 							if($type_links == 3){
@@ -242,8 +243,11 @@
 							<td><a href="'.site_url().'/reception/end_visit/'.$visit_id.'/1" class="btn btn-sm btn-danger" onclick="return confirm(\'End this visit?\');">End Visit</a></td>';
 							}
 
-						$result .='</tr> 
-					';
+						$result .='</tr> ';
+						$result .=
+						'<tr id="visit_trail'.$visit_id.'" style="display:none;">
+							<td colspan="14">'.$this->load->view("nurse/patients/visit_trail", $v_data, TRUE).'</td>
+						</tr>';
 			}
 			
 			$result .= 
@@ -285,3 +289,27 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+
+	function get_visit_trail(visit_id){
+
+		var myTarget2 = document.getElementById("visit_trail"+visit_id);
+		var button = document.getElementById("open_visit"+visit_id);
+		var button2 = document.getElementById("close_visit"+visit_id);
+
+		myTarget2.style.display = '';
+		button.style.display = 'none';
+		button2.style.display = '';
+	}
+	function close_visit_trail(visit_id){
+
+		var myTarget2 = document.getElementById("visit_trail"+visit_id);
+		var button = document.getElementById("open_visit"+visit_id);
+		var button2 = document.getElementById("close_visit"+visit_id);
+
+		myTarget2.style.display = 'none';
+		button.style.display = '';
+		button2.style.display = 'none';
+	}
+  </script>

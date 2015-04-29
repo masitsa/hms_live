@@ -988,4 +988,47 @@ class Reports_model extends CI_Model
 		
 		return $query;
 	}
+
+
+	public function get_all_doctors()
+	{
+		$this->db->select('*');
+		$this->db->where('job_title_id = 2');
+		$query = $this->db->get('personnel');
+		
+		return $query;
+	}
+
+	public function get_total_collected($doctor_id,$date = NULL)
+	{
+		if($date == NULL)
+		{
+			$date = date('Y-m-d');
+		}
+		
+		$table = 'visit_charge, visit';
+		
+		$where = 'visit_charge_timestamp LIKE \''.$date.'%\' AND visit_charge.visit_id = visit.visit_id AND visit.personnel_id = '.$doctor_id;
+		
+		$visit_search = $this->session->userdata('all_doctors_search');
+		if(!empty($visit_search))
+		{
+			$where = 'visit_charge.visit_id = visit.visit_id AND visit.personnel_id = '.$doctor_id.' '. $visit_search;
+		
+		}
+		
+		$this->db->select('SUM(visit_charge_units*visit_charge_amount) AS service_total');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		$result = $query->row();
+		$total = $result->service_total;;
+		
+		if($total == NULL)
+		{
+			$total = 0;
+		}
+		
+		return $total;
+	}
 }

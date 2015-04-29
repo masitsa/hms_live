@@ -942,5 +942,53 @@ class Reports extends auth
 		$this->session->unset_userdata('search_title');
 		redirect('administration/reports/debtors_report_data/'.$bill_to_id);
 	}
+	public function doctor_reports()
+	{
+		//get all service types
+		$v_data['doctor_results'] = $this->reports_model->get_all_doctors();
+		
+		$data['title'] = 'Doctor Reports';
+		$v_data['title'] = 'Doctor Reports';
+		
+		$data['content'] = $this->load->view('reports/doctor_reports', $v_data, true);
+		
+		
+		$data['sidebar'] = 'admin_sidebar';
+		
+		
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	public function search_doctors()
+	{
+		$visit_date_from = $this->input->post('visit_date_from');
+		$visit_date_to = $this->input->post('visit_date_to');
+		
+		if(!empty($visit_date_from) && !empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+		}
+		
+		else if(!empty($visit_date_from))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+		}
+		
+		else if(!empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+		}
+		
+		else
+		{
+			$visit_date = '';
+		}
+		
+		$search = $visit_date;
+		
+		$this->session->set_userdata('all_doctors_search', $search);
+		
+		$this->doctor_reports();
+	}
+	
 }
 ?>
