@@ -30,11 +30,11 @@ if($num_rows > 0){
 	";
 	echo "
 	<br>
-	<div class='row'>
+	<!--<div class='row'>
 			<div class='center-align '>
 				<a class='btn btn-info btn-lg' type='submit' onclick='save_plan(".$visit_id.")'>Update Plan</a>
 			</div>
-	</div>
+	</div>-->
 
 		";
 }
@@ -50,11 +50,11 @@ else{
 	";
 	echo "
 	<br>
-	<div class='row'>
+	<!--<div class='row'>
 			<div class='center-align '>
 				<a class='btn btn-info btn-lg' type='submit' onclick='save_plan(".$visit_id.")'>Save Plan</a>
 			</div>
-	</div>
+	</div>-->
 
 		";
 }

@@ -42,11 +42,11 @@ if($num_rows > 0){
 	";
 	echo "
 	<br>
-	<div class='row'>
+	<!--<div class='row'>
 			<div class='center-align '>
 				<a class='btn btn-info btn-lg' type='submit' onclick='save_symptoms(".$visit_id.")'>Update Symptoms</a>
 			</div>
-	</div>
+	</div>-->
 
 		";
 }
@@ -78,11 +78,11 @@ else{
 	";
 	echo "
 	<br>
-	<div class='row'>
+	<!--<div class='row'>
 			<div class='center-align '>
 				<a class='btn btn-info btn-lg' type='submit' onclick='save_symptoms(".$visit_id.")'>Save Symptoms</a>
 			</div>
-	</div>
+	</div>-->
 
 		";
 }

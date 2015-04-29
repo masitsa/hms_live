@@ -266,5 +266,13 @@ class Doctor extends auth
 		$this->session->unset_userdata('patient_visit_search');
 		$this->doctor_queue();
 	}
+	
+	public function treat_patient($visit_id)
+	{
+		$this->db->where('visit_id', $visit_id);
+		$this->db->update('visit', array('personnel_id' => $this->session->userdata('personnel_id')));
+		
+		redirect('nurse/patient_card/'.$visit_id.'/a/1');
+	}
 }
 ?>
