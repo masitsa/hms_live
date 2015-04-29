@@ -847,7 +847,7 @@ class Reports extends auth
 		
 		$this->session->set_userdata('search_title', $search_title);
 		
-		redirect('administration/reports/all_reports');
+		redirect('administration/reports/all_transactions');
 	}
 	
 	public function export_debt_transactions($debtor_invoice_id)
