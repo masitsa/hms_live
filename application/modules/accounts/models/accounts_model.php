@@ -314,7 +314,7 @@ class Accounts_model extends CI_Model
 
 
 	public function payments($visit_id){
-		$table = "payments,payment_method";
+		$table = "payments, payment_method";
 		$where = "payment_method.payment_method_id = payments.payment_method_id AND payments.visit_id =". $visit_id;
 		$items = "*";
 		$order = "payments.payment_id";
@@ -866,5 +866,16 @@ class Accounts_model extends CI_Model
 			$service_name = "";
 		}
 		return  $service_name;
+	}
+	public function get_all_notes($visit_id)
+	{
+		$table = "payments, service";
+		$where = "payments.payment_service_id = service.service_id AND (payments.payment_type = 2 OR payments.payment_type = 3) AND payments.visit_id = ". $visit_id;
+		
+		$this->db->select('service.service_name, payments.payment_service_id, payments.amount_paid, payments.payment_type');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		return $query;
 	}
 }

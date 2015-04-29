@@ -383,47 +383,39 @@ class Accounts extends auth
 	
 	public function make_payments($visit_id, $close_page = NULL)
 	{
-		$this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|xss_clean');
 		$this->form_validation->set_rules('amount_paid', 'Amount', 'trim|required|xss_clean');
 		$this->form_validation->set_rules('type_payment', 'Type of payment', 'trim|required|xss_clean');
+		//cash, cheque, insurance etc
 		$payment_method = $this->input->post('payment_method');
-
-
-		if(!empty($payment_method))
-		{
-			if($payment_method == 1)
-			{
-				// check for cheque number if inserted
-				$this->form_validation->set_rules('cheque_number', 'Cheque Number', 'trim|required|xss_clean');
-			}
-			else if($payment_method == 3)
-			{
-				// check for insuarance number if inserted
-				$this->form_validation->set_rules('insuarance_number', 'Insuarance Number', 'trim|required|xss_clean');
-			}
-			else if($payment_method == 5)
-			{
-				//  check for mpesa code if inserted
-				$this->form_validation->set_rules('mpesa_code', 'Amount', 'trim|required|xss_clean');
-			}
-		}
-
 		// normal or credit note or debit note
 		$type_payment = $this->input->post('type_payment');
-		// type of payment 
-
+		
+		// type of payment = normal 
 		if($type_payment == 1)
 		{
+			$this->form_validation->set_rules('payment_method', 'Payment Method', 'trim|required|xss_clean');
 
+			if(!empty($payment_method))
+			{
+				if($payment_method == 1)
+				{
+					// check for cheque number if inserted
+					$this->form_validation->set_rules('cheque_number', 'Cheque Number', 'trim|required|xss_clean');
+				}
+				else if($payment_method == 3)
+				{
+					// check for insuarance number if inserted
+					$this->form_validation->set_rules('insuarance_number', 'Insuarance Number', 'trim|required|xss_clean');
+				}
+				else if($payment_method == 5)
+				{
+					//  check for mpesa code if inserted
+					$this->form_validation->set_rules('mpesa_code', 'Amount', 'trim|required|xss_clean');
+				}
+			}
 		}
-		else if($type_payment == 2)
-		{
-			// debit note
-			$this->form_validation->set_rules('service_id', 'Amount', 'trim|required|xss_clean');
-			$this->form_validation->set_rules('username', 'Username', 'trim|required|xss_clean');
-			$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean');
-		}
-		else if($type_payment == 3)
+		// debit note & credit notes
+		else if(($type_payment == 2) || ($type_payment == 3))
 		{
 			$this->form_validation->set_rules('service_id', 'Amount', 'trim|required|xss_clean');
 			$this->form_validation->set_rules('username', 'Username', 'trim|required|xss_clean');
@@ -462,7 +454,7 @@ class Accounts extends auth
 		}
 		else
 		{
-			$this->session->set_userdata("error_message","Fill in the fields");
+			$this->session->set_userdata("error_message", validation_errors());
 			redirect('accounts/payments/'.$visit_id.'/'.$close_page);
 		}
 	}

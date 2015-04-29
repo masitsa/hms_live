@@ -419,11 +419,12 @@
                                                         <input type="text" class="form-control" name="amount_paid" placeholder="">
                                                       </div>
                                                   </div>
-                                                  <div class="form-group">
+                                                  <div class="form-group" id="payment_method_section">
                                                       <label class="col-lg-4 control-label">Payment Method: </label>
                                                       
                                                       <div class="col-lg-8">
                                                         <select class="form-control" name="payment_method" onchange="check_payment_type(this.value)">
+                                                        	<option value="6">-- Select payment method --</option>
                                                                   <?php
                                                               $method_rs = $this->accounts_model->get_payment_methods();
                                                               $num_rows = count($method_rs);
@@ -623,17 +624,20 @@
         var myTarget1 = document.getElementById("service_div");
         var myTarget2 = document.getElementById("username_div");
         var myTarget3 = document.getElementById("password_div");
+        var payment_method_section = document.getElementById("payment_method_section");
         if(id == 1)
         {
           myTarget1.style.display = 'none';
           myTarget2.style.display = 'none';
           myTarget3.style.display = 'none';
+          payment_method_section.style.display = 'block';
         }
         else
         {
           myTarget1.style.display = 'block';
           myTarget2.style.display = 'block';
           myTarget3.style.display = 'block';
+          payment_method_section.style.display = 'none';
         }
         
   }

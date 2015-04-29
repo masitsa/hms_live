@@ -237,7 +237,7 @@ class Reports_model extends CI_Model
 	{
 		//retrieve all users
 		$this->db->from('payment_method');
-		$this->db->where('payment_method_id > 0');
+		$this->db->where('payment_method_id < 6');
 		$this->db->order_by('payment_method_id','ASC');
 		$query = $this->db->get();
 		
@@ -464,6 +464,11 @@ class Reports_model extends CI_Model
 			{
 				$table .= $table_search;
 			}
+		}
+		
+		else
+		{
+			$where .= ' AND visit.visit_date = \''.date('Y-m-d').'\'';
 		}
 		
 		$this->db->where($where);
@@ -695,9 +700,9 @@ class Reports_model extends CI_Model
 						$report[$row_count][$current_column] = $visit_charge;
 						$current_column++;
 					}
-					$report[$row_count][$current_column] = $credit_note_amount;
-					$current_column++;
 					$report[$row_count][$current_column] = $debit_note_amount;
+					$current_column++;
+					$report[$row_count][$current_column] = $credit_note_amount;
 					$current_column++;
 					$report[$row_count][$current_column] = $invoice_total;
 					$current_column++;

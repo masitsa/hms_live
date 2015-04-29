@@ -17,8 +17,60 @@ $doctor = $this->accounts_model->get_att_doctor($visit_id);
 
 //served by
 $served_by = $this->accounts_model->get_personnel($this->session->userdata('personnel_id'));
+
+//services details
+$item_invoiced_rs = $this->accounts_model->get_patient_visit_charge_items($visit_id);
 $credit_note_amount = $this->accounts_model->get_sum_credit_notes($visit_id);
 $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
+
+//payments
+$payments_rs = $this->accounts_model->payments($visit_id);
+$total_payments = 0;
+
+//at times credit & debit notes may not be assigned
+//to a particular service but still need to be displayed
+$all_notes = $this->accounts_model->get_all_notes($visit_id);
+$display_notes = array();
+
+if($all_notes->num_rows() > 0)
+{
+	foreach($all_notes->result() as $row)
+	{
+		$payment_service_name = $row->service_name;
+		$payment_service_id = $row->payment_service_id;
+		$amount_paid = $row->amount_paid;
+		$payment_type = $row->payment_type;
+		$found = 0;
+		
+		//check if service exist in query from service charge
+		if(count($item_invoiced_rs) > 0)
+		{
+			foreach ($item_invoiced_rs as $key_items):
+				$service_id = $key_items->service_id;
+				
+				if($service_id == $payment_service_id)
+				{
+					$found = $service_id;
+					break;
+				}
+				
+			endforeach;
+		}
+			
+		//if item was not found
+		if($found == 0)
+		{
+			$data['payment_service_name'] = $payment_service_name;
+			$data['payment_service_id'] = $payment_service_id;
+			$data['amount_paid'] = $amount_paid;
+			$data['payment_type'] = $payment_type;
+			
+			array_push($display_notes, $data);
+		}
+	}
+}
+$total_notes = count($display_notes);
+
 ?>
 
 <!DOCTYPE html>
@@ -128,69 +180,98 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
                                 </tr>
                                 </thead>
                                 <tbody>
-                                  <?php
-                                  $item_invoiced_rs = $this->accounts_model->get_patient_visit_charge_items($visit_id);
-                                  $credit_note_amount = $this->accounts_model->get_sum_credit_notes($visit_id);
-                                  $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
-                                  $total = 0;
-                                  if(count($item_invoiced_rs) > 0){
-                                    $s=0;
-                                     $debit_note_pesa  = 0;
-                                     $credit_note_pesa = 0;
-                                    foreach ($item_invoiced_rs as $key_items):
-                                      $s++;
-                                      $service_charge_name = $key_items->service_charge_name;
-                                      $visit_charge_amount = $key_items->visit_charge_amount;
-                                      $service_name = $key_items->service_name;
-                                      $units = $key_items->visit_charge_units;
-                                      $service_id = $key_items->service_id;
-
-                                      $debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
-
-                                      $credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
-
-                                      $visit_total = $visit_charge_amount * $units;
-
-                                      $visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
-                                      ?>
-                                        <tr>
-                                          <td><?php echo $s;?></td>
-                                          <td><?php echo $service_name;?></td>
-                                          <td><?php echo $service_charge_name;?></td>
-                                          <td><?php echo number_format($visit_total,2);?></td>
-                                        </tr>
-                                      <?php
-                                        $total = $total + $visit_total;
-                                    endforeach;
-                                      $total_amount = $total ;
-                                      // enterring the payment stuff
-                                      $payments_rs = $this->accounts_model->payments($visit_id);
-                                      
-                                        // end of the payments
-
-                                        // $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
-										$payments_rs = $this->accounts_model->payments($visit_id);
-										$total_payments = 0;
+									<?php
+                                    $total = 0;
+                                    if(count($item_invoiced_rs) > 0){
+										$s=0;
+										$debit_note_pesa  = 0;
+										$credit_note_pesa = 0;
 										
-										if(count($payments_rs) > 0)
-										{
-											$x=0;
+										foreach ($item_invoiced_rs as $key_items):
+											$s++;
+											$service_charge_name = $key_items->service_charge_name;
+											$visit_charge_amount = $key_items->visit_charge_amount;
+											$service_name = $key_items->service_name;
+											$units = $key_items->visit_charge_units;
+											$service_id = $key_items->service_id;
 											
-					    					foreach ($payments_rs as $key_items):
-					    						$x++;
-					                            $payment_type = $key_items->payment_type;
-					                            $payment_status = $key_items->payment_status;
-                                              
-                                        if($payment_type == 1 && $payment_status == 1)
-                                        {
-              					    							$payment_method = $key_items->payment_method;
-              					    							$amount_paid = $key_items->amount_paid;
-              					    							
-              					    							$total_payments = $total_payments + $amount_paid;
-              					                 }
-              					    					endforeach;
-                  					                        
-                  										}
+											$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
+											
+											$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
+											
+											$visit_total = $visit_charge_amount * $units;
+											
+											$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
+											?>
+											<tr>
+                                                <td><?php echo $s;?></td>
+                                                <td><?php echo $service_name;?></td>
+                                                <td><?php echo $service_charge_name;?></td>
+                                                <td><?php echo number_format($visit_total,2);?></td>
+											</tr>
+											<?php
+											$total = $total + $visit_total;
+										endforeach;
+										$total_amount = $total ;
+										// enterring the payment stuff
+										$payments_rs = $this->accounts_model->payments($visit_id);
+										
+										// end of the payments
+										
+										// $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
+                                    }
+								  	
+									//display solo debit and credit notes
+									if($total_notes > 0)
+									{
+										for($r = 0; $r < $total_notes; $r++)
+										{
+											$payment_service_name = $display_notes[$r]['payment_service_name'];
+											$payment_service_id = $display_notes[$r]['payment_service_id'];
+											$amount_paid = $display_notes[$r]['amount_paid'];
+											$payment_type = $display_notes[$r]['payment_type'];
+											$payment_units = 1;
+											
+											//credit notes are negative
+											if($payment_type == 3)
+											{
+												$amount_paid *= -1;
+											}
+											
+											$visit_total = $amount_paid * $payment_units;
+											?>
+											<tr>
+                                                <td><?php echo ($r+1);?></td>
+                                                <td><?php echo $payment_service_name;?></td>
+                                                <td></td>
+                                                <td><?php echo number_format($visit_total,2);?></td>
+											</tr>
+											<?php
+											$total = $total + $visit_total;
+										}
+										
+										$total_amount = $total;
+									}
+								  
+								  	if(count($payments_rs) > 0)
+									{
+										$x=0;
+										
+										foreach ($payments_rs as $key_items):
+											$x++;
+											$payment_type = $key_items->payment_type;
+											$payment_status = $key_items->payment_status;
+											
+											if($payment_type == 1 && $payment_status == 1)
+											{
+												$payment_method = $key_items->payment_method;
+												$amount_paid = $key_items->amount_paid;
+												
+												$total_payments = $total_payments + $amount_paid;
+											}
+										endforeach;
+									}
+								  
                                       ?>
                                       <tr>
                                         <td colspan="3"><strong>Total Payments:</strong></td>
@@ -201,13 +282,6 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
                                         <td><strong> <?php echo number_format($total_amount - $total_payments,2);?></strong></td>
                                       </tr>
                                       <?php
-                                  }else{
-                                     ?>
-                                      <tr>
-                                        <td colspan="4"> No Charges</td>
-                                      </tr>
-                                      <?php
-                                  }
 
                                   ?>
                                     
