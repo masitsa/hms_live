@@ -82,6 +82,13 @@ class Reports extends auth
 				$table .= $table_search;
 			}
 		}
+		
+		else
+		{
+			$where .= ' AND visit.visit_date = \''.date('Y-m-d').'\'';
+			$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
+		}
+		
 		if($module == NULL)
 		{
 			$segment = 4;
@@ -944,6 +951,9 @@ class Reports extends auth
 	}
 	public function doctor_reports($date_from = NULL, $date_to = NULL)
 	{
+		$_SESSION['all_transactions_search'] = NULL;
+		$_SESSION['all_transactions_tables'] = NULL;
+		
 		//get all service types
 		$v_data['doctor_results'] = $this->reports_model->get_all_doctors();
 		
@@ -997,6 +1007,9 @@ class Reports extends auth
 	
 	public function doctor_patients_export($personnel_id, $date_from = NULL, $date_to = NULL)
 	{
+		$_SESSION['all_transactions_search'] = NULL;
+		$_SESSION['all_transactions_tables'] = NULL;
+		
 		$this->reports_model->doctor_patients_export($personnel_id, $date_from, $date_to);
 	}
 }

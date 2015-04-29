@@ -441,6 +441,7 @@ class Reports_model extends CI_Model
 	function export_transactions()
 	{
 		$this->load->library('excel');
+		$report = array();
 		
 		//get all transactions
 		$where = 'visit.patient_id = patients.patient_id ';
@@ -730,6 +731,7 @@ class Reports_model extends CI_Model
 	function export_time_report()
 	{
 		$this->load->library('excel');
+		$report = array();
 		
 		//get all transactions
 		$where = 'visit.patient_id = patients.patient_id AND visit.close_card = 1';
@@ -1082,6 +1084,7 @@ class Reports_model extends CI_Model
 	function doctor_reports_export($date_from = NULL, $date_to = NULL)
 	{
 		$this->load->library('excel');
+		$report = array();
 		
 		//export title
 		if(!empty($date_from) && !empty($date_to))
