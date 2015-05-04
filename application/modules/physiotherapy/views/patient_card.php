@@ -124,8 +124,6 @@ if($mike == 0){
                     <?php echo $this->load->view("nurse/patients/soap", '', TRUE);?>
                   </div>
 
-                
-
                  <div class="tab-pane" id="visit_trail">
                   
                   <?php echo $this->load->view("nurse/patients/visit_trail", '', TRUE);?>

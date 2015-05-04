@@ -152,19 +152,15 @@ class Physiotherapy extends auth
 		$v_data['mike'] = $mike;
 		$v_data['visit_id'] = $visit_id;
 		$v_data['physiotherapy'] = 1;
+		$v_data['dental'] = 1;
 		
 		$data['content'] = $this->load->view('patient_card', $v_data, true);
 		
 		$data['title'] = 'Patient Card';
 		
-		
 		$data['sidebar'] = 'physiotherapy_sidebar';
-		
-		if(($mike != NULL) && ($mike != 'a')){
-			$this->load->view('auth/template_no_sidebar', $data);	
-		}else{
-			$this->load->view('auth/template_sidebar', $data);	
-		}
+			
+		$this->load->view('auth/template_sidebar', $data);
 	}
 	public function search_physiotherapy_billing($visit_id)
 	{
