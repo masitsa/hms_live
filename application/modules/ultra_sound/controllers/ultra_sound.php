@@ -151,6 +151,7 @@ class Ultra_sound extends auth
 
 		$v_data['mike'] = $mike;
 		$v_data['visit_id'] = $visit_id;
+		$v_data['dental'] = 1;
 		$v_data['ultra_sound'] = 1;
 		
 		$data['content'] = $this->load->view('patient_card', $v_data, true);
