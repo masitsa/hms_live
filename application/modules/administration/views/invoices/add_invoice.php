@@ -60,7 +60,7 @@
 							$debtor = $row->custom_invoice_debtor;
 							$contacts = $row->custom_invoice_debtor_contacts;	
 							$status = $row->custom_invoice_status;	
-							$payable_by = date('jS M Y',strtotime($row->payable_by));		
+							$payable_by = $row->payable_by;		
 							
 							//get status
 							if($status == 0)
@@ -94,16 +94,10 @@
 								}
 							}
 							
+							$attributes = array('class'=>'form-horizontal', 'role'=>'form');
+							 echo form_open('administration/invoices/update_invoice/'.$custom_invoice_id, $attributes);
 							?>
                             <table class="table table-condensed table-striped table-hover">
-                            	<tr>
-                                	<th>Debtor: </th>
-                                    <td><?php echo $debtor;?></td>
-                                </tr>
-                            	<tr>
-                                	<th>Debtor's contacts: </th>
-                                    <td><?php echo $contacts;?></td>
-                                </tr>
                             	<tr>
                                 	<th>Invoice number: </th>
                                     <td><?php echo $invoice_number;?></td>
@@ -117,15 +111,35 @@
                                     <td><?php echo $created_by;?></td>
                                 </tr>
                             	<tr>
-                                	<th>Payable by: </th>
-                                    <td><?php echo $payable_by;?></td>
-                                </tr>
-                            	<tr>
                                 	<th>Status: </th>
                                     <td><?php echo $status;?></td>
                                 </tr>
+                            	<tr>
+                                	<th>Debtor: </th>
+                                    <td><input type="text" name="custom_invoice_debtor" class="form-control" value="<?php echo $debtor;?>" /></td>
+                                </tr>
+                            	<tr>
+                                	<th>Debtor's contacts: </th>
+                                    <td><input type="text" name="custom_invoice_debtor_contacts" class="form-control" value="<?php echo $contacts;?>" /></td>
+                                </tr>
+                            	<tr>
+                                	<th>Payable by: </th>
+                                    <td>
+                                        <div id="datetimepicker4" class="input-append">
+                                            <input data-format="yyyy-MM-dd" class="form-control" type="text" name="payable_by" placeholder="Payable by" value="<?php echo $payable_by;?>">
+                                            <span class="add-on" style="cursor:pointer;">
+                                                &nbsp;<i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                                                </i>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
                             </table>
+                            <div class="center-align">
+                            	<button type="submit" class="btn btn-info">Update</button>
+                            </div>
                             <?php
+							 echo form_close();
 						}
 						
 					?>

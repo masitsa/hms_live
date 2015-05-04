@@ -135,6 +135,29 @@ class Invoices_model extends CI_Model
 	}
 	
 	/*
+	*	Update an invoice
+	*
+	*/
+	public function update_invoice($custom_invoice_id)
+	{
+		$data = array(
+				'payable_by'=>$this->input->post('payable_by'),
+				'custom_invoice_debtor_contacts'=>$this->input->post('custom_invoice_debtor_contacts'),
+				'custom_invoice_debtor'=>$this->input->post('custom_invoice_debtor'),
+				'custom_invoice_modified_by'=>$this->session->userdata('personnel_id')
+			);
+		
+		$this->db->where('custom_invoice_id', $custom_invoice_id);
+		if($this->db->update('custom_invoice', $data))
+		{
+			return TRUE;
+		}
+		else{
+			return FALSE;
+		}
+	}
+	
+	/*
 	*	Add a new invoice items
 	*
 	*/

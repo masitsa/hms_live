@@ -106,6 +106,7 @@ class Invoices extends auth
 			//update order
 			if($custom_invoice_id > 0)
 			{
+				$this->session->set_userdata('success_message', 'Invoice created successfully');
 				redirect('administration/invoices/add_invoice_items/'.$custom_invoice_id);
 			}
 			
@@ -121,6 +122,41 @@ class Invoices extends auth
 		}
 		
 		redirect('administration/invoices/custom_invoices');
+	}
+    
+	/*
+	*
+	*	Update an invoice
+	*
+	*/
+	public function update_invoice($custom_invoice_id) 
+	{
+		//form validation rules
+		$this->form_validation->set_rules('custom_invoice_debtor', 'Debtor', 'required|xss_clean');
+		$this->form_validation->set_rules('custom_invoice_debtor_contacts', 'Debtor contacts', 'xss_clean');
+		$this->form_validation->set_rules('payable_by', 'Quantity', 'required|xss_clean');
+		
+		//if form has been submitted
+		if ($this->form_validation->run())
+		{
+			//update order
+			if($this->invoices_model->update_invoice($custom_invoice_id))
+			{
+				$this->session->set_userdata('success_message', 'Invoice has been updated');
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Could not add invoice. Please try again');
+			}
+		}
+		
+		else
+		{
+			$this->session->set_userdata('error_message', validation_errors().' Please try again');
+		}
+		
+		redirect('administration/invoices/add_invoice_items/'.$custom_invoice_id);
 	}
 	
 	public function add_invoice_items($custom_invoice_id) 
