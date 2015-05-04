@@ -7,7 +7,7 @@
         {
             echo '<div class="alert alert-danger">'.$validation_error.'</div>';
         }
-        echo form_open('pharmacy/search_drugs/'.$visit_id, array('class'=>'form-inline'));
+        echo form_open('pharmacy/search_drugs/'.$visit_id.'/'.$module, array('class'=>'form-inline'));
         ?>
         
         
@@ -30,8 +30,8 @@
             </div>
             
         </div>
-            
-            <input type="hidden" value="<?php echo $visit_id?>" name="visit_id">
+        
+        <input type="hidden" value="<?php echo $visit_id?>" name="visit_id">
         <div class="center-align">
             <div class="form-group">
                 <?php

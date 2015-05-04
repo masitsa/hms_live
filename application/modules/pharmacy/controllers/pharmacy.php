@@ -54,7 +54,7 @@ class Pharmacy extends auth
 		//if form conatins invalid data
 		if ($this->form_validation->run())
 		{
-			$this->pharmacy_model->save_prescription($visit_id,$module);
+			$this->pharmacy_model->save_prescription($visit_id, $module);
 			if($module == 1){
 				redirect('pharmacy/prescription1/'.$visit_id."/1");
 			}else{
@@ -73,9 +73,10 @@ class Pharmacy extends auth
 		$gender = $patient['gender'];
 		$visit_date = date('jS M Y',strtotime($visit_date));
 		
+		$v_data = array('visit_id'=>$visit_id,'service_charge_id'=>$service_charge_id,'prescription_id'=>$prescription_id,'module'=>$module);
+		
 		$v_data['patient'] = 'Visit Date: <span style="font-weight: normal;"> '.$visit_date.' </span> Surname: <span style="font-weight: normal;">'.$patient_surname.'</span> Othernames: <span style="font-weight: normal;">'.$patient_othernames.'</span> Age: <span style="font-weight: normal;">'.$age.'</span> Gender: <span style="font-weight: normal;">'.$gender.'</span> Patient Type: <span style="font-weight: normal;">'.$visit_type.'</span>';
 		
-		$v_data = array('visit_id'=>$visit_id,'service_charge_id'=>$service_charge_id,'prescription_id'=>$prescription_id,'module'=>$module,'patient'=>$patient);
 		$data['content'] = $this->load->view('prescription', $v_data, true);
 		
 		if($module == 1){
@@ -166,7 +167,7 @@ class Pharmacy extends auth
 			redirect('pharmacy/prescription/'.$visit_id);
 		}
 	}
-	public function search_drugs($visit_id)
+	public function search_drugs($visit_id, $module)
 	{
 		// $this->form_validation->set_rules('search_item', 'Search', 'trim|required|xss_clean');
 
@@ -191,7 +192,7 @@ class Pharmacy extends auth
 			$this->session->set_userdata('drugs_search', $search_items);
 		// }
 		
-		$this->drugs($visit_id,0);
+		$this->drugs($visit_id, $module);
 	}
 	
 	public function close_drugs_search($visit_id)
@@ -210,8 +211,6 @@ class Pharmacy extends auth
 			  $visit_t = $rs1->visit_type;
 		  }
 		}
-
-
 		
 		$order = 'drugs.drugs_id';
 		
