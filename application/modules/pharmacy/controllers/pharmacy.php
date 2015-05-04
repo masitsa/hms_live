@@ -186,8 +186,6 @@ class Pharmacy extends auth
 				$generic_name = ' AND generic.generic_name LIKE \'%'.$this->input->post('generic_name').'%\'';
 			}
 			
-
-			
 			$search_items = $search_item.$generic_name;
 			$this->session->set_userdata('drugs_search', $search_items);
 		// }
