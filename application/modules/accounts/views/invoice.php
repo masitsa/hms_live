@@ -123,7 +123,7 @@ $total_notes = count($display_notes);
         
         <!-- Patient Details -->
     	<div class="row receipt_bottom_border" style="margin-bottom: 10px;">
-        	<div class="col-md-6 pull-left">
+        	<div class="col-md-4 pull-left">
             	<div class="row">
                 	<div class="col-md-12">
                     	
@@ -143,7 +143,7 @@ $total_notes = count($display_notes);
             
             </div>
             
-        	<div class="col-md-6 pull-right">
+        	<div class="col-md-4">
             	<div class="row">
                 	<div class="col-md-12">
                     	<div class="title-item">Invoice Number:</div>
@@ -159,6 +159,17 @@ $total_notes = count($display_notes);
                     	<?php echo $doctor; ?>
                     </div>
                 </div>
+            </div>
+            
+        	<div class="col-md-4 pull-right">
+            	<div class="row">
+                	<div class="col-md-12">
+                    	<div class="title-item">Invoice Date:</div>
+                        
+                    	<?php echo $visit_date; ?>
+                    </div>
+                </div>
+                
             </div>
         </div>
         
@@ -303,7 +314,7 @@ $total_notes = count($display_notes);
             </div>
           </div>
         	<div class="col-md-4 pull-right">
-            	<?php echo $visit_date; ?> Thank you
+            	<?php echo date('jS M Y H:i a'); ?> Thank you
             </div>
         </div>
     </body>
