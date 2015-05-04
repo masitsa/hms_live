@@ -167,7 +167,7 @@ class Pharmacy extends auth
 			redirect('pharmacy/prescription/'.$visit_id);
 		}
 	}
-	public function search_drugs($visit_id, $module)
+	public function search_drugs($visit_id, $module = 0)
 	{
 		// $this->form_validation->set_rules('search_item', 'Search', 'trim|required|xss_clean');
 
