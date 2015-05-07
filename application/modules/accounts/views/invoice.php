@@ -29,7 +29,7 @@ $total_payments = 0;
 
 //at times credit & debit notes may not be assigned
 //to a particular service but still need to be displayed
-$all_notes = $this->accounts_model->get_all_notes($visit_id);
+/*
 $display_notes = array();
 
 if($all_notes->num_rows() > 0)
@@ -69,7 +69,42 @@ if($all_notes->num_rows() > 0)
 		}
 	}
 }
-$total_notes = count($display_notes);
+$total_notes = count($display_notes);*/
+
+$services_billed = array();
+$all_notes = $this->accounts_model->get_all_notes($visit_id);
+if($all_notes->num_rows() > 0)
+{
+	foreach($all_notes->result() as $row)
+	{
+		$payment_service_name = $row->service_name;
+		$payment_service_id = $row->payment_service_id;
+		$in_array = 0;
+		
+		$total_services = count($services_billed);
+		if($total_services > 0)
+		{
+			for($t = 0; $t < $total_services; $t++)
+			{
+				$saved_service_id = $services_billed[$t]['payment_service_id'];
+				
+				if($saved_service_id == $payment_service_id)
+				{
+					$in_array = 1;
+					break;
+				}
+			}
+		}
+		
+		if($in_array == 0)
+		{
+			$data['payment_service_name'] = $payment_service_name;
+			$data['payment_service_id'] = $payment_service_id;
+			
+			array_push($services_billed, $data);
+		}
+	}
+}
 
 ?>
 
@@ -195,8 +230,6 @@ $total_notes = count($display_notes);
                                     $total = 0;
                                     if(count($item_invoiced_rs) > 0){
 										$s=0;
-										$debit_note_pesa  = 0;
-										$credit_note_pesa = 0;
 										
 										foreach ($item_invoiced_rs as $key_items):
 											$s++;
@@ -206,13 +239,13 @@ $total_notes = count($display_notes);
 											$units = $key_items->visit_charge_units;
 											$service_id = $key_items->service_id;
 											
-											$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
+											//$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
 											
-											$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
+											//$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
 											
 											$visit_total = $visit_charge_amount * $units;
 											
-											$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
+											//$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
 											?>
 											<tr>
                                                 <td><?php echo $s;?></td>
@@ -224,16 +257,56 @@ $total_notes = count($display_notes);
 											$total = $total + $visit_total;
 										endforeach;
 										$total_amount = $total ;
-										// enterring the payment stuff
-										$payments_rs = $this->accounts_model->payments($visit_id);
-										
-										// end of the payments
 										
 										// $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
                                     }
+									
+									$total_services = count($services_billed);
+									if($total_services > 0)
+									{
+										for($t = 0; $t < $total_services; $t++)
+										{
+											$s++;
+											$debit_note_pesa  = 0;
+											$credit_note_pesa = 0;
+											
+											$payment_service_name = $services_billed[$t]['payment_service_name'];
+											$payment_service_id = $services_billed[$t]['payment_service_id'];
+											
+											$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($payment_service_id, $visit_id);
+											
+											$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($payment_service_id, $visit_id);
+											//get service name
+											$service_name = $payment_service_name;
+											if($debit_note_pesa > 0)
+											{
+												?>
+												<tr>
+													<td><?php echo $s;?></td>
+													<td><?php echo $service_name;?></td>
+													<td>Debit notes</td>
+													<td><?php echo number_format($debit_note_pesa,2);?></td>
+												</tr>
+												<?php
+											}
+											
+											if($credit_note_pesa > 0)
+											{
+												?>
+												<tr>
+													<td><?php echo $s;?></td>
+													<td><?php echo $service_name;?></td>
+													<td>Credit notes</td>
+													<td>(<?php echo number_format($credit_note_pesa,2);?>)</td>
+												</tr>
+												<?php
+											}
+											$total_amount = ($total_amount + $debit_note_pesa) - $credit_note_pesa;
+										}
+									}
 								  	
 									//display solo debit and credit notes
-									if($total_notes > 0)
+									/*if($total_notes > 0)
 									{
 										for($r = 0; $r < $total_notes; $r++)
 										{
@@ -262,7 +335,7 @@ $total_notes = count($display_notes);
 										}
 										
 										$total_amount = $total;
-									}
+									}*/
 								  
 								  	if(count($payments_rs) > 0)
 									{
