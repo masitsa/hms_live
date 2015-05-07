@@ -26,6 +26,8 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 //payments
 $payments_rs = $this->accounts_model->payments($visit_id);
 $total_payments = 0;
+$s = 0;
+$total_amount = 0;
 
 //at times credit & debit notes may not be assigned
 //to a particular service but still need to be displayed
