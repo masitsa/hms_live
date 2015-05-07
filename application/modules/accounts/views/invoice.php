@@ -233,28 +233,51 @@ if($all_notes->num_rows() > 0)
 										
 										foreach ($item_invoiced_rs as $key_items):
 											$s++;
+											$service_charge_id = $key_items->service_charge_id;
 											$service_charge_name = $key_items->service_charge_name;
 											$visit_charge_amount = $key_items->visit_charge_amount;
 											$service_name = $key_items->service_name;
 											$units = $key_items->visit_charge_units;
 											$service_id = $key_items->service_id;
 											
-											//$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
+											//if lab check to see if drug is in pres
+											if($service_id == 5)
+											{
+												if($this->accounts_model->in_pres($service_charge_id, $visit_id))
+												{
+													$visit_total = $visit_charge_amount * $units;
+													
+													?>
+													<tr>
+														<td><?php echo $s;?></td>
+														<td><?php echo $service_name;?></td>
+														<td><?php echo $service_charge_name;?></td>
+														<td><?php echo number_format($visit_total,2);?></td>
+													</tr>
+													<?php
+													$total = $total + $visit_total;
+												}
+											}
 											
-											//$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
-											
-											$visit_total = $visit_charge_amount * $units;
-											
-											//$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
-											?>
-											<tr>
-                                                <td><?php echo $s;?></td>
-                                                <td><?php echo $service_name;?></td>
-                                                <td><?php echo $service_charge_name;?></td>
-                                                <td><?php echo number_format($visit_total,2);?></td>
-											</tr>
-											<?php
-											$total = $total + $visit_total;
+											else
+											{
+												//$debit_note_pesa = $this->accounts_model->total_debit_note_per_service($service_id,$visit_id);
+												
+												//$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
+												
+												$visit_total = $visit_charge_amount * $units;
+												
+												//$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
+												?>
+												<tr>
+													<td><?php echo $s;?></td>
+													<td><?php echo $service_name;?></td>
+													<td><?php echo $service_charge_name;?></td>
+													<td><?php echo number_format($visit_total,2);?></td>
+												</tr>
+												<?php
+												$total = $total + $visit_total;
+											}
 										endforeach;
 										$total_amount = $total ;
 										

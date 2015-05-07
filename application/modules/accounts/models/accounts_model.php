@@ -878,4 +878,24 @@ class Accounts_model extends CI_Model
 		
 		return $query;
 	}
+	
+	public function in_pres($service_charge_id, $visit_id)
+	{
+		$table = "pres, visit_charge";
+		$where = "pres.service_charge_id = visit_charge.service_charge_id AND pres.service_charge_id = ". $service_charge_id." AND pres.visit_id = ". $visit_id." AND visit_charge.visit_id = ". $visit_id;
+		
+		$this->db->select('*');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		if($query->num_rows() > 0)
+		{
+			return TRUE;
+		}
+		
+		else
+		{
+			return FALSE;
+		}
+	}
 }
