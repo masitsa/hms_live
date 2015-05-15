@@ -71,7 +71,7 @@
                                         $s=0;
                                         
                                         foreach ($item_invoiced_rs as $key_items):
-                                          $s++;
+										
                                           $service_charge_name = $key_items->service_charge_name;
                                           $visit_charge_amount = $key_items->visit_charge_amount;
                                           $service_charge_id = $key_items->service_charge_id;
@@ -85,6 +85,7 @@
 												if($this->accounts_model->in_pres($service_charge_id, $visit_id))
 												{
 													$visit_total = $visit_charge_amount * $units;
+													$s++;
 													
 													?>
 													<tr>
@@ -105,6 +106,7 @@
 												//$credit_note_pesa = $this->accounts_model->total_credit_note_per_service($service_id,$visit_id);
 												
 												$visit_total = $visit_charge_amount * $units;
+												$s++;
 												
 												//$visit_total = ($visit_total + $debit_note_pesa) - $credit_note_pesa;
 												?>
