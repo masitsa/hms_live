@@ -241,9 +241,9 @@ if($all_notes->num_rows() > 0)
 											$service_name = $key_items->service_name;
 											$units = $key_items->visit_charge_units;
 											$service_id = $key_items->service_id;
-											
+											//var_dump($service_id);
 											//if lab check to see if drug is in pres
-											if($service_id == 5)
+											if($service_id == 4)
 											{
 												if($this->accounts_model->in_pres($service_charge_id, $visit_id))
 												{
