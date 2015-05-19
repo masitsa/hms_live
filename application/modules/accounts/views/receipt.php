@@ -153,26 +153,55 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 							  
 							  foreach ($item_invoiced_rs as $key_items):
 								$service_id2 = $key_items->service_id;
+								$service_charge_id = $key_items->service_charge_id;
 								
 								if($service_id2 == $service_id)
 								{
-									$visit_charge_amount = $key_items->visit_charge_amount;
-									$units = $key_items->visit_charge_units;
-			
-									$visit_total += $visit_charge_amount * $units;
+									if($service_id == 4)
+									{
+										if($this->accounts_model->in_pres($service_charge_id, $visit_id))
+										{
+											$visit_charge_amount = $key_items->visit_charge_amount;
+											$units = $key_items->visit_charge_units;
+					
+											$visit_total += $visit_charge_amount * $units;
+										}
+									}
+									
+									else
+									{
+										$visit_charge_amount = $key_items->visit_charge_amount;
+										$units = $key_items->visit_charge_units;
+				
+										$visit_total += $visit_charge_amount * $units;
+									}
 								}
 							  endforeach;
 							}
-		
-							?>
-							  <tr >
-								<td><?php echo $s;?></td>
-								<td><?php echo $service_name;?></td>
-								<td><?php echo number_format($visit_total,2);?></td>
-							  </tr>
-
-
-							<?php
+							if($service_id == 4)
+							{
+								if($visit_total > 0)
+								{
+									?>
+									  <tr >
+										<td><?php echo $s;?></td>
+										<td><?php echo $service_name;?></td>
+										<td><?php echo number_format($visit_total,2);?></td>
+									  </tr>
+									<?php
+								}
+							}
+							
+							else
+							{
+								?>
+                                  <tr >
+                                    <td><?php echo $s;?></td>
+                                    <td><?php echo $service_name;?></td>
+                                    <td><?php echo number_format($visit_total,2);?></td>
+                                  </tr>
+                                <?php
+							}
                             // enterring the payment stuff
                                       $payments_rs = $this->accounts_model->payments($visit_id);
                                       $total_payments = 0;
