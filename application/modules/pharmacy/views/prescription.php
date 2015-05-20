@@ -739,7 +739,7 @@ $p = 0;
                                 <td>
                                     <div class='btn-toolbar'>
                                         <div class='btn-group'>
-                                            <a class='btn btn-primary btn-sm' href='<?php echo site_url();?>/pharmacy/delete_prescription/<?php echo $id;?>/<?php echo $visit_id?>/<?php echo $visit_charge_id?>/<?php echo $module;?>' onclick="return confirm('Are you sure you want to remove this drug?');"><i class='icon-remove'></i></a>
+                                            <a class='btn btn-primary btn-sm' href='<?php echo site_url();?>/pharmacy/delete_prescription/<?php echo $id;?>/<?php echo $visit_id?>/<?php echo $visit_charge_id?>/<?php echo $module;?>/<?php echo $service_charge_id;?>' onclick="return confirm('Are you sure you want to remove this drug?');"><i class='icon-remove'></i></a>
                                         </div>
                                      </div>
                                  </td>

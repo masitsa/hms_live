@@ -418,11 +418,10 @@ class Pharmacy extends auth
 	{
 		redirect('nurse/send_to_accounts/'.$primary_key.'/3');
 	}
-	public function delete_prescription($prescription_id,$visit_id,$visit_charge_id,$module)
+	public function delete_prescription($prescription_id,$visit_id,$visit_charge_id,$module,$service_charge_id)
 	{
 		//  delete the visit charge
-
-		$this->db->where(array("visit_charge_id"=>$visit_charge_id));
+		$this->db->where(array("service_charge_id"=>$service_charge_id, 'visit_id'=>$visit_id));
 		$this->db->delete('visit_charge');
 		
 		//  check if the visit charge has been deleted

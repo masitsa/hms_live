@@ -352,14 +352,14 @@ class Pharmacy_model extends CI_Model
 			endforeach;
 
 			// check if the drug exisit in the table of visit charge
-			$check = $this->check_id_drugs_invoiced($service_charge_id,$visit_id);
+			$check = $this->check_id_drugs_invoiced($service_charge_id, $visit_id);
 			// end of checking
 			$check_num_rows = count($check);
-
+			
 			if($check_num_rows > 0){
 				foreach($check as $key2):
 				$visit_charge_id = $key2->visit_charge_id;
-				endforeach;
+				endforeach;//var_dump($service_charge_id);die();
 				// if it exisit then update
 				$array = array('visit_charge_qty'=>$visit_charge_qty,
 							'visit_charge_units'=>$visit_charge_units,
