@@ -120,7 +120,7 @@ class Reception_model extends CI_Model
 	{
 		$this->db->from('patients');
 		$this->db->select('*');
-		$this->db->where('patients.patient_delete = 0 AND strath_no = \''.$strath_no.'\'');
+		$this->db->where('patients.visit_type_id = 2 AND patients.patient_delete = 0 AND strath_no = \''.$strath_no.'\'');
 		$query = $this->db->get();
 		
 		return $query;
