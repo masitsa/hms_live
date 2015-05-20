@@ -551,7 +551,7 @@ class Nurse extends auth
 			$this->session->set_userdata('vaccine_search', $search);
 		}
 		
-		$this->procedures($visit_id);
+		$this->vaccines_list($visit_id);
 	}
 
 	function vaccines_list($visit_id)
@@ -567,7 +567,7 @@ class Nurse extends auth
 		
 		$order = 'service_charge.service_charge_name';
 		
-		$where = 'service_charge.service_id = 15 ';
+		$where = 'service_charge.service_id = 15';
 		$vaccine_search = $this->session->userdata('vaccine_search');
 		
 		if(!empty($vaccine_search))
@@ -575,7 +575,7 @@ class Nurse extends auth
 			$where .= $vaccine_search;
 		}
 		
-		$table = 'service_charge,visit_type';
+		$table = 'service_charge';
 		//pagination
 		$this->load->library('pagination');
 		$config['base_url'] = site_url().'/nurse/vaccines/'.$visit_id;
@@ -651,7 +651,7 @@ class Nurse extends auth
 	public function close_vaccine_search($visit_id)
 	{
 		$this->session->unset_userdata('vaccine_search');
-		$this->vaccines($visit_id);
+		$this->vaccines_list($visit_id);
 	}
 
 	public function close_disease_search($visit_id)

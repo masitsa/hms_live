@@ -53,7 +53,6 @@
                                         <thead> 
                                             <th> </th>
                                             <th>Vaccine</th>
-                                            <th>Patient Type</th>
                                             <th>Cost</th>
                                         </thead>
                             
@@ -66,9 +65,6 @@
                                         
                                         $vaccine_id = $rs10->service_charge_id;
                                         $proced = $rs10->service_charge_name;
-                                        $visit_type = $rs10->visit_type_id;
-                                        $visit_type_name = $rs10->visit_type_name;
-                                        
                                         $stud = $rs10->service_charge_amount;
                                         
                                         ?>
@@ -77,7 +73,6 @@
                                             
                                             <td> <?php $suck=1; ?>                
                                             <a href="#" onClick="vaccines_anchor(<?php echo $vaccine_id?>,<?php echo $visit_id?>,<?php echo $suck; ?>)"><?php echo $proced?> </a></td>
-                                            <td><?php echo $visit_type_name;?></td>
                                             <td><?php echo $stud?></td>
                                         </tr>
                                         <?php endforeach;?>
@@ -114,7 +109,7 @@
    
 
     var url = "<?php echo site_url();?>/nurse/vaccines/"+id+"/"+v_id+"/"+suck;
-   	window.alert(url);
+   //	window.alert(url);
     if(XMLHttpRequestObject) {
                 
         XMLHttpRequestObject.open("GET", url);
@@ -124,7 +119,7 @@
             if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
                 window.close(this);
                 
-                window.opener.document.getElementById("procedures").innerHTML=XMLHttpRequestObject.responseText;
+                window.opener.document.getElementById("vaccines_to_patients").innerHTML=XMLHttpRequestObject.responseText;
             }
         }
                 
