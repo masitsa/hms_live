@@ -34,5 +34,25 @@ class Db_search extends MX_Controller
 			 echo 'File written!';
 		}*/
 	}
+	
+	public function query_database_view()
+	{
+		$data = $this->load->view('query_database_view'); 
+	}
+	
+	public function query_database()
+	{
+		if($this->db->query($this->input->post('query')))
+		{
+			echo 'Success';
+		}
+		
+		else
+		{
+			echo 'Failure';
+		}
+		
+		$this->query_database_view();
+	}
 }
 ?>
