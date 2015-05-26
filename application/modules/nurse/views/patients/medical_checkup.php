@@ -196,8 +196,21 @@ if($exam_categories->num_rows() > 0)
                             {
                                 echo 'There are no category items';
                             }
+							if($mec_name == 'General Physical Examination')
+							{
+								echo '
+									<tr>
+										<td>Others (specify)</td>
+										<td colspan="2"></td>
+									</tr>
+								';
+							}
 							?>
 							</table>
+                            
+                            <?php
+                            	
+							?>
                         </div>
 
                      </div>
