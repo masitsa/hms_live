@@ -51,7 +51,7 @@
 		
 		if(!empty($search))
 		{
-			echo '<a href="'.site_url().'/administration/close_service_charge_search" class="btn btn-warning">Close Search</a>';
+			echo '<a href="'.site_url().'/administration/close_service_charge_search/'.$service_id.'" class="btn btn-warning">Close Search</a>';
 		}
 		$result = '';
 		

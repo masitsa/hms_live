@@ -147,7 +147,6 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 							$service_id = $serv->service_id;
 							$service_name = $serv->service_name;
 							$visit_total = 0;
-							$s++;
 							
 							if(count($item_invoiced_rs) > 0){
 							  
@@ -178,10 +177,12 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 								}
 							  endforeach;
 							}
+							
 							if($service_id == 4)
 							{
 								if($visit_total > 0)
 								{
+									$s++;
 									?>
 									  <tr >
 										<td><?php echo $s;?></td>
@@ -194,6 +195,7 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 							
 							else
 							{
+								$s++;
 								?>
                                   <tr >
                                     <td><?php echo $s;?></td>
@@ -202,57 +204,65 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
                                   </tr>
                                 <?php
 							}
-                            // enterring the payment stuff
-                                      $payments_rs = $this->accounts_model->payments($visit_id);
-                                      $total_payments = 0;
-                                      $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
-                                      if(count($payments_rs) > 0){
-                                        $x = $s;
-                                        foreach ($payments_rs as $key_items):
-                                          $x++;
-                                          $payment_method = $key_items->payment_method;
-                                          $amount_paid = $key_items->amount_paid;
-                                          $time = $key_items->time;
-                                          $payment_type = $key_items->payment_type;
-                                          $amount_paidd = number_format($amount_paid,2);
-                                          $payment_service_id = $key_items->payment_service_id;
-                                          
-                                          if($payment_service_id > 0)
-                                          {
-                                            $service_associate = $this->accounts_model->get_service_detail($payment_service_id);
-                                          }
-                                          else
-                                          {
-                                            $service_associate = " ";
-                                          }
-
-                                          if($payment_type == 2)
-                                          {
-                                              $amount_paidd = $amount_paidd;
-                                          
-                                              ?>
-                                              <tr>
-                                                <td><?php echo $x;?></td>
-                                                <td><?php echo $service_associate;?></td>
-                                              
-                                                <td><?php echo $amount_paidd;?></td>
-                                              </tr>
-                                              <?php
-                                          }
-                                          else if($payment_type == 3)
-                                          {
-                                               
-                                          }
-                                          
-
-                                        endforeach;
-                                          
-                                        }
-                                        // end of the payments
+                            
+							// end of the payments
 
 							$total = $total + $visit_total;
 						}
-                         $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
+						// enterring the payment stuff
+						$payments_rs = $this->accounts_model->payments($visit_id);
+						$total_payments = 0;
+						$total_amount = ($total + $debit_note_amount) - $credit_note_amount;
+						
+						if(count($payments_rs) > 0){
+							$x = $s;
+							foreach ($payments_rs as $key_items):
+								
+								$payment_method = $key_items->payment_method;
+								$amount_paid = $key_items->amount_paid;
+								$time = $key_items->time;
+								$payment_type = $key_items->payment_type;
+								$amount_paidd = number_format($amount_paid,2);
+								$payment_service_id = $key_items->payment_service_id;
+
+								if($payment_service_id > 0)
+								{
+									$service_associate = $this->accounts_model->get_service_detail($payment_service_id);
+								}
+								else
+								{
+									$service_associate = " ";
+								}
+
+								if($payment_type == 2)
+								{
+									$amount_paidd = $amount_paidd;
+									$x++;
+									?>
+									<tr>
+									<td><?php echo $x;?></td>
+									<td><?php echo $service_associate;?></td>
+
+									<td><?php echo $amount_paidd;?></td>
+									</tr>
+									<?php
+								}
+								else if($payment_type == 3)
+								{
+									$amount_paidd = $amount_paidd;
+									$x++;
+									?>
+									<tr>
+									<td><?php echo $x;?></td>
+									<td><?php echo $service_associate;?></td>
+
+									<td>(<?php echo $amount_paidd;?>)</td>
+									</tr>
+									<?php
+								}
+							endforeach;
+						}
+                        $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
 						?>
 						<tr>
 						  <td></td>

@@ -25,6 +25,12 @@ class Administration extends auth
 		$data['sidebar'] = 'admin_sidebar';
 		$this->load->view('auth/template_sidebar', $data);
 	}
+	
+	public function close_service_search()
+	{
+		$this->session->unset_userdata('service_search');
+		redirect('administration/services');
+	}
 
 	public function services($page_name = NULL)
 	{
@@ -100,7 +106,14 @@ class Administration extends auth
 		$this->load->view('auth/template_sidebar', $data);
 		// end of it
 	}
-	public function service_charges($service_id,$page_name = 'page')
+	
+	public function close_service_charge_search($service_id)
+	{
+		$this->session->unset_userdata('service_charge_search');
+		redirect('administration/service_charges/'.$service_id);
+	}
+	
+	public function service_charges($service_id, $page_name = 'page')
 	{
 		// this is it
 		$where = 'service_charge_delete = 0 AND service.service_id = service_charge.service_id AND service_charge.visit_type_id = visit_type.visit_type_id AND service_charge.service_id = '.$service_id;
