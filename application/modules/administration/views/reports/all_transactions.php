@@ -103,8 +103,6 @@
 				{
 					$strath_no = $strath_no;
 				}
-				
-
 
 				// this is to check for any credit note or debit notes
 				$payments_value = $this->accounts_model->total_payments($visit_id);

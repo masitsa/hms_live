@@ -1012,5 +1012,21 @@ class Reports extends auth
 		
 		$this->reports_model->doctor_patients_export($personnel_id, $date_from, $date_to);
 	}
+	
+	public function delete_deleted_drugs()
+	{
+		//select all drugs from visit charge
+		$this->db->where('service_charge.service_id = 4 AND service_charge.service_charge_id = visit_charge.service_charge_id');
+		$query = $this->db->get('service_charge, visit_charge');
+		
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $res)
+			{
+				$visit_id = $res->visit_id;
+				$service_charge_id = $res->service_charge_id;
+			}
+		}
+	}
 }
 ?>

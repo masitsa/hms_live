@@ -277,23 +277,37 @@ class Reports_model extends CI_Model
 	*/
 	public function get_all_visit_charges($visit_id, $service_id)
 	{
-		//retrieve all users
-		$this->db->from('visit_charge, service_charge');
-		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
-		$this->db->where('visit_charge.visit_id = '.$visit_id.' AND service_charge.service_id = '.$service_id.' AND visit_charge.service_charge_id = service_charge.service_charge_id');
-		$query = $this->db->get();
+		$total_invoiced = 0;
 		
-		$cash = $query->row();
-		
-		if($cash->total_invoiced > 0)
+		//retrieve all except pharmacy
+		if($service_id != 4)
 		{
-			return $cash->total_invoiced;
+			$this->db->from('visit_charge, service_charge');
+			$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
+			$this->db->where('visit_charge.visit_id = '.$visit_id.' AND service_charge.service_id = '.$service_id.' AND visit_charge.service_charge_id = service_charge.service_charge_id');
+			$query = $this->db->get();
+			
+			$cash = $query->row();
+			
+			if($cash->total_invoiced > 0)
+			{
+				$total_invoiced = $cash->total_invoiced;
+			}
 		}
 		
 		else
 		{
-			return 0;
+			//add pharmacy
+			$this->db->from('pres, visit_charge, service_charge');
+			$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
+			$this->db->where('visit_charge.visit_id = '.$visit_id.' AND service_charge.service_id = '.$service_id.' AND visit_charge.service_charge_id = service_charge.service_charge_id AND pres.service_charge_id = visit_charge.service_charge_id AND pres.visit_id = visit_charge.visit_id');
+			$query = $this->db->get();
+			
+			$cash = $query->row();
+			$total_invoiced = $cash->total_invoiced;
 		}
+		
+		return $total_invoiced;
 	}
 	
 	public function get_all_payment_values($visit_id,$payment_method_id)
@@ -323,10 +337,10 @@ class Reports_model extends CI_Model
 	*/
 	public function get_total_services_revenue($where, $table)
 	{
-		//invoiced
+		//invoiced for all except pharmacy
 		$this->db->from($table.', visit_charge, service_charge');
 		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
-		$this->db->where($where.' AND visit.visit_id = visit_charge.visit_id AND visit_charge.service_charge_id = service_charge.service_charge_id');
+		$this->db->where($where.' AND visit.visit_id = visit_charge.visit_id AND visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id != 4');
 		$query = $this->db->get();
 		
 		$cash = $query->row();
@@ -341,6 +355,33 @@ class Reports_model extends CI_Model
 		{
 			$total_invoiced = 0;
 		}
+		
+		//add pharmacy
+		$this->db->from($table.', pres, visit_charge, service_charge');
+		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
+		$this->db->where($where.' AND visit.visit_id = visit_charge.visit_id AND visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id = 4 AND pres.service_charge_id = visit_charge.service_charge_id AND pres.visit_id = visit_charge.visit_id');
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_invoiced += $cash->total_invoiced;
+		
+		//get debit notes
+		$this->db->from($table.', payments');
+		$this->db->select('SUM(amount_paid) AS total_invoiced');
+		$this->db->where($where.' AND visit.visit_id = payments.visit_id AND payments.payment_type = 2');
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_invoiced += $cash->total_invoiced;
+		
+		//get credit notes
+		$this->db->from($table.', payments');
+		$this->db->select('SUM(amount_paid) AS total_invoiced');
+		$this->db->where($where.' AND visit.visit_id = payments.visit_id AND payments.payment_type = 3');
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_invoiced -= $cash->total_invoiced;
 		
 		return $total_invoiced;
 	}
@@ -512,8 +553,6 @@ class Reports_model extends CI_Model
 			$current_column++;
 			$report[$row_count][$current_column] = 'Invoice Total';
 			$current_column++;
-
-			
 			
 			//get & display all services
 			$payment_method_query = $this->get_all_active_payment_method();

@@ -45,12 +45,29 @@ class Accounts_model extends CI_Model
             
             foreach ($item_invoiced_rs as $key_items):
               $s++;
+			  $visit_total = 0;
+			  $service_id = $key_items->service_id;
+			  $service_charge_id = $key_items->service_charge_id;
               $service_charge_name = $key_items->service_charge_name;
               $visit_charge_amount = $key_items->visit_charge_amount;
               $service_name = $key_items->service_name;
               $units = $key_items->visit_charge_units;
+			  
+			  //If pharmacy
+			  	if($service_id == 4)
+				{
+					if($this->accounts_model->in_pres($service_charge_id, $visit_id))
+					{
+						$visit_total = $visit_charge_amount * $units;
+					}
+				}
+				
+				else
+				{
+					$visit_total = $visit_charge_amount * $units;
+				}
 
-              $visit_total = $visit_charge_amount * $units;
+             // $visit_total = $visit_charge_amount * $units;
 
               $total = $total + $visit_total;
             endforeach;
@@ -61,8 +78,6 @@ class Accounts_model extends CI_Model
           	$total_amount = 0;
           }
           $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
-
-          
 
           return $total_amount;
 	}
