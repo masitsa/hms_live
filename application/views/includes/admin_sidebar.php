@@ -40,6 +40,17 @@
                         <li><a href="<?php echo site_url();?>/administration/import_data">Staff/ Student Import</a></li>
                     </ul>
                 </li>
+                <li class="has_submenu">
+                    <a href="#">
+                        <i class="icon-th"></i> Expenses & Sup
+                    </a>
+                    <ul>
+                        <li class="current"><a href="<?php echo site_url();?>/administration/expenses/admin"><i class="icon-list"></i> Expenses</a></li>
+                        <li class="current"><a href="<?php echo site_url();?>/administration/suppliers/admin"><i class="icon-list"></i> Suppliers</a></li>
+                        <li class="current"><a href="<?php echo site_url();?>/administration/invoices/custom_invoices"><i class="icon-list"></i> Custom Invoices</a></li>
+
+                    </ul>
+                </li>
 
             </ul>
 

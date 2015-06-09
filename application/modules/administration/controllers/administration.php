@@ -778,6 +778,506 @@ class Administration extends auth
 	
 		
 	
+	
+	// expenses start 
+
+	public function new_expense($module = NULL)
+	{
+
+		$data['title'] = 'Add expense ';
+		$v_data['title'] = 'Add expense ';
+		$v_data['expense_id'] = 0;
+		$data['content'] = $this->load->view('expenses/add_expense',$v_data,TRUE);
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		$this->load->view('auth/template_sidebar', $data);	
+	}
+	public function expense_add($module = NULL)
+	{
+		$this->form_validation->set_rules('expense_name', 'expense  name', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transacted_amount', 'Amount transacted', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transaction_date', 'Transaction date', 'trim|required|xss_clean');
+		
+		if ($this->form_validation->run() == FALSE)
+		{
+				$this->session->set_userdata("error_message","Fill in the fields");
+				$this->new_expense($module);
+		}
+		else
+		{
+				$result = $this->administration_model->submit_expense();
+				if($result == FALSE)
+				{
+					$this->session->set_userdata("error_message","Seems like there is a duplicate of this expense . Please try again");
+					$this->new_expense($module);
+				}
+				else
+				{
+					$this->session->set_userdata("success_message","Successfully created a service ");
+					$this->new_expense($module);
+				}
+		}
+
+	}
+	public function edit_expense($expense_id,$module = NULL)
+	{
+		$data['title'] = 'Edit  Expense ';
+		$v_data['title'] = 'Edit Expense ';
+		$v_data['expense_id'] = $expense_id;
+		$v_data['expense_query'] = $this->administration_model->get_expense_names($expense_id);
+		$data['content'] = $this->load->view('expenses/add_expense',$v_data,TRUE);
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	public function update_expense($expense_id)
+	{
+		$this->form_validation->set_rules('expense_name', 'expense  name', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transacted_amount', 'Amount transacted', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transaction_date', 'Transaction date', 'trim|required|xss_clean');
+		if ($this->form_validation->run() == FALSE)
+		{
+			$this->session->set_userdata("error_message","Fill in the fields");
+			$this->edit_expense($expense_id);
+		}
+		else
+		{
+			$expense_name = $this->input->post('expense_name');
+			$transaction_date = $this->input->post('transaction_date');
+			$transacted_amount = $this->input->post('transacted_amount');
+			$expense_description = $this->input->post('expense_description');
+			$recepient = $this->input->post('recepient');
+
+			$visit_data = array('expense_name'=>$expense_name,
+							'reason'=>$expense_description,
+							'recepient'=>$recepient,
+							'amount'=>$transacted_amount,
+							'dateofissue'=>$transaction_date
+							);
+			$this->db->where('expenses_id',$expense_id);
+			$this->db->update('expenses', $visit_data);
+			$this->edit_expense($expense_id);
+		}		
+	}
+	public function expense_search($module)
+	{
+		$expense_date_from = $this->input->post('expense_date_from');
+		$expense_date_from = $this->input->post('expense_date_from');
+		$expense_name = $this->input->post('expense_name');
+		
+		if(!empty($expense_name))
+		{
+			$expense_name = ' AND expenses.expense_name LIKE \'%'.$expense_name.'%\' ';
+		}
+		else
+		{
+			$expense_name = '';
+		}
+
+		if(!empty($expense_date_from) && !empty($expense_date_to))
+		{
+			$expense_date = ' AND expenses.dateofissue BETWEEN \''.$expense_date_from.'\' AND \''.$expense_date_to.'\'';
+		}
+		
+		else if(!empty($expense_date_from))
+		{
+			$expense_date = ' AND expenses.dateofissue = \''.$expense_date_from.'\'';
+		}
+		
+		else if(!empty($expense_date_to))
+		{
+			$expense_date = ' AND expenses.dateofissue = \''.$expense_date_to.'\'';
+		}
+		
+		else
+		{
+			$expense_date = '';
+		}
+		if(!empty($recepient))
+		{
+			$recepient = ' AND expenses.recepient LIKE \'%'.$recepient.'%\' ';
+		}
+		else
+		{
+			$recepient = '';
+		}
+		$search = $expense_name.$expense_date.$recepient;
+		$this->session->set_userdata('expense_search', $search);
+		
+		$this->expenses($module);
+	}
+	public function delete_expense($expense_id)
+	{
+		if($this->administration_model->delete_expense($expense_id))
+		{
+			$this->session->set_userdata('service_success_message', 'The service has been deleted successfully');
+
+		}
+		else
+		{
+			$this->session->set_userdata('service_error_message', 'The service could not be deleted');
+		}
+		
+			redirect('administration/expenses/admin');
+	}
+	public function close_expense_search($module)
+	{
+		$this->session->unset_userdata('expense_search');
+		redirect('administration/expenses/'.$module);
+	}
+
+	public function expenses($module = NULL)
+	{
+		// this is it
+		$where = 'expenses_id > 0 AND expense_status = 0';
+		$expense_search = $this->session->userdata('expense_search');
+		
+		if(!empty($expense_search))
+		{
+			$where .= $expense_search;
+		}
+		
+		if($module == NULL)
+		{
+			$segment = 3;
+		}
+		
+		else
+		{
+			$segment = 4;
+		}
+		$table = 'expenses';
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'/administration/expenses/'.$module;
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->administration_model->get_all_expenses($table, $where, $config["per_page"], $page, 'ASC');
+		
+
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		
+		$data['title'] = 'Clinic Expenses';
+		$v_data['title'] = 'Clinic Expenses';
+		$v_data['module'] = 0;
+		
+		$total_amount = $this->administration_model->get_expense_total_amount($where);
+		$v_data['total_expense'] = $total_amount;
+		$v_data['module'] = $module;
+		$data['content'] = $this->load->view('expenses/all_expenses', $v_data, true);
+		
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		
+		
+		
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	// expenses end
+
+	// suppliers start
+
+	public function new_supplier($module = NULL)
+	{
+
+		$data['title'] = 'Add supplier ';
+		$v_data['title'] = 'Add supplier ';
+		$v_data['supplier_id'] = 0;
+		$data['content'] = $this->load->view('suppliers/add_supplier',$v_data,TRUE);
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		$this->load->view('auth/template_sidebar', $data);	
+	}
+	public function supplier_add($module = NULL)
+	{
+		$this->form_validation->set_rules('supplier_name', 'supplier  name', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transacted_amount', 'Amount transacted', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transaction_date', 'Transaction date', 'trim|required|xss_clean');
+		
+		if ($this->form_validation->run() == FALSE)
+		{
+				$this->session->set_userdata("error_message","Fill in the fields");
+				$this->new_supplier($module);
+		}
+		else
+		{
+				$result = $this->administration_model->submit_supplier();
+				if($result == FALSE)
+				{
+					$this->session->set_userdata("error_message","Seems like there is a duplicate of this supplier . Please try again");
+					$this->new_supplier($module);
+				}
+				else
+				{
+					$this->session->set_userdata("success_message","Successfully created a service ");
+					$this->new_supplier($module);
+				}
+		}
+
+	}
+	public function edit_supplier($supplier_id,$module = NULL)
+	{
+		$data['title'] = 'Edit  supplier ';
+		$v_data['title'] = 'Edit supplier ';
+		$v_data['supplier_id'] = $supplier_id;
+		$v_data['supplier_query'] = $this->administration_model->get_supplier_names($supplier_id);
+		$data['content'] = $this->load->view('suppliers/add_supplier',$v_data,TRUE);
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	public function update_supplier($supplier_id)
+	{
+		$this->form_validation->set_rules('supplier_name', 'supplier  name', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transacted_amount', 'Amount transacted', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('transaction_date', 'Transaction date', 'trim|required|xss_clean');
+		if ($this->form_validation->run() == FALSE)
+		{
+			$this->session->set_userdata("error_message","Fill in the fields");
+			$this->edit_supplier($supplier_id);
+		}
+		else
+		{
+			$supplier_name = $this->input->post('supplier_name');
+			$transaction_date = $this->input->post('transaction_date');
+			$transacted_amount = $this->input->post('transacted_amount');
+			$supplier_description = $this->input->post('supplier_description');
+			$recepient = $this->input->post('recepient');
+
+			$visit_data = array('supplier_name'=>$supplier_name,
+							'reason'=>$supplier_description,
+							'recepient'=>$recepient,
+							'amount'=>$transacted_amount,
+							'dateofissue'=>$transaction_date
+							);
+			$this->db->where('suppliers_id',$supplier_id);
+			$this->db->update('suppliers', $visit_data);
+			$this->edit_supplier($supplier_id);
+		}		
+	}
+	public function supplier_search($module)
+	{
+		$supplier_date_from = $this->input->post('supplier_date_from');
+		$supplier_date_from = $this->input->post('supplier_date_from');
+		$supplier_name = $this->input->post('supplier_name');
+		
+		if(!empty($supplier_name))
+		{
+			$supplier_name = ' AND suppliers.supplier_name LIKE \'%'.$supplier_name.'%\' ';
+		}
+		else
+		{
+			$supplier_name = '';
+		}
+
+		if(!empty($supplier_date_from) && !empty($supplier_date_to))
+		{
+			$supplier_date = ' AND suppliers.dateofissue BETWEEN \''.$supplier_date_from.'\' AND \''.$supplier_date_to.'\'';
+		}
+		
+		else if(!empty($supplier_date_from))
+		{
+			$supplier_date = ' AND suppliers.dateofissue = \''.$supplier_date_from.'\'';
+		}
+		
+		else if(!empty($supplier_date_to))
+		{
+			$supplier_date = ' AND suppliers.dateofissue = \''.$supplier_date_to.'\'';
+		}
+		
+		else
+		{
+			$supplier_date = '';
+		}
+		if(!empty($recepient))
+		{
+			$recepient = ' AND suppliers.recepient LIKE \'%'.$recepient.'%\' ';
+		}
+		else
+		{
+			$recepient = '';
+		}
+		$search = $supplier_name.$supplier_date.$recepient;
+		$this->session->set_userdata('supplier_search', $search);
+		
+		$this->suppliers($module);
+	}
+	public function delete_supplier($supplier_id)
+	{
+		if($this->administration_model->delete_supplier($supplier_id))
+		{
+			$this->session->set_userdata('service_success_message', 'The service has been deleted successfully');
+
+		}
+		else
+		{
+			$this->session->set_userdata('service_error_message', 'The service could not be deleted');
+		}
+		
+			redirect('administration/suppliers/admin');
+	}
+	public function close_supplier_search($module)
+	{
+		$this->session->unset_userdata('supplier_search');
+		redirect('administration/suppliers/'.$module);
+	}
+
+	public function suppliers($module = NULL)
+	{
+		// this is it
+		$where = 'suppliers_id > 0 AND supplier_status = 0';
+		$supplier_search = $this->session->userdata('supplier_search');
+		
+		if(!empty($supplier_search))
+		{
+			$where .= $supplier_search;
+		}
+		
+		if($module == NULL)
+		{
+			$segment = 3;
+		}
+		
+		else
+		{
+			$segment = 4;
+		}
+		$table = 'suppliers';
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'/administration/suppliers/'.$module;
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->administration_model->get_all_suppliers($table, $where, $config["per_page"], $page, 'ASC');
+		
+
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		
+		$data['title'] = 'Clinic suppliers';
+		$v_data['title'] = 'Clinic suppliers';
+		$v_data['module'] = 0;
+		
+		$total_amount = $this->administration_model->get_supplier_total_amount($where);
+		$v_data['total_supplier'] = $total_amount;
+		$v_data['module'] = $module;
+		$data['content'] = $this->load->view('suppliers/all_suppliers', $v_data, true);
+		
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else
+		{
+			$data['sidebar'] = 'admin_sidebar';
+
+		}
+		
+		
+		
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	// suppliers end
 }
 
 ?>

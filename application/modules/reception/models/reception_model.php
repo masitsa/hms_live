@@ -103,9 +103,10 @@ class Reception_model extends CI_Model
 	*/
 	public function get_staff($strath_no)
 	{
-		$this->db->from('staff');
+		// $this->db->from('staff');
+		$this->db->from('patients');
 		$this->db->select('*');
-		$this->db->where('Staff_Number = \''.$strath_no.'\'');
+		$this->db->where('strath_no = \''.$strath_no.'\'');
 		$query = $this->db->get();
 		
 		return $query;
@@ -146,9 +147,10 @@ class Reception_model extends CI_Model
 	*/
 	public function get_student($strath_no)
 	{
-		$this->db->from('student');
+		// $this->db->from('student');
+		$this->db->from('patients');
 		$this->db->select('*');
-		$this->db->where('student_Number = \''.$strath_no.'\'');
+		$this->db->where('strath_no = \''.$strath_no.'\'');
 		$query = $this->db->get();
 		
 		return $query;
@@ -685,7 +687,7 @@ class Reception_model extends CI_Model
 					
 					$patient_othernames = $dependants_result->other_names;
 					$patient_surname = $dependants_result->surname;
-					$patient_date_of_birth = $dependants_result->DOB;
+					$patient_date_of_birth = $dependants_result->patient_date_of_birth;
 					$relationship = $dependants_result->relation;
 					$gender = $dependants_result->Gender;
 					$faculty = $this->get_staff_faculty_details($dependant_id);
@@ -733,11 +735,11 @@ class Reception_model extends CI_Model
 				{
 					$staff_result = $staff_query->row();
 					
-					$patient_surname = $staff_result->Surname;
-					$patient_othernames = $staff_result->Other_names;
-					$patient_date_of_birth = $staff_result->DOB;
-					$patient_phone1 = $staff_result->contact;
-					$gender = $staff_result->gender;
+					$patient_surname = $staff_result->patient_surname;
+					$patient_othernames = $staff_result->patient_othernames;
+					$patient_date_of_birth = $staff_result->patient_date_of_birth;
+					$patient_phone1 = $staff_result->patient_phone1;
+					$gender = $staff_result->gender_id;
 					$faculty = $staff_result->department;
 				}
 				
@@ -782,11 +784,11 @@ class Reception_model extends CI_Model
 			{
 				$student_result = $student_query->row();
 				
-				$patient_surname = $student_result->Surname;
-				$patient_othernames = $student_result->Other_names;
-				$patient_date_of_birth = $student_result->DOB;
-				$patient_phone1 = $student_result->contact;
-				$gender = $student_result->gender;
+				$patient_surname = $student_result->patient_surname;
+				$patient_othernames = $student_result->patient_othernames;
+				$patient_date_of_birth = $student_result->patient_date_of_birth;
+				$patient_phone1 = $student_result->patient_phone1;
+				$gender = $student_result->gender_id;
 				$faculty = $student_result->faculty;
 			}
 				
@@ -1297,8 +1299,8 @@ class Reception_model extends CI_Model
 					$student_number = $key->student_Number;
 					$Surname = $key->Surname;
 					$Other_names = $key->Other_names;
-					$DOB = $key->DOB;
-					$contact = $key->contact;
+					$DOB = $key->patient_date_of_birth;
+					$contact = $key->patient_phone1;
 					$gender = $key->gender;
 					$GUARDIAN_NAME = $key->GUARDIAN_NAME;
 				endforeach;
@@ -1354,8 +1356,8 @@ class Reception_model extends CI_Model
 					$Staff_Number = $key->Staff_Number;
 					$Surname = $key->Surname;
 					$Other_names = $key->Other_names;
-					$DOB = $key->DOB;
-					$contact = $key->contact;
+					$DOB = $key->patient_date_of_birth;
+					$contact = $key->patient_phone1;
 					$gender = $key->gender;
 				endforeach;
 
@@ -2053,19 +2055,19 @@ class Reception_model extends CI_Model
 	
 	public function get_student_data($strath_no)
 	{
-		$where = 'student_Number = '.$strath_no;
+		$where = 'strath_no = '.$strath_no;
 		$this->db->select('*');
 		$this->db->where($where);
-		$query = $this->db->get('student');
+		$query = $this->db->get('patients');
 		
 		if($query->num_rows() > 0)
 		{
 			$row = $query->row();
-			$student['student_number'] = $row->student_Number;
-			$student['patient_othernames'] = $row->Other_names;
-			$student['patient_surname'] = $row->Surname;
-			$student['patient_date_of_birth'] = $row->DOB;
-			$student['gender'] = $row->gender;
+			$student['student_number'] = $row->strath_no;
+			$student['patient_othernames'] = $row->patient_surname;
+			$student['patient_surname'] = $row->patient_othernames;
+			$student['patient_date_of_birth'] = $row->patient_date_of_birth;
+			$student['gender'] = $row->gender_id;
 		}
 		
 		else
@@ -2091,7 +2093,7 @@ class Reception_model extends CI_Model
 			$student['staff_id'] = $row->staff_id;
 			$student['patient_othernames'] = $row->other_names;
 			$student['patient_surname'] = $row->surname;
-			$student['patient_date_of_birth'] = $row->DOB;
+			$student['patient_date_of_birth'] = $row->patient_date_of_birth;
 			$student['gender'] = $row->gender;
 		}
 		
@@ -2174,6 +2176,17 @@ class Reception_model extends CI_Model
 		$this->db->from('patients, staff_dependants');
 		$this->db->where('patients.visit_type_id = 2 AND patients.strath_no > 0 AND patients.strath_no = staff_dependants.staff_dependants_id');
 		$query = $this->db->get();
+		
+		return $query;
+	}
+	public function get_all_ongoing_visits3()
+	{
+		//retrieve all users
+		$this->db->from('visit, patients');
+		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.patient_phone1,patients.patient_phone2');
+		$this->db->where('visit.visit_delete = 0 AND patients.patient_delete = 0 AND visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.close_card = 2');
+		$this->db->order_by('visit.visit_date','ASC');
+		$query = $this->db->get('',10);
 		
 		return $query;
 	}

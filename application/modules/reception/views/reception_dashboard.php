@@ -1,4 +1,5 @@
-<?php echo $this->load->view('administration/dashboard/line_graph', '', TRUE);?>
+
+<?php echo $this->load->view('mini_appointment', '', TRUE);?>
 
 <!-- Calendar and Logs -->
 <div class="row">
