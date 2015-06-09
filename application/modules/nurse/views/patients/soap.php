@@ -443,6 +443,10 @@ function get_test_results(page, visit_id){
     // this is for the doctor and the nurse
     url = config_url+"/laboratory/test2/"+visit_id;
   }
+  else
+  {
+    url = config_url+"/laboratory/test2/"+visit_id;
+  }
   // alert(url);
   if(XMLHttpRequestObject) {
     if((page == 75) || (page == 85)){

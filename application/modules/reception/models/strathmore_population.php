@@ -60,17 +60,17 @@ class Strathmore_population extends CI_Model
 				{
 					$exists = $this->student_exists($STUDENT_NO);
 					
-					$data = array('title'=>'','Surname'=>$name,'Other_names'=>$oname,'DOB'=>$dob,'contact'=>$MOBILE_NO,'gender'=>$gender,'student_Number'=>$STUDENT_NO,'courses'=>$FACULTIES,'GUARDIAN_NAME'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
+					$data = array('title_id'=>'','patient_surname'=>$name,'patient_other_names'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
 					
 					if(!$exists)
 					{
-						$this->db->insert('student', $data);
+						$this->db->insert('patients', $data);
 						$rows_inserted = $this->db->affected_rows();				
 					}					
 					else
 					{
-						$this->db->where('student_Number', $STUDENT_NO);
-						$this->db->update('student', $data);
+						$this->db->where('strath_no', $STUDENT_NO);
+						$this->db->update('patients', $data);
 					}
 				
 					$date = date("Y-m-d H:i:s");
@@ -187,7 +187,7 @@ class Strathmore_population extends CI_Model
 				$exists = $this->staff_exists($staff_no);
 				
 				//  insert data into the staff table
-				$data = array('Surname'=>$emp_lastname,'Other_names'=>$other_name,'DOB'=>$emp_birthday,'contact'=>$emp_mobile,'gender'=>$gender,'Staff_Number'=>$staff_no,'staff_system_id'=>$staff_system_id,'department'=>$department);
+				$data = array('patient_surname'=>$emp_lastname,'patient_other_names'=>$other_name,'patient_date_of_birth'=>$emp_birthday,'patient_phone1'=>$emp_mobile,'gender_id'=>$gender,'strath_no'=>$staff_no,'visit_type_id'=>2,'department'=>$department);
 				if($exists == FALSE)
 				{
 					//echo 'title='.$Title.'<br/>Surname='.$Surname1.'<br/>Other_names='.$Other_Name1.'<br/>DOB='.$DOB.'<br/>contact='.$Tel_1.'<br/>gender='.$Gender.'<br/>Staff_Number='.$Employee_Code.'<br/>staff_system_id='.$E_ID;
@@ -195,8 +195,8 @@ class Strathmore_population extends CI_Model
 				}				
 				else
 				{
-					$this->db->where('Staff_Number', $staff_no);
-					$this->db->update('staff', $data);
+					$this->db->where('strath_no', $staff_no);
+					$this->db->update('patients', $data);
 					//$this->session->set_userdata("error_message","Staff seems to exist");
 				}
 			}
@@ -211,8 +211,8 @@ class Strathmore_population extends CI_Model
 	
 	public function staff_exists($Employee_Code)
 	{
-		$this->db->where('Staff_Number', $Employee_Code);
-		$query = $this->db->get('staff');
+		$this->db->where('strath_no', $Employee_Code);
+		$query = $this->db->get('patients');
 		
 		if($query->num_rows() > 0)
 		{
@@ -227,8 +227,8 @@ class Strathmore_population extends CI_Model
 	
 	public function student_exists($student_number)
 	{
-		$this->db->where('student_Number', $student_number);
-		$query = $this->db->get('student');
+		$this->db->where('strath_no', $student_number);
+		$query = $this->db->get('patients');
 		
 		if($query->num_rows() > 0)
 		{

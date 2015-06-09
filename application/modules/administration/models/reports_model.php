@@ -129,7 +129,7 @@ class Reports_model extends CI_Model
 		$visit_search = $this->session->userdata('all_departments_search');
 		if(!empty($visit_search))
 		{
-			$where = 'visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id = '.$service_id.' AND visit.visit_id = visit_charge.visit_id'. $visit_search;
+			$where = 'visit_charge.visit_charge_delete = 0, visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id = '.$service_id.' AND visit.visit_id = visit_charge.visit_id'. $visit_search;
 			$table .= ', visit';
 		}
 		
@@ -1183,7 +1183,70 @@ class Reports_model extends CI_Model
 		
 		$this->export_transactions();
 	}
-	
+
+	public function get_service_total_debits($service_id)
+	{
+		$table = "payments";
+		$where = "payments.payment_type = 2 AND payments.payment_created = '".date('Y-m-d')."' AND payments.payment_service_id = ".$service_id;
+		$items = "SUM(payments.amount_paid) AS amount_paid";
+		$order = "payments.payment_id";
+		
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		
+		if(count($result) > 0)
+		{
+
+			foreach ($result as $key):
+				# code...
+				$amount = $key->amount_paid;
+
+				if(!is_numeric($amount))
+				{
+					return 0;
+				}
+				else
+				{
+					return $amount;
+				}
+			endforeach;
+		}
+		else
+		{
+			return 0;
+		}
+
+	}
+	public function get_service_total_credits($service_id)
+	{
+		$table = "payments";
+		$where = "payments.payment_type = 3 AND payments.payment_created = '".date('Y-m-d')."' AND payments.payment_service_id = ".$service_id;
+		$items = "SUM(payments.amount_paid) AS amount_paid";
+		$order = "payments.payment_id";
+		
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		
+		if(count($result) > 0)
+		{
+
+			foreach ($result as $key):
+				# code...
+				$amount = $key->amount_paid;
+
+				if(!is_numeric($amount))
+				{
+					return 0;
+				}
+				else
+				{
+					return $amount;
+				}
+			endforeach;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 	public function all_visit_payments($payments_where, $payments_table)
 	{
 		$this->db->select('visit.visit_date, visit.visit_time, payments.*');

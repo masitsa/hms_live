@@ -13,13 +13,16 @@ class Accounts extends auth
 		$this->load->model('database');
 		$this->load->model('medical_admin/medical_admin_model');
 		$this->load->model('pharmacy/pharmacy_model');
+		$this->load->model('administration/administration_model');
 	}
 	
 	public function index()
 	{
 		$this->session->unset_userdata('all_transactions_search');
-		
-		$data['content'] = $this->load->view('dashboard', '', TRUE);
+		$v_data['doctor_results'] = $this->reports_model->get_all_doctors();
+		$v_data['services_result'] = $this->reports_model->get_all_service_types();
+		$v_data['type'] = $this->reception_model->get_types();
+		$data['content'] = $this->load->view('dashboard/dashboard', $v_data, TRUE);
 		
 		$data['title'] = 'Dashboard';
 		$data['sidebar'] = 'accounts_sidebar';
