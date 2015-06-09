@@ -204,19 +204,8 @@ class Reports_model extends CI_Model
 	*/
 	public function get_all_visits($table, $where, $per_page, $page, $order = NULL)
 	{
-		//retrieve all users
-		/*$this->db->from($table);
-		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
-		$this->db->where($where);
-		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
-		$this->db->group_by('visit.visit_id');
-		$query = $this->db->get('', $per_page, $page);*/
-		
-		/*$this->db->select('
-		visit.visit_id, visit.visit_date, 
-		visit.visit_time_out, 
-		visit.visit_time, 
-		(visit.visit_time_out - visit.visit_time) AS waiting_time, 
+		$this->db->select('
+		visit.*,
 		patients.visit_type_id, 
 		patients.visit_type_id, 
 		patients.patient_othernames, 
@@ -225,51 +214,14 @@ class Reports_model extends CI_Model
 		patients.strath_no,patients.patient_national_id, 
 		visit_type.visit_type_name, 
 		personnel.personnel_onames, 
-		personnel.personnel_fname, 
-		SUM(normal_payments.amount_paid) AS total_payments, 
-		SUM(debit_notes.amount_paid) AS total_debit_notes, 
-		SUM(credit_notes.amount_paid) AS total_credit_notes, 
-		SUM(invoice_consultation.consultation) AS consultation, 
-		SUM(invoice_counseling.counseling) AS counseling, 
-		SUM(invoice_dental.dental) AS dental, 
-		SUM(invoice_ecg.ecg) AS ecg, 
-		SUM(invoice_laboratory.laboratory) AS laboratory, 
-		SUM(invoice_nursing_fee.nursing_fee) AS nursing_fee, 
-		SUM(invoice_paediatrics.paediatrics) AS paediatrics, 
-		SUM(invoice_pharmacy.pharmacy) AS pharmacy, 
-		SUM(invoice_physician.physician) AS physician, 
-		SUM(invoice_physiotherapy.physiotherapy) AS physiotherapy, 
-		SUM(invoice_procedures.procedures) AS procedures, 
-		SUM(invoice_radiology.radiology) AS radiology, 
-		SUM(invoice_ultrasound.ultrasound) AS ultrasound');
+		personnel.personnel_fname');
 		$this->db->from($table);
 		$this->db->where($where);
 		$this->db->join('patients', 'patients.patient_id = visit.patient_id', 'inner');
 		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
 		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
-		$this->db->join('normal_payments', 'normal_payments.visit_id = visit.visit_id', 'left');
-		$this->db->join('debit_notes', 'debit_notes.visit_id = visit.visit_id', 'left');
-		$this->db->join('credit_notes', 'credit_notes.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_consultation', 'invoice_consultation.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_counseling', 'invoice_counseling.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_dental', 'invoice_dental.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_ecg', 'invoice_ecg.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_laboratory', 'invoice_laboratory.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_nursing_fee', 'invoice_nursing_fee.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_paediatrics', 'invoice_paediatrics.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_pharmacy', 'invoice_pharmacy.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_physician', 'invoice_physician.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_physiotherapy', 'invoice_physiotherapy.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_procedures', 'invoice_procedures.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_radiology', 'invoice_radiology.visit_id = visit.visit_id', 'left');
-		$this->db->join('invoice_ultrasound', 'invoice_ultrasound.visit_id = visit.visit_id', 'left');
 		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
-		$this->db->group_by('visit.visit_id');*/
-		
-		$this->db->from('all_transactions');
-		$this->db->where($where);
-		$query = $this->db->get('', $per_page, $page);
-		
+		$query = $this->db->get();
 		return $query;
 	}
 	
@@ -543,21 +495,22 @@ class Reports_model extends CI_Model
 		$report = array();
 		
 		//get all transactions
-		$where = 'visit.patient_id = patients.patient_id ';
-		$table = 'visit, patients';
-		if(isset($_SESSION['all_transactions_search']))
+		$where = 'visit_date = \''.date('Y-m-d').'\'';
+		$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
+		
+		$table = 'visit';
+		$visit_search = '';
+		$table_search = '';
+		
+		if(isset( $_SESSION['all_transactions_search']))
 		{
 			$visit_search = $_SESSION['all_transactions_search'];
-		}
-		
-		if(isset($_SESSION['all_transactions_tables']))
-		{
 			$table_search = $_SESSION['all_transactions_tables'];
 		}
 		
 		if(!empty($visit_search))
 		{
-			$where .= $visit_search;
+			$where = $visit_search;
 		
 			if(!empty($table_search))
 			{
@@ -565,16 +518,24 @@ class Reports_model extends CI_Model
 			}
 		}
 		
-		else
-		{
-			$where .= ' AND visit.visit_date = \''.date('Y-m-d').'\'';
-		}
-		
+		$this->db->select('
+		visit.*,
+		patients.visit_type_id, 
+		patients.visit_type_id, 
+		patients.patient_othernames, 
+		patients.patient_surname, 
+		patients.dependant_id, 
+		patients.strath_no,patients.patient_national_id, 
+		visit_type.visit_type_name, 
+		personnel.personnel_onames, 
+		personnel.personnel_fname');
+		$this->db->from($table);
 		$this->db->where($where);
-		$this->db->order_by('visit_date', 'ASC');
-		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.dependant_id');
-		$this->db->group_by('visit_id');
-		$visits_query = $this->db->get($table);
+		$this->db->join('patients', 'patients.patient_id = visit.patient_id', 'inner');
+		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
+		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
+		$visits_query = $this->db->get();
 		
 		$title = 'Transactions export '.date('jS M Y H:i a');;
 		
@@ -594,23 +555,23 @@ class Reports_model extends CI_Model
 			$report[$row_count][4] = 'Doctor';
 			$report[$row_count][5] = 'School/faculty/department';
 			$report[$row_count][6] = 'Staff/Student/ID No.';
-			$current_column = 7 ;
-			
-			
-			//get & display all services
-			$services_query = $this->get_all_active_services();
-			
-			foreach($services_query->result() as $service)
-			{
-				$report[$row_count][$current_column] = $service->service_name;
-				$current_column++;
-			}
-			$report[$row_count][$current_column] = 'Debit Note Total';
-			$current_column++;
-			$report[$row_count][$current_column] = 'Credit Note Total';
-			$current_column++;
-			$report[$row_count][$current_column] = 'Invoice Total';
-			$current_column++;
+			$report[$row_count][7] = 'Consultation';
+			$report[$row_count][8] = 'Counseling';
+			$report[$row_count][9] = 'Dental';
+			$report[$row_count][10] = 'ECG';
+			$report[$row_count][11] = 'Laboratory';
+			$report[$row_count][12] = 'Nursing fee';
+			$report[$row_count][13] = 'Paediatrics';
+			$report[$row_count][14] = 'Pharmacy';
+			$report[$row_count][15] = 'Physician';
+			$report[$row_count][16] = 'Physiotherapy';
+			$report[$row_count][17] = 'Procedures';
+			$report[$row_count][18] = 'Radiology';
+			$report[$row_count][19] = 'Ultrasound';
+			$report[$row_count][20] = 'Debit Note Total';
+			$report[$row_count][21] = 'Credit Note Total';
+			$report[$row_count][22] = 'Invoice Total';
+			$current_column = 23;
 			
 			//get & display all services
 			$payment_method_query = $this->get_all_active_payment_method();
@@ -629,6 +590,7 @@ class Reports_model extends CI_Model
 			{
 				$row_count++;
 				$total_invoiced = 0;
+				$total_invoiced = 0;
 				$visit_date = date('jS M Y',strtotime($row->visit_date));
 				$visit_time = date('H:i a',strtotime($row->visit_time));
 				if($row->visit_time_out != '0000-00-00 00:00:00')
@@ -640,89 +602,32 @@ class Reports_model extends CI_Model
 					$visit_time_out = '-';
 				}
 				$visit_id = $row->visit_id;
-				$patient_id = $row->patient_id;
-				$personnel_id = $row->personnel_id;
-				$dependant_id = $row->dependant_id;
 				$strath_no = $row->strath_no;
-				$visit_type_id = $row->visit_type_id;
-				$visit_type = $row->visit_type;
-				$visit_type = $row->visit_type;
-				if($row->dependant_id != 0)
-				{
-					$strath_no = $row->dependant_id;
-				}
-				else
-				{
-					$strath_no = $strath_no;
-				}
-
-				// this is to check for any credit note or debit notes
-				$payments_value = $this->accounts_model->total_payments($visit_id);
-
-				$invoice_total = $this->accounts_model->total_invoice($visit_id);
-
-				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
-				// end of the debit and credit notes
-
-				// total of debit and credit notes amounts
-				$credit_note_amount = $this->accounts_model->get_sum_credit_notes($visit_id);
-				$debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
-				// end of total debit and credit notes amount
-
-				// get all the payment methods used in payments
-				//$payment_type = $this->accounts_model->get_visit_payment_method($visit_id);
-				// end of all payments details
-
-
-				$patient = $this->reception_model->patient_names2($patient_id, $visit_id);
-
-				$visit_type = $patient['visit_type'];
-				$patient_type = $patient['patient_type'];
-				$patient_othernames = $patient['patient_othernames'];
-				$patient_surname = $patient['patient_surname'];
-				$patient_date_of_birth = $patient['patient_date_of_birth'];
-				$gender = $patient['gender'];
-				$faculty = $patient['faculty'];
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
 				
-				//creators and editors
-				$personnel_query = $this->personnel_model->get_all_personnel();
-				if($personnel_query->num_rows() > 0)
-				{
-					$personnel_result = $personnel_query->result();
-					
-					foreach($personnel_result as $adm)
-					{
-						$personnel_id2 = $adm->personnel_id;
-						
-						if($personnel_id == $personnel_id2)
-						{
-							$doctor = $adm->personnel_onames.' '.$adm->personnel_fname;
-							break;
-						}
-						
-						else
-						{
-							$doctor = '-';
-						}
-					}
-				}
-				
-				else
-				{
-					$doctor = '-';
-				}
-				
-				$count++;
-				$cash = $this->reports_model->get_all_visit_payments($visit_id);
-				
-				//display services charged to patient
-				$total_invoiced2 = 0;
-				foreach($services_query->result() as $service)
-				{
-					$service_id = $service->service_id;
-					$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
-					$total_invoiced2 += $visit_charge;
-				}
+				$visit_type = $row->visit_type_name;
+				$personnel_othernames = $row->personnel_onames;
+				$personnel_fname = $row->personnel_fname;
+				$total_payments = $row->total_payments;
+				$total_debit_notes = $row->total_debit_notes;
+				$total_credit_notes = $row->total_credit_notes;
+				$consultation = $row->consultation;
+				$counseling = $row->counseling;
+				$dental = $row->dental;
+				$ecg = $row->ecg;
+				$laboratory = $row->laboratory;
+				$nursing_fee = $row->nursing_fee;
+				$paediatrics = $row->paediatrics;
+				$pharmacy = $row->pharmacy;
+				$physician = $row->physician;
+				$physiotherapy = $row->physiotherapy;
+				$procedures = $row->procedures;
+				$radiology = $row->radiology;
+				$ultrasound = $row->ultrasound;
+				$doctor = $personnel_othernames.' '.$personnel_fname;
+				$faculty = '';
+				$invoice_total = ($consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound + $total_debit_notes) - $total_credit_notes;
 				
 				//display all debtors
 				$debtors = $this->session->userdata('debtors');
@@ -730,6 +635,7 @@ class Reports_model extends CI_Model
 				if($debtors == 'true' && ($balance > 0))
 				{
 					//display the patient data
+					$count++;
 					$report[$row_count][0] = $count;
 					$report[$row_count][1] = $visit_date;
 					$report[$row_count][2] = $patient_surname.' '.$patient_othernames;
@@ -737,25 +643,24 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$current_column = 7;
-
-					
-					//display services charged to patient
-					foreach($services_query->result() as $service)
-					{
-						$service_id = $service->service_id;
-						$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
-						$total_invoiced += $visit_charge;
-						
-						$report[$row_count][$current_column] = $visit_charge;
-						$current_column++;
-					}
-					$report[$row_count][$current_column] = $debit_note_amount;
-					$current_column++;
-					$report[$row_count][$current_column] = $credit_note_amount;
-					$current_column++;
-					$report[$row_count][$current_column] = $total_invoiced;
-					$current_column++;
+					$report[$row_count][7] = $consultation;
+					$report[$row_count][8] = $counseling;
+					$report[$row_count][9] = $dental;
+					$report[$row_count][10] = $ecg;
+					$report[$row_count][11] = $laboratory;
+					$report[$row_count][12] = $nursing_fee;
+					$report[$row_count][13] = $paediatrics;
+					$report[$row_count][14] = $pharmacy;
+					$report[$row_count][15] = $physician;
+					$report[$row_count][16] = $physiotherapy;
+					$report[$row_count][17] = $procedures;
+					$report[$row_count][18] = $radiology;
+					$report[$row_count][19] = $ultrasound;
+					$report[$row_count][20] = $total_debit_notes;
+					$report[$row_count][21] = $total_credit_notes;
+					$report[$row_count][22] = $invoice_total;
+					$current_column = 23;
+					$total_paid = 0;
 					// display amounts collected on every payment method
 					foreach($payment_method_query->result() as $paymentmethod)
 					{
@@ -763,12 +668,13 @@ class Reports_model extends CI_Model
 						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
 						$report[$row_count][$current_column] = $amount_paid;
 						$current_column++;
+						$total_paid += $amount_paid;
 					}
 					// //display total for the current visit
 
-					$report[$row_count][$current_column] = $payments_value;
+					$report[$row_count][$current_column] = ($total_paid);
 					$current_column++;
-					$report[$row_count][$current_column] = $balance;
+					$report[$row_count][$current_column] = ($total_paid - $invoice_total);
 					$current_column++;
 				}
 				
@@ -776,6 +682,7 @@ class Reports_model extends CI_Model
 				else
 				{
 					//display the patient data
+					$count++;
 					$report[$row_count][0] = $count;
 					$report[$row_count][1] = $visit_date;
 					$report[$row_count][2] = $patient_surname.' '.$patient_othernames;
@@ -783,39 +690,38 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$current_column= 7;
-					
-					
-
-					//display services charged to patient
-					foreach($services_query->result() as $service)
-					{
-						$service_id = $service->service_id;
-						$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
-						$total_invoiced += $visit_charge;
-						
-						$report[$row_count][$current_column] = $visit_charge;
-						$current_column++;
-					}
-					$report[$row_count][$current_column] = $debit_note_amount;
-					$current_column++;
-					$report[$row_count][$current_column] = $credit_note_amount;
-					$current_column++;
-					$report[$row_count][$current_column] = $invoice_total;
-					$current_column++;
+					$report[$row_count][7] = $consultation;
+					$report[$row_count][8] = $counseling;
+					$report[$row_count][9] = $dental;
+					$report[$row_count][10] = $ecg;
+					$report[$row_count][11] = $laboratory;
+					$report[$row_count][12] = $nursing_fee;
+					$report[$row_count][13] = $paediatrics;
+					$report[$row_count][14] = $pharmacy;
+					$report[$row_count][15] = $physician;
+					$report[$row_count][16] = $physiotherapy;
+					$report[$row_count][17] = $procedures;
+					$report[$row_count][18] = $radiology;
+					$report[$row_count][19] = $ultrasound;
+					$report[$row_count][20] = $total_debit_notes;
+					$report[$row_count][21] = $total_credit_notes;
+					$report[$row_count][22] = $invoice_total;
+					$current_column = 23;
+					$total_paid = 0;
+					// display amounts collected on every payment method
 					foreach($payment_method_query->result() as $paymentmethod)
 					{
 						$payment_method_id = $paymentmethod->payment_method_id;
 						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
 						$report[$row_count][$current_column] = $amount_paid;
 						$current_column++;
+						$total_paid += $amount_paid;
 					}
-				
-					//display total for the current visit
-					
-					$report[$row_count][$current_column] = $payments_value;
+					// //display total for the current visit
+
+					$report[$row_count][$current_column] = ($total_paid);
 					$current_column++;
-					$report[$row_count][$current_column] = $balance;
+					$report[$row_count][$current_column] = ($total_paid - $invoice_total);
 					$current_column++;
 				}
 			}

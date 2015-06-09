@@ -77,8 +77,8 @@ class Reports extends auth
 		
 		if(isset( $_SESSION['all_transactions_search']))
 		{
-			//$visit_search = $_SESSION['all_transactions_search'];
-			//$table_search = $_SESSION['all_transactions_tables'];
+			$visit_search = $_SESSION['all_transactions_search'];
+			$table_search = $_SESSION['all_transactions_tables'];
 		}
 		
 		if(!empty($visit_search))

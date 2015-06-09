@@ -1220,13 +1220,25 @@ class Reception extends auth
 	
 	public function end_visit($visit_id, $page = NULL)
 	{
-		$data = array(
-        	"close_card" => 1,
-        	"visit_time_out" => date('Y-m-d H:i:s')
-    	);
-		$table = "visit";
-		$key = $visit_id;
-		$this->database->update_entry($table, $data, $key);
+		//udpate invoice data
+		if($this->reception_model->update_invoice_data($visit_id))
+		{
+			//die();
+			$data = array(
+				"close_card" => 1,
+				"visit_time_out" => date('Y-m-d H:i:s')
+			);
+			$table = "visit";
+			$key = $visit_id;
+			$this->database->update_entry($table, $data, $key);
+		
+			$this->session->set_userdata('success_message', 'Visit closed successfully');
+		}
+		
+		else
+		{
+			$this->session->set_userdata('error_message', 'Unable to close visit. Please try again');
+		}
 		
 		if($page == 0)
 		{
@@ -2421,5 +2433,33 @@ class Reception extends auth
 	public function update_patient_names()
 	{
 		$this->reception_model->update_patient_names();
+	}
+	
+	public function update_visits_with_charges($visit_id = NULL)
+	{
+		if($visit_id != NULL)
+		{
+			$this->db->where('visit_id > ', $visit_id);
+		}
+		$this->db->select('visit_id');
+		$query = $this->db->get('visit');
+		
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $res)
+			{
+				$visit_id = $res->visit_id;
+				//udpate invoice data
+				if($this->reception_model->update_invoice_data($visit_id))
+				{
+					echo $visit_id.' updated<br/>';
+				}
+				
+				else
+				{
+					echo $visit_id.' not updated<br/>';
+				}
+			}
+		}
 	}
 }

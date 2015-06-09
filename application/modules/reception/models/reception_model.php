@@ -862,6 +862,7 @@ class Reception_model extends CI_Model
 
 		return $patient;
 	}
+	
 	public function get_staff_faculty_details($strath_no)
 	{
 		$this->db->from('staff');
@@ -2348,6 +2349,264 @@ class Reception_model extends CI_Model
 					echo 'Unable to insert <br/>';
 				}
 			}
+		}
+	}
+	
+	public function update_invoice_data($visit_id)
+	{
+		$where['visit_id'] = $visit_id;
+		
+		//normal payments
+		$this->db->where($where);
+		$this->db->select('SUM(normal_payments.amount_paid) AS total_payments');
+		$query = $this->db->get('normal_payments');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$total_payments = $row->total_payments;
+		}
+		else
+		{
+			$total_payments = 0;
+		}
+		
+		//total_debit_notes
+		$this->db->where($where);
+		$this->db->select('SUM(debit_notes.amount_paid) AS total_debit_notes');
+		$query = $this->db->get('debit_notes');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$total_debit_notes = $row->total_debit_notes;
+		}
+		else
+		{
+			$total_debit_notes = 0;
+		}
+		
+		//total_credit_notes
+		$this->db->where($where);
+		$this->db->select('SUM(credit_notes.amount_paid) AS total_credit_notes');
+		$query = $this->db->get('credit_notes');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$total_credit_notes = $row->total_credit_notes;
+		}
+		else
+		{
+			$total_credit_notes = 0;
+		}
+		
+		//consultation
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_consultation.consultation) AS consultation');
+		$query = $this->db->get('invoice_consultation');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$consultation = $row->consultation;
+		}
+		else
+		{
+			$consultation = 0;
+		}
+		
+		//counseling
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_counseling.counseling) AS counseling');
+		$query = $this->db->get('invoice_counseling');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$counseling = $row->counseling;
+		}
+		else
+		{
+			$counseling = 0;
+		}
+		
+		//dental
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_dental.dental) AS dental');
+		$query = $this->db->get('invoice_dental');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$dental = $row->dental;
+		}
+		else
+		{
+			$dental = 0;
+		}
+		
+		//ecg
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_ecg.ecg) AS ecg');
+		$query = $this->db->get('invoice_ecg');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$ecg = $row->ecg;
+		}
+		else
+		{
+			$ecg = 0;
+		}
+		
+		//laboratory
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_laboratory.laboratory) AS laboratory');
+		$query = $this->db->get('invoice_laboratory');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$laboratory = $row->laboratory;
+		}
+		else
+		{
+			$laboratory = 0;
+		}
+		
+		//normal payments
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_nursing_fee.nursing_fee) AS nursing_fee');
+		$query = $this->db->get('invoice_nursing_fee');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$nursing_fee = $row->nursing_fee;
+		}
+		else
+		{
+			$nursing_fee = 0;
+		}
+		
+		//paediatrics
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_paediatrics.paediatrics) AS paediatrics');
+		$query = $this->db->get('invoice_paediatrics');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$paediatrics = $row->paediatrics;
+		}
+		else
+		{
+			$paediatrics = 0;
+		}
+		
+		//pharmacy
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_pharmacy.pharmacy) AS pharmacy');
+		$query = $this->db->get('invoice_pharmacy');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$pharmacy = $row->pharmacy;
+		}
+		else
+		{
+			$pharmacy = 0;
+		}
+		
+		//physician
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_physician.physician) AS physician');
+		$query = $this->db->get('invoice_physician');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$physician = $row->physician;
+		}
+		else
+		{
+			$physician = 0;
+		}
+		
+		//physiotherapy
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_physiotherapy.physiotherapy) AS physiotherapy');
+		$query = $this->db->get('invoice_physiotherapy');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$physiotherapy = $row->physiotherapy;
+		}
+		else
+		{
+			$physiotherapy = 0;
+		}
+		
+		//procedures
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_procedures.procedures) AS procedures');
+		$query = $this->db->get('invoice_procedures');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$procedures = $row->procedures;
+		}
+		else
+		{
+			$procedures = 0;
+		}
+		
+		//radiology
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_radiology.radiology) AS radiology');
+		$query = $this->db->get('invoice_radiology');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$radiology = $row->radiology;
+		}
+		else
+		{
+			$radiology = 0;
+		}
+		
+		//ultrasound
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_ultrasound.ultrasound) AS ultrasound');
+		$query = $this->db->get('invoice_ultrasound');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$ultrasound = $row->ultrasound;
+		}
+		else
+		{
+			$ultrasound = 0;
+		}
+		
+		$data = array(
+			'total_payments' => $total_payments,
+			'total_debit_notes' => $total_debit_notes,
+			'total_credit_notes' => $total_credit_notes,
+			'consultation' => $consultation,
+			'counseling' => $counseling,
+			'dental' => $dental,
+			'ecg' => $ecg,
+			'laboratory' => $laboratory,
+			'nursing_fee' => $nursing_fee,
+			'paediatrics' => $paediatrics,
+			'pharmacy' => $pharmacy,
+			'physician' => $physician,
+			'physiotherapy' => $physiotherapy,
+			'procedures' => $procedures,
+			'radiology' => $radiology,
+			'ultrasound' => $ultrasound
+		);
+		
+		$this->db->where('visit_id', $visit_id);
+		if($this->db->update('visit', $data))
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
 		}
 	}
 }
