@@ -205,11 +205,69 @@ class Reports_model extends CI_Model
 	public function get_all_visits($table, $where, $per_page, $page, $order = NULL)
 	{
 		//retrieve all users
-		$this->db->from($table);
+		/*$this->db->from($table);
 		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.visit_type_id, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
 		$this->db->where($where);
-		$this->db->order_by('visit.visit_date, visit.visit_time','DESC');
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
 		$this->db->group_by('visit.visit_id');
+		$query = $this->db->get('', $per_page, $page);*/
+		
+		/*$this->db->select('
+		visit.visit_id, visit.visit_date, 
+		visit.visit_time_out, 
+		visit.visit_time, 
+		(visit.visit_time_out - visit.visit_time) AS waiting_time, 
+		patients.visit_type_id, 
+		patients.visit_type_id, 
+		patients.patient_othernames, 
+		patients.patient_surname, 
+		patients.dependant_id, 
+		patients.strath_no,patients.patient_national_id, 
+		visit_type.visit_type_name, 
+		personnel.personnel_onames, 
+		personnel.personnel_fname, 
+		SUM(normal_payments.amount_paid) AS total_payments, 
+		SUM(debit_notes.amount_paid) AS total_debit_notes, 
+		SUM(credit_notes.amount_paid) AS total_credit_notes, 
+		SUM(invoice_consultation.consultation) AS consultation, 
+		SUM(invoice_counseling.counseling) AS counseling, 
+		SUM(invoice_dental.dental) AS dental, 
+		SUM(invoice_ecg.ecg) AS ecg, 
+		SUM(invoice_laboratory.laboratory) AS laboratory, 
+		SUM(invoice_nursing_fee.nursing_fee) AS nursing_fee, 
+		SUM(invoice_paediatrics.paediatrics) AS paediatrics, 
+		SUM(invoice_pharmacy.pharmacy) AS pharmacy, 
+		SUM(invoice_physician.physician) AS physician, 
+		SUM(invoice_physiotherapy.physiotherapy) AS physiotherapy, 
+		SUM(invoice_procedures.procedures) AS procedures, 
+		SUM(invoice_radiology.radiology) AS radiology, 
+		SUM(invoice_ultrasound.ultrasound) AS ultrasound');
+		$this->db->from($table);
+		$this->db->where($where);
+		$this->db->join('patients', 'patients.patient_id = visit.patient_id', 'inner');
+		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
+		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
+		$this->db->join('normal_payments', 'normal_payments.visit_id = visit.visit_id', 'left');
+		$this->db->join('debit_notes', 'debit_notes.visit_id = visit.visit_id', 'left');
+		$this->db->join('credit_notes', 'credit_notes.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_consultation', 'invoice_consultation.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_counseling', 'invoice_counseling.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_dental', 'invoice_dental.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_ecg', 'invoice_ecg.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_laboratory', 'invoice_laboratory.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_nursing_fee', 'invoice_nursing_fee.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_paediatrics', 'invoice_paediatrics.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_pharmacy', 'invoice_pharmacy.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_physician', 'invoice_physician.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_physiotherapy', 'invoice_physiotherapy.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_procedures', 'invoice_procedures.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_radiology', 'invoice_radiology.visit_id = visit.visit_id', 'left');
+		$this->db->join('invoice_ultrasound', 'invoice_ultrasound.visit_id = visit.visit_id', 'left');
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
+		$this->db->group_by('visit.visit_id');*/
+		
+		$this->db->from('all_transactions');
+		$this->db->where($where);
 		$query = $this->db->get('', $per_page, $page);
 		
 		return $query;
@@ -1219,6 +1277,7 @@ class Reports_model extends CI_Model
 		
 		$this->export_transactions();
 	}
+
 	public function get_service_total_debits($service_id)
 	{
 		$table = "payments";
@@ -1281,6 +1340,34 @@ class Reports_model extends CI_Model
 		{
 			return 0;
 		}
-
+	}
+	public function all_visit_payments($payments_where, $payments_table)
+	{
+		$this->db->select('visit.visit_date, visit.visit_time, payments.*');
+		$this->db->where($payments_where);
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, payments.visit_id ASC');
+		$query = $this->db->get($payments_table);
+		
+		return $query;
+	}
+	
+	public function all_visit_charges($payments_where, $payments_table)
+	{
+		$this->db->select('visit.visit_date, visit.visit_time, service_charge.service_id, visit_charge.*');
+		$this->db->where($payments_where.' AND visit_charge.visit_id = visit.visit_id AND visit_charge.service_charge_id = service_charge.service_charge_id');
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit_charge.visit_id ASC, service_charge.service_id ASC');
+		$query = $this->db->get($payments_table.', service_charge, visit_charge');
+		
+		return $query;
+	}
+	
+	public function all_pres_charges($payments_where, $payments_table)
+	{
+		$this->db->select('visit.visit_date, visit.visit_time, pres.service_charge_id, pres.visit_id');
+		$this->db->where($payments_where.' AND pres.visit_id = visit.visit_id');
+		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, pres.visit_id ASC');
+		$query = $this->db->get($payments_table.', pres');
+		
+		return $query;
 	}
 }

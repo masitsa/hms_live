@@ -1,8 +1,8 @@
 <!-- search -->
 <?php echo $this->load->view('search/transactions', '', TRUE);?>
 <!-- end search -->
-<?php echo $this->load->view('transaction_statistics', '', TRUE);?>
- 
+<?php //echo $this->load->view('transaction_statistics', '', TRUE);?>
+
 <div class="row">
     <div class="col-md-12">
 
@@ -40,34 +40,24 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
-						  <th>Visit Date</th>
+						  <th>Visit date</th>
 						  <th>Patient</th>
 						  <th>Category</th>
 						  <th>Doctor</th>
-						  <th>School/ Faculty/ Department</th>
 						  <th>Staff/ Student/ID No.</th>
-						  <th>Cash</th>
-						  
-				';
-				
-			foreach($services_query->result() as $service)
-			{
-				//$result .= '<th>'.$service->service_name.'</th>';
-			}
-				
-			$result .= '
-			
-						  <th>Invoice Total</th>
+						  <th>Invoice total</th>
+						  <th>Payments total</th>
 						  <th>Balance</th>
+						  <th colspan="2">Actions</th>
 						</tr>
 					  </thead>
 					  <tbody>
-			';
-			
-			$personnel_query = $this->personnel_model->get_all_personnel();
+						  
+				';
 			
 			foreach ($query->result() as $row)
 			{
+				$count++;
 				$total_invoiced = 0;
 				$visit_date = date('jS M Y',strtotime($row->visit_date));
 				$visit_time = date('H:i a',strtotime($row->visit_time));
@@ -80,85 +70,36 @@
 					$visit_time_out = '-';
 				}
 				$visit_id = $row->visit_id;
-				$patient_id = $row->patient_id;
-				$personnel_id = $row->personnel_id;
-				$dependant_id = $row->dependant_id;
 				$strath_no = $row->strath_no;
-				$visit_type_id = $row->visit_type_id;
-				$visit_type = $row->visit_type;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
 				
-				$patient = $this->reception_model->patient_names2($patient_id, $visit_id);
-				$visit_type = $patient['visit_type'];
-				$patient_type = $patient['patient_type'];
-				$patient_othernames = $patient['patient_othernames'];
-				$patient_surname = $patient['patient_surname'];
-				$patient_date_of_birth = $patient['patient_date_of_birth'];
-				$gender = $patient['gender'];
-				$faculty = $patient['faculty'];
-				if($patient['staff_dependant_no'] != 0)
-				{
-					$strath_no = $patient['staff_dependant_no'];
-				}
-				else
-				{
-					$strath_no = $strath_no;
-				}
-
-				// this is to check for any credit note or debit notes
-				$payments_value = $this->accounts_model->total_payments($visit_id);
-
-				$invoice_total = $this->accounts_model->total_invoice($visit_id);
-
-				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
-				// end of the debit and credit notes
-
-
-				//creators and editors
-				if($personnel_query->num_rows() > 0)
-				{
-					$personnel_result = $personnel_query->result();
-					
-					foreach($personnel_result as $adm)
-					{
-						$personnel_id2 = $adm->personnel_id;
-						
-						if($personnel_id == $personnel_id2)
-						{
-							$doctor = $adm->personnel_onames.' '.$adm->personnel_fname;
-							break;
-						}
-						
-						else
-						{
-							$doctor = '-';
-						}
-					}
-				}
+				$visit_type = $row->visit_type_name;
+				$personnel_othernames = $row->personnel_onames;
+				$personnel_fname = $row->personnel_fname;
+				$total_payments = $row->total_payments;
+				$total_debit_notes = $row->total_debit_notes;
+				$total_credit_notes = $row->total_credit_notes;
+				$consultation = $row->consultation;
+				$counseling = $row->counseling;
+				$dental = $row->dental;
+				$ecg = $row->ecg;
+				$laboratory = $row->laboratory;
+				$nursing_fee = $row->nursing_fee;
+				$paediatrics = $row->paediatrics;
+				$pharmacy = $row->pharmacy;
+				$physician = $row->physician;
+				$physiotherapy = $row->physiotherapy;
+				$procedures = $row->procedures;
+				$radiology = $row->radiology;
+				$ultrasound = $row->ultrasound;
+				$invoice_total = $consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound;
 				
-				else
-				{
-					$doctor = '-';
-				}
+				$total_invoiced = ($invoice_total + $total_debit_notes) - $total_credit_notes;
+				$balance = $total_payments - $total_invoiced;
+				$doctor = $personnel_othernames.' '.$personnel_fname;
 				
-				$count++;
-				
-				//payment data
-				$cash = $this->reports_model->get_all_visit_payments($visit_id);
-				$charges = '';
-				
-				foreach($services_query->result() as $service)
-				{
-					$service_id = $service->service_id;
-					$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
-					$total_invoiced += $visit_charge;
-					
-					//$charges .= '<td>'.$visit_charge.'</td>';
-				}
-
-				// payment value ///
-				
-				//display all debtors
-				if($debtors == 'true' && (($cash - $total_invoiced) > 0))
+				if($debtors == 'true' && ($balance > 0))
 				{
 					$result .= 
 						'
@@ -168,14 +109,12 @@
 								<td>'.$patient_surname.' '.$patient_othernames.'</td>
 								<td>'.$visit_type.'</td>
 								<td>'.$doctor.'</td>
-								<td>'.$faculty.'</td>
 								<td>'.$strath_no.'</td>
-								<td>'.$payments_value.'</td>
-								'.$charges;
-						
-					$result .= '
-								<td>'.$invoice_total.'</td>
+								<td>'.$total_invoiced.'</td>
+								<td>'.$total_payments.'</td>
 								<td>'.($balance).'</td>
+								<td><a href="'.site_url().'/accounts/print_receipt_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-info">Receipt</a></td>
+								<td><a href="'.site_url().'/accounts/print_invoice_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-success">Invoice </a></td>
 							</tr> 
 					';
 				}
@@ -191,14 +130,12 @@
 								<td>'.$patient_surname.' '.$patient_othernames.'</td>
 								<td>'.$visit_type.'</td>
 								<td>'.$doctor.'</td>
-								<td>'.$faculty.'</td>
 								<td>'.$strath_no.'</td>
-								<td>'.$payments_value.'</td>
-						'.$charges;
-						
-					$result .= '
-								<td>'.$invoice_total.'</td>
+								<td>'.$total_invoiced.'</td>
+								<td>'.$total_payments.'</td>
 								<td>'.($balance).'</td>
+								<td><a href="'.site_url().'/accounts/print_receipt_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-info">Receipt</a></td>
+								<td><a href="'.site_url().'/accounts/print_invoice_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-success">Invoice </a></td>
 							</tr> 
 					';
 				}

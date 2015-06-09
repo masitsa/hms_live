@@ -2417,4 +2417,9 @@ class Reception extends auth
 		
 		var_dump($result);
 	}
+	
+	public function update_patient_names()
+	{
+		$this->reception_model->update_patient_names();
+	}
 }

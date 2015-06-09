@@ -68,6 +68,107 @@ class Reports extends auth
 	
 	public function all_transactions($module = 'admin')
 	{
+		$where = 'visit_date = \''.date('Y-m-d').'\'';
+		$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
+		
+		$table = 'visit';
+		$visit_search = '';
+		$table_search = '';
+		
+		if(isset( $_SESSION['all_transactions_search']))
+		{
+			//$visit_search = $_SESSION['all_transactions_search'];
+			//$table_search = $_SESSION['all_transactions_tables'];
+		}
+		
+		if(!empty($visit_search))
+		{
+			$where = $visit_search;
+		
+			if(!empty($table_search))
+			{
+				$table .= $table_search;
+			}
+		}
+		
+		if($module == NULL)
+		{
+			$segment = 4;
+		}
+		else
+		{
+			$segment = 5;	
+		}
+		
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'/administration/reports/all_transactions/'.$module;
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 1;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->reports_model->get_all_visits($table, $where, $config["per_page"], $page, 'ASC');
+		
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['search'] = $visit_search;
+		
+		$data['title'] = $this->session->userdata('page_title');
+		$v_data['title'] = $this->session->userdata('page_title');
+		$v_data['debtors'] = $this->session->userdata('debtors');
+		
+		$v_data['type'] = $this->reception_model->get_types();
+		$v_data['doctors'] = $this->reception_model->get_doctor();
+		$v_data['module'] = $module;
+		
+		$data['content'] = $this->load->view('reports/all_transactions', $v_data, true);
+		
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else if($module == 'admin')
+		{
+			$data['sidebar'] = 'admin_sidebar';
+		}
+		else
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+		}
+		
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	
+	public function all_transactions_old($module = 'admin')
+	{
 		$where = 'visit.patient_id = patients.patient_id ';
 		$table = 'visit, patients';
 		$visit_search = $_SESSION['all_transactions_search'];
@@ -85,7 +186,7 @@ class Reports extends auth
 		
 		else
 		{
-			$where .= ' AND visit.visit_date = \''.date('Y-m-d').'\'';
+			$where .= 'visit.visit_date = \''.date('Y-m-d').'\'';
 			$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
 		}
 		
@@ -98,12 +199,33 @@ class Reports extends auth
 			$segment = 5;	
 		}
 		
+		//get all payments
+		$payments_where = $where.' AND visit.visit_id = payments.visit_id AND payments.payment_type = 1 AND payments.payment_status = 1';
+		$payments_table = $table.', payments';
+		$v_data['all_payments'] = $this->reports_model->all_visit_payments($payments_where, $payments_table);
+		
+		//all invoice charges
+		$v_data['all_charges'] = $this->reports_model->all_visit_charges($where, $table);
+		
+		//all from pres for pharmacy check
+		$v_data['all_pres'] = $this->reports_model->all_pres_charges($where, $table);
+		
+		//all debit notes
+		$payments_where = $where.' AND visit.visit_id = payments.visit_id AND payments.payment_type = 2 AND payments.payment_status = 1';
+		$payments_table = $table.', payments';
+		$v_data['all_debit_notes'] = $this->reports_model->all_visit_payments($payments_where, $payments_table);
+		
+		//all credit notes
+		$payments_where = $where.' AND visit.visit_id = payments.visit_id AND payments.payment_type = 3 AND payments.payment_status = 1';
+		$payments_table = $table.', payments';
+		$v_data['all_credit_notes'] = $this->reports_model->all_visit_payments($payments_where, $payments_table);
+		
 		//pagination
 		$this->load->library('pagination');
 		$config['base_url'] = site_url().'/administration/reports/all_transactions/'.$module;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
-		$config['per_page'] = 20;
+		$config['per_page'] = 100;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -521,19 +643,19 @@ class Reports extends auth
 		
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$visit_date = 'visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 			$search_title .= 'Visit date from '.date('jS M Y', strtotime($visit_date_from)).' to '.date('jS M Y', strtotime($visit_date_to)).' ';
 		}
 		
 		else if(!empty($visit_date_from))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_date = 'visit_date = \''.$visit_date_from.'\'';
 			$search_title .= 'Visit date of '.date('jS M Y', strtotime($visit_date_from)).' ';
 		}
 		
 		else if(!empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_date = 'visit_date = \''.$visit_date_to.'\'';
 			$search_title .= 'Visit date of '.date('jS M Y', strtotime($visit_date_to)).' ';
 		}
 		
@@ -614,17 +736,17 @@ class Reports extends auth
 		
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$visit_date = 'visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 		}
 		
 		else if(!empty($visit_date_from))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_date = 'visit.visit_date = \''.$visit_date_from.'\'';
 		}
 		
 		else if(!empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_date = 'visit.visit_date = \''.$visit_date_to.'\'';
 		}
 		
 		else
@@ -754,17 +876,17 @@ class Reports extends auth
 		
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$visit_date = 'visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 		}
 		
 		else if(!empty($visit_date_from))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_date = 'visit.visit_date = \''.$visit_date_from.'\'';
 		}
 		
 		else if(!empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_date = 'visit.visit_date = \''.$visit_date_to.'\'';
 		}
 		
 		else
