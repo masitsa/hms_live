@@ -710,7 +710,7 @@ class Reception_model extends CI_Model
      
      $patient_othernames = $dependants_result->other_names;
      $patient_surname = $dependants_result->surname;
-     $patient_date_of_birth = $dependants_result->DOB;
+     $patient_date_of_birth = $dependants_result->patient_date_of_birth;
      $relationship = $dependants_result->relation;
      $gender = $dependants_result->Gender;
      $faculty = $this->get_staff_faculty_details($dependant_id);
