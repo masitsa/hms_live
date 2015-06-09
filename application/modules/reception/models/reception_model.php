@@ -2196,7 +2196,6 @@ class Reception_model extends CI_Model
 		
 		return $query;
 	}
-<<<<<<< HEAD
 	public function get_all_ongoing_visits3()
 	{
 		//retrieve all users
@@ -2207,7 +2206,7 @@ class Reception_model extends CI_Model
 		$query = $this->db->get('',10);
 		
 		return $query;
-=======
+	}
 	
 	public function update_patient_names()
 	{
@@ -2366,7 +2365,6 @@ class Reception_model extends CI_Model
 				}
 			}
 		}
->>>>>>> d5734cfdf8ab9d4dacac8aae3fff649b0e2e8c37
 	}
 }
 ?>
