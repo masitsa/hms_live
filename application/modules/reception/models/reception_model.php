@@ -784,7 +784,7 @@ class Reception_model extends CI_Model
 				
 				$patient_surname = $student_result->Surname;
 				$patient_othernames = $student_result->Other_names;
-				$patient_date_of_birth = $student_result->DOB;
+				$patient_date_of_birth = date('Y-m-d',strtotime($student_result->DOB));
 				$patient_phone1 = $student_result->contact;
 				$gender = $student_result->gender;
 				$faculty = $student_result->faculty;
@@ -838,6 +838,19 @@ class Reception_model extends CI_Model
 			}
 		}
 		
+		if(($gender == 'M') || ($gender == 'Male'))
+		{
+			$gender_id = 1;
+		}
+		else if(($gender == 'F') || ($gender == 'Female'))
+		{
+			$gender_id = 2;
+		}
+		else
+		{
+			$gender_id = 0;
+		}
+		
 		$patient['visit_type'] = $visit_type;
 		$patient['patient_type'] = $patient_type;
 		$patient['patient_othernames'] = $patient_othernames;
@@ -845,6 +858,7 @@ class Reception_model extends CI_Model
 		$patient['patient_date_of_birth'] = $patient_date_of_birth;
 		$patient['gender'] = $gender;
 		$patient['faculty'] = $faculty;
+		$patient['gender_id'] = $gender_id;
 
 		return $patient;
 	}
@@ -2176,6 +2190,165 @@ class Reception_model extends CI_Model
 		$query = $this->db->get();
 		
 		return $query;
+	}
+	
+	public function update_patient_names()
+	{
+		$table = "patients";
+		$where = "patient_id > 0";
+		$items = "*";
+		$order = "patient_surname";
+		
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		
+		foreach ($result as $row)
+		{
+			$patient_id = $row->patient_id;
+			$dependant_id = $row->dependant_id;
+			$patient_number = $row->patient_number;
+			$dependant_id = $row->dependant_id;
+			$strath_no = $row->strath_no;
+			$created_by = $row->created_by;
+			$modified_by = $row->modified_by;
+			$visit_type_id = $row->visit_type_id;
+			$created = $row->patient_date;
+			$last_modified = $row->last_modified;
+			$last_visit = $row->last_visit;
+			$visit_type = 0;
+			$check_id = $visit_type_id;
+			$visit_id = NULL;
+			
+			/*if($visit_id != NULL)
+			{
+				$visit_type = $row->visit_type;
+				$check_id = $visit_type;
+				
+				//a student being charged as an outsider
+				if(($visit_type == 3) && ($visit_type_id == 1))
+				{
+					$check_id = $visit_type_id;
+					$visit_type = 0;
+				}
+				
+				//staff being charged as an outsider
+				if(($visit_type == 3) && ($visit_type_id == 2))
+				{
+					$check_id = $visit_type_id;
+					$visit_type = 0;
+				}
+			}
+			
+			else
+			{
+				$visit_type = 0;
+			}*/
+			
+			if($visit_type_id != 3)
+			{
+				if($check_id < 3 && $dependant_id != NULL)
+				{
+					$patient_data = $this->get_strath_patient_data($check_id, $visit_id, $strath_no, $row, $dependant_id, $visit_type_id, $patient_id);
+					$visit_type = $patient_data['visit_type'];
+					$patient_type = $patient_data['patient_type'];
+					$patient_othernames = $patient_data['patient_othernames'];
+					$patient_surname = $patient_data['patient_surname'];
+					$patient_date_of_birth = $patient_data['patient_date_of_birth'];
+					$gender = $patient_data['gender'];
+					$gender_id = $patient_data['gender_id'];
+					$faculty = $patient_data['faculty'];
+				}
+				
+				//other patient
+				else
+				{
+					$patient_type = $this->reception_model->get_patient_type($visit_type_id);
+					
+					if($visit_type == 3)
+					{
+						$visit_type = 'Other';
+					}
+					else if($visit_type == 2)
+					{
+						$visit_type = 'Staff';
+					}
+					else if($visit_type == 1)
+					{
+						$visit_type = 'Student';
+					}
+					else if($visit_type == 4)
+					{
+						$visit_type = 'Insurance';
+					}
+					else
+					{
+						$visit_type = 'General';
+					}
+					
+					$patient_othernames = $row->patient_othernames;
+					$patient_surname = $row->patient_surname;
+					$patient_date_of_birth = $row->patient_date_of_birth;
+					$gender_id = $row->gender_id;
+					$faculty ='';
+					if($gender_id == 1)
+					{
+						$gender = 'M';
+					}
+					else
+					{
+						$gender = 'F';
+					}
+						
+					if(($patient_surname == '0.00') && ($patient_othernames == '0.00'))
+					{
+						$patient_data = $this->get_strath_patient_data($visit_type_id, $visit_id, $strath_no, $row, $dependant_id, $visit_type_id, $patient_id);
+						$patient_othernames = $patient_data['patient_othernames'];
+						$patient_surname = $patient_data['patient_surname'];
+						$patient_date_of_birth = $patient_data['patient_date_of_birth'];
+						$gender = $patient_data['gender'];
+						$faculty = $patient_data['faculty'];
+						$gender_id = $patient_data['gender_id'];
+					}
+					
+				}
+				
+				//update db
+				$data = array(
+					'patient_surname'=>ucwords(strtolower($patient_surname)),
+					'patient_othernames'=>ucwords(strtolower($patient_othernames)),
+					//'title_id'=>$this->input->post('title_id'),
+					'patient_date_of_birth'=>$patient_date_of_birth,
+					'gender_id'=>$gender_id,
+					//'religion_id'=>$this->input->post('religion_id'),
+					//'civil_status_id'=>$this->input->post('civil_status_id'),
+					//'patient_email'=>$this->input->post('patient_email'),
+					//'patient_address'=>$this->input->post('patient_address'),
+					//'patient_postalcode'=>$this->input->post('patient_postalcode'),
+					//'patient_town'=>$this->input->post('patient_town'),
+					//'patient_phone1'=>$this->input->post('patient_phone1'),
+					//'patient_phone2'=>$this->input->post('patient_phone2'),
+					//'patient_kin_sname'=>$this->input->post('patient_kin_sname'),
+					//'patient_kin_othernames'=>$this->input->post('patient_kin_othernames'),
+					//'relationship_id'=>$this->input->post('relationship_id'),
+					//'patient_national_id'=>$this->input->post('patient_national_id'),
+					//'patient_date'=>date('Y-m-d H:i:s'),
+					//'patient_number'=>$this->strathmore_population->create_patient_number(),
+					//'created_by'=>$this->session->userdata('personnel_id'),
+					//'modified_by'=>$this->session->userdata('personnel_id'),
+					//'visit_type_id'=>3,
+					//'dependant_id'=>$this->input->post('dependant_id'),
+					//'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact')
+				);
+				
+				$this->db->where('patient_id', $patient_id);
+				if($this->db->update('patients', $data))
+				{
+					echo $this->db->insert_id().'<br/>';
+				}
+				else{
+					echo 'Unable to insert <br/>';
+				}
+			}
+		}
 	}
 }
 ?>
