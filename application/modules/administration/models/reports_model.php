@@ -326,7 +326,7 @@ class Reports_model extends CI_Model
 		//retrieve all users
 		$this->db->from('payments');
 		$this->db->select('SUM(amount_paid) AS total_paid');
-		$this->db->where('visit_id = '.$visit_id.' AND payment_method_id = '.$payment_method_id.'');
+		$this->db->where('visit_id = '.$visit_id.' AND payment_method_id = '.$payment_method_id.' AND payment_type = 1');
 		$query = $this->db->get();
 		
 		$cash = $query->row();
