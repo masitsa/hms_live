@@ -2032,7 +2032,7 @@ class Reception_model extends CI_Model
 					$gender = $patient_data['gender'];
 					$gender_id = $patient_data['gender_id'];
 					$faculty = $patient_data['faculty'];
-					$contact = $patient_data['contact'];
+					$contact = '';//$patient_data['contact'];
 				}
 				
 				//other patient
@@ -2085,7 +2085,7 @@ class Reception_model extends CI_Model
 						$gender = $patient_data['gender'];
 						$faculty = $patient_data['faculty'];
 						$gender_id = $patient_data['gender_id'];
-						$contact = $patient_data['contact'];
+						$contact = '';//$patient_data['contact'];
 					}
 					
 				}
