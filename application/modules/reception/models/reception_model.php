@@ -140,16 +140,56 @@ class Reception_model extends CI_Model
 		
 		return $query;
 	}
+	
+	/*
+	*	Retrieve a single staff
+	*	@param int $strath_no
+	*
+	*/
+	public function get_patient_student($strath_no)
+	{
+		$this->db->from('patients');
+		$this->db->select('*');
+		$this->db->where('patients.visit_type_id = 1 AND patients.patient_delete = 0 AND strath_no = \''.$strath_no.'\'');
+		$query = $this->db->get();
+		
+		return $query;
+	}
 	/*
 	*	Retrieve a insert patient information
 	*	@param int $strath_no
 	*
 	*/
-	public function insert_into_patients($strath_no,$visit_type)
+	public function insert_into_patients($strath_no, $visit_type)
 	{
+		//get patients data
+		$patient_data = get_strath_patient_data($visit_type, $visit_id = NULL, $strath_no, $row = NULL, $dependant_id = NULL, $visit_type, $patient_id = NULL);
+		
+		$visit_type = $patient_data['visit_type'];
+		$patient_type = $patient_data['patient_type'];
+		$patient_othernames = $patient_data['patient_othernames'];
+		$patient_surname = $patient_data['patient_surname'];
+		$patient_date_of_birth = $patient_data['patient_date_of_birth'];
+		$gender = $patient_data['gender'];
+		$gender_id = $patient_data['gender_id'];
+		$faculty = $patient_data['faculty'];
+		$contact = '';//$patient_data['contact'];
+		
 		//  instert data into the patients table
 		$date = date("Y-m-d H:i:s");
-		$patient_data = array('patient_number'=>$this->strathmore_population->create_patient_number(),'patient_date'=>$date,'visit_type_id'=>$visit_type,'strath_no'=>$strath_no,'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'));
+		$patient_data = array(
+			'patient_number'=>$this->strathmore_population->create_patient_number(),
+			'patient_date'=>$date,
+			'visit_type_id'=>$visit_type,
+			'strath_no'=>$strath_no,
+			'created_by'=>$this->session->userdata('personnel_id'),
+			'modified_by'=>$this->session->userdata('personnel_id'),
+			'patient_surname'=>ucwords(strtolower($patient_surname)),
+			'patient_othernames'=>ucwords(strtolower($patient_othernames)),
+			'patient_date_of_birth'=>$patient_date_of_birth,
+			'patient_phone1'=>$contact,
+			'gender_id'=>$gender_id,
+		);
 		$this->db->insert('patients', $patient_data);
 		return $this->db->insert_id();
 	}

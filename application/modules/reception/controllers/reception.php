@@ -627,7 +627,7 @@ class Reception extends auth
 			if ($query->num_rows() > 0)
 			{
 				//check if they exist in patients
-				$query_staff = $this->reception_model->get_patient_staff($this->input->post('student_number'));
+				$query_staff = $this->reception_model->get_patient_student($this->input->post('student_number'));
 				
 				if ($query_staff->num_rows() > 0)
 				{
@@ -683,7 +683,6 @@ class Reception extends auth
 					$this->session->set_userdata("error_message","Could not add patient. Please try again");
 					$this->add_patient();
 				}
-	
 			}
 		}
 		

@@ -56,11 +56,13 @@ class Strathmore_population extends CI_Model
 				$oname=str_replace("'", "", "$oname1");
 				$GUARDIAN_NAME=str_replace("'", "", "$GUARDIAN_NAME1");
 				
+				$date = date("Y-m-d H:i:s");
+				
 				if(!empty($STUDENT_NO))
 				{
 					$exists = $this->student_exists($STUDENT_NO);
 					
-					$data = array('title_id'=>'','patient_surname'=>$name,'patient_othernames'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
+					$data = array('patient_number'=>$this->create_patient_number(),'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'),'patient_date'=>$date,'visit_type_id'=>1,'strath_no'=>$STUDENT_NO, 'title_id'=>'','patient_surname'=>$name,'patient_othernames'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
 					
 					if(!$exists)
 					{
@@ -72,18 +74,15 @@ class Strathmore_population extends CI_Model
 						$this->db->where('strath_no', $STUDENT_NO);
 						$this->db->update('patients', $data);
 					}
-				
-					$date = date("Y-m-d H:i:s");
 
 					//  data for patients patient date, visit type, strath number created by and modified by fields
-					
-					if($student_id != NULL)
+					/*if($student_id != NULL)
 					{
-						$patient_data = array('patient_number'=>$this->create_patient_number(),'patient_date'=>$date,'visit_type_id'=>1,'strath_no'=>$STUDENT_NO,'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'));
+						$data = array('patient_number'=>$this->create_patient_number(),'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'),'patient_date'=>$date,'visit_type_id'=>1,'strath_no'=>$STUDENT_NO, 'title_id'=>'','patient_surname'=>$name,'patient_othernames'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
 
-						$this->db->insert('patients', $patient_data);
+						$this->db->insert('patients', $data);
 						return $this->db->insert_id();
-					}
+					}*/
 				}
 				else{
 					$this->session->set_userdata("error_message","Student could not be found");
@@ -185,9 +184,9 @@ class Strathmore_population extends CI_Model
 					$gender = '';
 				}
 				$exists = $this->staff_exists($staff_no);
-				
+				$date = date("Y-m-d H:i:s");
 				//  insert data into the staff table
-				$data = array('patient_surname'=>$emp_lastname,'patient_other_names'=>$other_name,'patient_date_of_birth'=>$emp_birthday,'patient_phone1'=>$emp_mobile,'gender_id'=>$gender,'strath_no'=>$staff_no,'visit_type_id'=>2,'department'=>$department);
+				$data = array('patient_number'=>$this->create_patient_number(),'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'),'patient_date'=>$date,'patient_surname'=>$emp_lastname,'patient_other_names'=>$other_name,'patient_date_of_birth'=>$emp_birthday,'patient_phone1'=>$emp_mobile,'gender_id'=>$gender,'strath_no'=>$staff_no,'visit_type_id'=>2,'department'=>$department);
 				if($exists == FALSE)
 				{
 					//echo 'title='.$Title.'<br/>Surname='.$Surname1.'<br/>Other_names='.$Other_Name1.'<br/>DOB='.$DOB.'<br/>contact='.$Tel_1.'<br/>gender='.$Gender.'<br/>Staff_Number='.$Employee_Code.'<br/>staff_system_id='.$E_ID;
