@@ -155,10 +155,11 @@ class Reception_model extends CI_Model
 	}
 	public function get_student_new($strath_no)
 	{
-		// $this->db->from('student');
-		$this->db->from('patients');
+		$this->db->from('student');
+		//$this->db->from('patients');
 		$this->db->select('*');
-		$this->db->where('strath_no = \''.$strath_no.'\'');
+		//$this->db->where('strath_no = \''.$strath_no.'\'');
+		$this->db->where('student_Number = \''.$strath_no.'\'');
 		$query = $this->db->get();
 		
 		return $query;
@@ -807,8 +808,6 @@ class Reception_model extends CI_Model
 			if($student_query->num_rows() > 0)
 			{
 				$student_result = $student_query->row();
-
-
 				$patient_surname = $student_result->patient_surname;
 				$patient_othernames = $student_result->patient_othernames;
 				$patient_date_of_birth = $student_result->patient_date_of_birth;
