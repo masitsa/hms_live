@@ -173,14 +173,53 @@
 				$visit_table_visit_type = $visit_type;
 				$patient_table_visit_type = $visit_type_id;
 				$patient_national_id = $row->patient_national_id;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
+				$patient_date_of_birth = $row->patient_date_of_birth;
+				$gender_id = $row->gender_id;
+				$visit_type = $row->visit_type;
+				$patient_type = $row->visit_type_id;
+				if($gender_id == 1)
+				{
+					$gender = 'Male';
+				}
+				else
+				{
+					$gender = 'Female';
+				}
 				
-				$patient = $this->reception_model->patient_names2($patient_id, $visit_id);
+				if($visit_type == 1)
+				{
+					$visit_type = 'Student';
+				}
+				else if($visit_type == 2)
+				{
+					$visit_type = 'Staff';
+				}
+				else
+				{
+					$visit_type = 'Other';
+				}
+				
+				if($patient_type == 1)
+				{
+					$patient_type = 'Student';
+				}
+				else if($patient_type == 2)
+				{
+					$patient_type = 'Staff';
+				}
+				else
+				{
+					$patient_type = 'Other';
+				}
+				/*$patient = $this->reception_model->patient_names2($patient_id, $visit_id);
 				$visit_type = $patient['visit_type'];
 				$patient_type = $patient['patient_type'];
 				$patient_othernames = $patient['patient_othernames'];
 				$patient_surname = $patient['patient_surname'];
 				$patient_date_of_birth = $patient['patient_date_of_birth'];
-				$gender = $patient['gender'];
+				$gender = $patient['gender'];*/
 				
 				//creators and editors
 				if($personnel_query->num_rows() > 0)
