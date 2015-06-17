@@ -882,7 +882,7 @@ class Reception_model extends CI_Model
 		$patient['patient_surname'] = $patient_surname;
 		$patient['patient_date_of_birth'] = $patient_date_of_birth;
 		$patient['gender'] = $gender;
-		$patient['faculty'] = $faculty;
+		$patient['faculty'] = '';//$faculty;
 		$patient['gender_id'] = $gender_id;
 
 		return $patient;
