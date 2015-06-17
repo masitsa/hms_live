@@ -759,12 +759,12 @@ class Reception_model extends CI_Model
 				{
 					$staff_result = $staff_query->row();
 
-					$patient_surname = $staff_result->patient_surname;
-					$patient_othernames = $staff_result->patient_othernames;
-					$patient_date_of_birth = $staff_result->patient_date_of_birth;
-					$patient_phone1 = $staff_result->patient_phone1;
-					$gender = $staff_result->gender_id;
-					$faculty = $staff_result->department;
+					$patient_surname = $staff_result->Surname;
+					$patient_othernames = $staff_result->Other_names;
+					$patient_date_of_birth = $staff_result->DOB;
+					$patient_phone1 = '';//$staff_result->patient_phone1;
+					$gender = $staff_result->gender;
+					$faculty = '';//$staff_result->department;
 				}
 
 				else if(($row->patient_surname != '0.00') && ($row->patient_othernames != '0.00'))
@@ -808,14 +808,11 @@ class Reception_model extends CI_Model
 			if($student_query->num_rows() > 0)
 			{
 				$student_result = $student_query->row();
-				$patient_surname = $student_result->patient_surname;
-				$patient_othernames = $student_result->patient_othernames;
-				$patient_date_of_birth = $student_result->patient_date_of_birth;
-				$patient_phone1 = $student_result->patient_phone1;
-				$gender = $student_result->gender_id;
-
-
-				$faculty = $student_result->faculty;
+				$patient_surname = $student_result->Surname;
+				$patient_othernames = $student_result->Other_names;
+				$patient_date_of_birth = date('Y-m-d',strtotime($student_result->DOB));
+				$patient_phone1 = '';//$student_result->patient_phone1;
+				$gender = $student_result->gender;
 			}
 
 			else if(($row->patient_surname != '0.00') && ($row->patient_othernames != '0.00'))
