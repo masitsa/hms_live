@@ -51,7 +51,7 @@ class Reception_model extends CI_Model
 	{
 		//retrieve all users
 		$this->db->from($table);
-		$this->db->select('visit.*, visit_department.created AS visit_created, patients.patient_date_of_birth, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
+		$this->db->select('visit.*, visit_department.created AS visit_created, patients.gender_id, patients.patient_date_of_birth, patients.visit_type_id, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
 		$this->db->where($where);
 		$this->db->order_by('visit_department.created','ASC');
 		$query = $this->db->get('', $per_page, $page);
@@ -62,7 +62,7 @@ class Reception_model extends CI_Model
 	{
 		//retrieve all users
 		$this->db->from($table);
-		$this->db->select('visit.*, patients.visit_type_id, patients.patient_othernames, patients.patient_date_of_birth, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
+		$this->db->select('visit.*, patients.visit_type_id, patients.gender_id, patients.patient_othernames, patients.patient_date_of_birth, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id');
 		$this->db->where($where);
 		$this->db->order_by('visit.visit_date','ASC');
 		$query = $this->db->get('', $per_page, $page);
@@ -1961,7 +1961,7 @@ class Reception_model extends CI_Model
 	{
 		//retrieve all users
 		$this->db->from('visit, patients');
-		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.patient_date_of_birth, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.patient_phone1,patients.patient_phone2');
+		$this->db->select('visit.*, patients.visit_type_id, patients.visit_type_id, patients.gender_id, patients.patient_date_of_birth, patients.patient_othernames, patients.patient_surname, patients.dependant_id, patients.strath_no,patients.patient_national_id,patients.patient_phone1,patients.patient_phone2');
 		$this->db->where('visit.visit_delete = 0 AND patients.patient_delete = 0 AND visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.close_card = 2');
 		$this->db->order_by('visit.visit_date','ASC');
 		$query = $this->db->get('',10);

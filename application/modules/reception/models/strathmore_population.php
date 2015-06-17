@@ -60,7 +60,7 @@ class Strathmore_population extends CI_Model
 				{
 					$exists = $this->student_exists($STUDENT_NO);
 					
-					$data = array('title_id'=>'','patient_surname'=>$name,'patient_other_names'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
+					$data = array('title_id'=>'','patient_surname'=>$name,'patient_othernames'=>$oname,'patient_date_of_birth'=>$dob,'patient_phone1'=>$MOBILE_NO,'gender_id'=>$gender,'strath_no'=>$STUDENT_NO,'faculty'=>$FACULTIES,'patient_kin_sname'=>$GUARDIAN_NAME,'faculty'=>$FACULTIES);
 					
 					if(!$exists)
 					{
