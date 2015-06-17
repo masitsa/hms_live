@@ -694,6 +694,12 @@ class Reception_model extends CI_Model
 	//  function place to change 
 	public function get_strath_patient_data($check_id, $visit_id, $strath_no, $row, $dependant_id, $visit_type_id, $patient_id)
 	{
+		$patient_surname = '';
+		$patient_othernames = '';
+		$patient_date_of_birth = '';
+		$patient_phone1 = '';//$student_result->patient_phone1;
+		$gender = 0;
+		
 		//staff & dependant
 		if($check_id == 2)
 		{
@@ -813,34 +819,6 @@ class Reception_model extends CI_Model
 				$patient_date_of_birth = date('Y-m-d',strtotime($student_result->DOB));
 				$patient_phone1 = '';//$student_result->patient_phone1;
 				$gender = $student_result->gender;
-			}
-
-			else if(($row->patient_surname != '0.00') && ($row->patient_othernames != '0.00'))
-			{
-				$patient_othernames = $row->patient_othernames;
-				$patient_surname = $row->patient_surname;
-				$patient_date_of_birth = $row->patient_date_of_birth;
-				$gender_id = $row->gender_id;
-				$faculty = '';
-
-				if($gender_id == 1)
-				{
-				$gender = 'M';
-				}
-				else
-				{
-				$gender = 'F';
-				}
-			}
-
-			else
-			{
-				$patient_othernames = '<span class="label label-important">Student not found: '.$strath_no.'</span>';
-				$patient_surname = $patient_id;
-				$patient_date_of_birth = '';
-				$relationship = '';
-				$gender = '';
-				$faculty ='';
 			}
 		}
 
