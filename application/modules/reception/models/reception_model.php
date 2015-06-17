@@ -752,8 +752,8 @@ class Reception_model extends CI_Model
 			{
 				$patient_type = $this->reception_model->get_patient_type($visit_type_id, $dependant_id);
 				$visit_type = 'Staff';
-
-				$staff_query = $this->reception_model->get_staff_new($strath_no);
+				
+				$staff_query = $this->reception_model->get_staff($strath_no);
 
 				if($staff_query->num_rows() > 0)
 				{
