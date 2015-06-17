@@ -692,7 +692,7 @@ class Reception_model extends CI_Model
 		return $patient;
 	}
 	//  function place to change 
-	public function get_strath_patient_data($check_id, $visit_id, $strath_no, $row, $dependant_id, $visit_type_id, $patient_id)
+	public function get_strath_patient_data($check_id, $visit_id, $strath_no, $row, $dependant_id = NULL, $visit_type_id, $patient_id)
 	{
 		$patient_surname = '';
 		$patient_othernames = '';
@@ -2000,7 +2000,7 @@ class Reception_model extends CI_Model
 			
 			if($visit_type_id != 3)
 			{
-				if($check_id < 3 && $dependant_id != NULL)
+				if($check_id < 3)
 				{
 					$patient_data = $this->get_strath_patient_data($check_id, $visit_id, $strath_no, $row, $dependant_id, $visit_type_id, $patient_id);
 					$visit_type = $patient_data['visit_type'];
