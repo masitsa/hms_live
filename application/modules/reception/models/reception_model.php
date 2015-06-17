@@ -2123,7 +2123,7 @@ class Reception_model extends CI_Model
 				$this->db->where('patient_id', $patient_id);
 				if($this->db->update('patients', $data))
 				{
-					echo $this->db->insert_id().'<br/>';
+					echo $check_id.' - '.$visit_id.' - '.$strath_no.' - '.$dependant_id.' - '.$visit_type_id.' - '.$patient_id.'<br/>';
 				}
 				else{
 					echo 'Unable to insert <br/>';
