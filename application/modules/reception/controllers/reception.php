@@ -628,7 +628,7 @@ class Reception extends auth
 			{
 				//check if they exist in patients
 				$query_staff = $this->reception_model->get_patient_student($this->input->post('student_number'));
-				
+				//echo $query_staff->num_rows(); die();
 				if ($query_staff->num_rows() > 0)
 				{
 					$result_patient = $query_staff->row();
@@ -638,6 +638,7 @@ class Reception extends auth
 				{
 					$patient_id = $this->reception_model->insert_into_patients($this->input->post('student_number'),1);	
 				}
+				//echo $patient_id; die();
 				//$this->set_visit($patient_id);
 				// $search = ' AND patients.patient_id = '.$patient_id;
 				// $this->session->set_userdata('patient_search', $search);

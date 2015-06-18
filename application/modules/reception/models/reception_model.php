@@ -165,7 +165,7 @@ class Reception_model extends CI_Model
 		//get patients data
 		$patient_data = $this->get_strath_patient_data($visit_type, $visit_id = NULL, $strath_no, $row = NULL, $dependant_id = NULL, $visit_type, $patient_id = NULL);
 		
-		$visit_type = $patient_data['visit_type'];
+		//$visit_type = $patient_data['visit_type'];
 		$patient_type = $patient_data['patient_type'];
 		$patient_othernames = $patient_data['patient_othernames'];
 		$patient_surname = $patient_data['patient_surname'];
@@ -191,6 +191,7 @@ class Reception_model extends CI_Model
 			'gender_id'=>$gender_id,
 		);
 		$this->db->insert('patients', $patient_data);
+		//var_dump($patient_data);die();
 		return $this->db->insert_id();
 	}
 	public function get_student_new($strath_no)
