@@ -163,7 +163,7 @@ class Reception_model extends CI_Model
 	public function insert_into_patients($strath_no, $visit_type)
 	{
 		//get patients data
-		$patient_data = get_strath_patient_data($visit_type, $visit_id = NULL, $strath_no, $row = NULL, $dependant_id = NULL, $visit_type, $patient_id = NULL);
+		$patient_data = $this->get_strath_patient_data($visit_type, $visit_id = NULL, $strath_no, $row = NULL, $dependant_id = NULL, $visit_type, $patient_id = NULL);
 		
 		$visit_type = $patient_data['visit_type'];
 		$patient_type = $patient_data['patient_type'];
