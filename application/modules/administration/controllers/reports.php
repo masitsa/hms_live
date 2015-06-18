@@ -148,6 +148,86 @@ class Reports extends auth
 		$v_data['doctors'] = $this->reception_model->get_doctor();
 		$v_data['module'] = $module;
 		
+		//count student visits
+		$where2 = $where.' AND visit.visit_type = 1';
+		$v_data['students'] = $this->reception_model->count_items($table, $where2);
+		
+		//count staff visits
+		$where2 = $where.' AND visit.visit_type = 2';
+		$v_data['staff'] = $this->reception_model->count_items($table, $where2);
+		
+		//count other visits
+		$where2 = $where.' AND visit.visit_type = 3';
+		$v_data['other'] = $this->reception_model->count_items($table, $where2);
+		
+		//count insurance visits
+		$where2 = $where.' AND visit.visit_type = 4';
+		$v_data['insurance'] = $this->reception_model->count_items($table, $where2);
+		
+		//total patients
+		$v_data['total_patients'] = $config['total_rows'];
+		
+		//total revenue
+		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
+		$v_data['total_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
+		//var_dump($v_data['total_payments']);die();
+		//total students debt
+		$where2 = $where.' AND visit.visit_type = 1';
+		$total_students_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//students debit notes
+		$where2 = $where.' AND visit.visit_type = 1';
+		$student_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
+		//students credit notes
+		$where2 = $where.' AND visit.visit_type = 1';
+		$student_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
+		$v_data['total_students_debt'] = ($total_students_debt + $student_debit_notes) - $student_credit_notes;
+		
+		//total staff debt
+		$where2 = $where.' AND visit.visit_type = 2';
+		$total_staff_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//students debit notes
+		$where2 = $where.' AND visit.visit_type = 2';
+		$staff_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
+		//students credit notes
+		$where2 = $where.' AND visit.visit_type = 2';
+		$staff_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
+		$v_data['total_staff_debt'] = ($total_staff_debt + $staff_debit_notes) - $staff_credit_notes;
+		
+		//total other debt
+		$where2 = $where.' AND visit.visit_type = 3';
+		$total_other_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//students debit notes
+		$where2 = $where.' AND visit.visit_type = 3';
+		$other_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
+		//students credit notes
+		$where2 = $where.' AND visit.visit_type = 3';
+		$other_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
+		$v_data['total_other_debt'] = ($total_other_debt + $other_debit_notes) - $other_credit_notes;
+		
+		//total insurance debt
+		$where2 = $where.' AND visit.visit_type = 4';
+		$total_insurance_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//students debit notes
+		$where2 = $where.' AND visit.visit_type = 4';
+		$insurance_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
+		//students credit notes
+		$where2 = $where.' AND visit.visit_type = 4';
+		$insurance_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
+		$v_data['total_insurance_debt'] = ($total_insurance_debt + $insurance_debit_notes) - $insurance_credit_notes;
+		
+		//all normal payments
+		$v_data['normal_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
+		$v_data['payment_methods'] = $this->reports_model->get_payment_methods($where2, $table);
+		
+		//normal payments
+		$v_data['total_cash_collection'] = $this->reports_model->get_total_cash_collection($where, $table);
+		
+		//debit notes
+		$v_data['debit_notes'] = $this->reports_model->get_total_debit_notes($where, $table);
+		
+		//credit notes
+		$v_data['credit_notes'] = $this->reports_model->get_total_credit_notes($where, $table);
+		
 		$data['content'] = $this->load->view('reports/all_transactions', $v_data, true);
 		
 		if($module == "accounts")

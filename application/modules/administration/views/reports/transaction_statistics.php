@@ -85,7 +85,7 @@
 								$total_cash_breakdown = 0;
                                 if($payment_methods->num_rows() > 0)
                                 {
-                                    foreach($payment_methods->result() as $res)
+                                    /*foreach($payment_methods->result() as $res)
                                     {
                                         $method_name = $res->payment_method;
                                         $payment_method_id = $res->payment_method_id;
@@ -113,13 +113,13 @@
 											<td>'.number_format($total, 2).'</td>
 										</tr>
 										';
-                                    }
+                                    }*/
                                     
 									echo 
 									'
 									<tr>
 										<th>Total</th>
-										<td>'.number_format($total_cash_breakdown, 2).'</td>
+										<td>'.number_format($normal_payments, 2).'</td>
 									</tr>
 									';
                                 }

@@ -348,9 +348,9 @@ class Reports_model extends CI_Model
 	public function get_total_services_revenue($where, $table)
 	{
 		//invoiced for all except pharmacy
-		$this->db->from($table.', visit_charge, service_charge');
-		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
-		$this->db->where($where.' AND visit.visit_id = visit_charge.visit_id AND visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id != 4');
+		$this->db->from($table);
+		$this->db->select('SUM(visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound) AS total_invoiced');
+		$this->db->where($where);
 		$query = $this->db->get();
 		
 		$cash = $query->row();
@@ -415,22 +415,65 @@ class Reports_model extends CI_Model
 	public function get_total_cash_collection($where, $table)
 	{
 		//payments
-		$table_search = $_SESSION['all_transactions_tables'];
-		if(!empty($table_search) && ($table_search != ', debtor_invoice_item'))
-		{
-			$this->db->from($table);
-		}
-		
-		else
-		{
-			$this->db->from($table.', payments');
-		}
-		$this->db->select('SUM(payments.amount_paid) AS total_paid');
-		$this->db->where($where.' AND visit.visit_id = payments.visit_id');
+		$this->db->from($table);
+		$this->db->select('SUM(visit.total_payments) AS total_paid');
+		$this->db->where($where);
 		$query = $this->db->get();
 		
 		$cash = $query->row();
 		$total_paid = $cash->total_paid;
+		if($total_paid > 0)
+		{
+		}
+		
+		else
+		{
+			$total_paid = 0;
+		}
+		
+		return $total_paid;
+	}
+	
+	/*
+	*	Retrieve total revenue
+	*
+	*/
+	public function get_total_debit_notes($where, $table)
+	{
+		//payments
+		$this->db->from($table);
+		$this->db->select('SUM(visit.total_debit_notes) AS total_debit_notes');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_paid = $cash->total_debit_notes;
+		if($total_paid > 0)
+		{
+		}
+		
+		else
+		{
+			$total_paid = 0;
+		}
+		
+		return $total_paid;
+	}
+	
+	/*
+	*	Retrieve total revenue
+	*
+	*/
+	public function get_total_credit_notes($where, $table)
+	{
+		//payments
+		$this->db->from($table);
+		$this->db->select('SUM(visit.total_credit_notes) AS total_credit_notes');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_paid = $cash->total_credit_notes;
 		if($total_paid > 0)
 		{
 		}
