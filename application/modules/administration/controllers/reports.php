@@ -110,7 +110,7 @@ class Reports extends auth
 		$config['base_url'] = site_url().'/administration/reports/all_transactions/'.$module;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
-		$config['per_page'] = 1;
+		$config['per_page'] = 20;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';

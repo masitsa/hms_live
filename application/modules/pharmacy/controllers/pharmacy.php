@@ -2088,5 +2088,31 @@ class Pharmacy extends auth
 			}
 		}
 	}
+	
+	public function update_quantity()
+	{
+		$query = $this->db->get('drugs');
+		
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $rs10)
+			{
+				$drugs_id = $rs10->drugs_id;
+				$sales = $this->pharmacy_model->get_drug_units_sold($drugs_id);
+				
+				//update quantity
+				$this->db->where('drugs_id', $drugs_id);
+				$data['quantity'] = $sales;
+				if($this->db->update('drugs', $data))
+				{
+					echo $drugs_id.' updated with '.$sales.'<br/>';
+				}
+				else
+				{
+					echo $drugs_id.' not updated<br/>';
+				}
+			}
+		}
+	}
 }
 ?>
