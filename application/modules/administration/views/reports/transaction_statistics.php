@@ -28,11 +28,15 @@
                             <th>Other</th>
                             <td><?php echo $other;?></td>
                         </tr>
+                        <tr>
+                            <th>Unclosed visits</th>
+                            <td><?php echo $unclosed_visits;?></td>
+                        </tr>
                     </tbody>
                 </table>
                 <!-- Text -->
                 <div class="datas-text">
-                	Total Visits <span class="bold"><?php echo number_format($total_patients, 0);?></span>
+                	Total Visits <span class="bold"><?php echo number_format(($total_patients + $unclosed_visits), 0);?></span>
                 </div>
                 
                 <div class="clearfix"></div>

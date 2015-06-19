@@ -68,7 +68,7 @@ class Reports extends auth
 	
 	public function all_transactions($module = 'admin')
 	{
-		$where = 'visit_date = \''.date('Y-m-d').'\'';
+		$where = 'visit.visit_date = \''.date('Y-m-d').'\'';
 		$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
 		
 		$table = 'visit';
@@ -99,6 +99,11 @@ class Reports extends auth
 		{
 			$segment = 5;	
 		}
+		//total unclosed visits
+		$where_visit = $where.' AND visit.close_card = 0';
+		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
+		
+		$where .= ' AND visit.close_card = 1';
 		
 		//pagination
 		$this->load->library('pagination');
