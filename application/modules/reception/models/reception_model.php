@@ -2168,6 +2168,48 @@ class Reception_model extends CI_Model
 			$total_payments = 0;
 		}
 		
+		//cash payments
+		$this->db->where($where);
+		$this->db->select('SUM(cash_payments.amount_paid) AS total_payments');
+		$query = $this->db->get('cash_payments');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$cash_payments = $row->total_payments;
+		}
+		else
+		{
+			$cash_payments = 0;
+		}
+		
+		//cheque payments
+		$this->db->where($where);
+		$this->db->select('SUM(cheque_payments.amount_paid) AS total_payments');
+		$query = $this->db->get('cheque_payments');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$cheque_payments = $row->total_payments;
+		}
+		else
+		{
+			$cheque_payments = 0;
+		}
+		
+		//mpesa payments
+		$this->db->where($where);
+		$this->db->select('SUM(mpesa_payments.amount_paid) AS total_payments');
+		$query = $this->db->get('mpesa_payments');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$mpesa_payments = $row->total_payments;
+		}
+		else
+		{
+			$mpesa_payments = 0;
+		}
+		
 		//total_debit_notes
 		$this->db->where($where);
 		$this->db->select('SUM(debit_notes.amount_paid) AS total_debit_notes');
@@ -2380,6 +2422,9 @@ class Reception_model extends CI_Model
 		
 		$data = array(
 			'total_payments' => $total_payments,
+			'cash' => $cash_payments,
+			'cheque' => $cheque_payments,
+			'mpesa' => $mpesa_payments,
 			'total_debit_notes' => $total_debit_notes,
 			'total_credit_notes' => $total_credit_notes,
 			'consultation' => $consultation,

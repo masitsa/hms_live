@@ -435,6 +435,84 @@ class Reports_model extends CI_Model
 	}
 	
 	/*
+	*	Retrieve cash
+	*
+	*/
+	public function get_total_cash($where, $table)
+	{
+		//payments
+		$this->db->from($table);
+		$this->db->select('SUM(visit.cash) AS total_paid');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_paid = $cash->total_paid;
+		if($total_paid > 0)
+		{
+		}
+		
+		else
+		{
+			$total_paid = 0;
+		}
+		
+		return $total_paid;
+	}
+	
+	/*
+	*	Retrieve cheque
+	*
+	*/
+	public function get_total_cheque($where, $table)
+	{
+		//payments
+		$this->db->from($table);
+		$this->db->select('SUM(visit.cheque) AS total_paid');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_paid = $cash->total_paid;
+		if($total_paid > 0)
+		{
+		}
+		
+		else
+		{
+			$total_paid = 0;
+		}
+		
+		return $total_paid;
+	}
+	
+	/*
+	*	Retrieve mpesa
+	*
+	*/
+	public function get_total_mpesa($where, $table)
+	{
+		//payments
+		$this->db->from($table);
+		$this->db->select('SUM(visit.mpesa) AS total_paid');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_paid = $cash->total_paid;
+		if($total_paid > 0)
+		{
+		}
+		
+		else
+		{
+			$total_paid = 0;
+		}
+		
+		return $total_paid;
+	}
+	
+	/*
 	*	Retrieve total revenue
 	*
 	*/

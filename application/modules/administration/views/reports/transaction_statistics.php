@@ -122,6 +122,18 @@
 									echo 
 									'
 									<tr>
+										<th>Cash</th>
+										<td>'.number_format($total_cash, 2).'</td>
+									</tr>
+									<tr>
+										<th>Cheque</th>
+										<td>'.number_format($total_cheque, 2).'</td>
+									</tr>
+									<tr>
+										<th>Mpesa</th>
+										<td>'.number_format($total_mpesa, 2).'</td>
+									</tr>
+									<tr>
 										<th>Total</th>
 										<td>'.number_format($normal_payments, 2).'</td>
 									</tr>
