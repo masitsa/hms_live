@@ -99,11 +99,6 @@ class Reports extends auth
 		{
 			$segment = 5;	
 		}
-		//total unclosed visits
-		$where_visit = $where.' AND visit.close_card = 0';
-		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
-		
-		$where .= ' AND visit.close_card = 1';
 		
 		//pagination
 		$this->load->library('pagination');
@@ -153,6 +148,56 @@ class Reports extends auth
 		$v_data['doctors'] = $this->reception_model->get_doctor();
 		$v_data['module'] = $module;
 		
+		$data['content'] = $this->load->view('reports/all_transactions', $v_data, true);
+		
+		if($module == "accounts")
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+
+		}
+		else if($module == 'admin')
+		{
+			$data['sidebar'] = 'admin_sidebar';
+		}
+		else
+		{
+			$data['sidebar'] = 'accounts_sidebar';
+		}
+		
+		$this->load->view('auth/template_sidebar', $data);
+	}
+	
+	public function load_statistics()
+	{
+		$where = 'visit.visit_date = \''.date('Y-m-d').'\'';
+		$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
+		
+		$table = 'visit';
+		$visit_search = '';
+		$table_search = '';
+		
+		if(isset( $_SESSION['all_transactions_search']))
+		{
+			$visit_search = $_SESSION['all_transactions_search'];
+			$table_search = $_SESSION['all_transactions_tables'];
+		}
+		
+		if(!empty($visit_search))
+		{
+			$where = $visit_search;
+		
+			if(!empty($table_search))
+			{
+				$table .= $table_search;
+			}
+		}
+		$v_data['title'] = $this->session->userdata('page_title');
+		//total unclosed visits
+		$where_visit = $where.' AND visit.close_card = 0';
+		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
+		
+		$where .= ' AND visit.close_card = 1';
+		
 		//count student visits
 		$where2 = $where.' AND visit.visit_type = 1';
 		$v_data['students'] = $this->reception_model->count_items($table, $where2);
@@ -170,7 +215,7 @@ class Reports extends auth
 		$v_data['insurance'] = $this->reception_model->count_items($table, $where2);
 		
 		//total patients
-		$v_data['total_patients'] = $config['total_rows'];
+		$v_data['total_patients'] = $this->reception_model->count_items($table, $where);
 		
 		//total revenue
 		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
@@ -236,23 +281,7 @@ class Reports extends auth
 		//credit notes
 		$v_data['credit_notes'] = $this->reports_model->get_total_credit_notes($where, $table);
 		
-		$data['content'] = $this->load->view('reports/all_transactions', $v_data, true);
-		
-		if($module == "accounts")
-		{
-			$data['sidebar'] = 'accounts_sidebar';
-
-		}
-		else if($module == 'admin')
-		{
-			$data['sidebar'] = 'admin_sidebar';
-		}
-		else
-		{
-			$data['sidebar'] = 'accounts_sidebar';
-		}
-		
-		$this->load->view('auth/template_sidebar', $data);
+		echo $this->load->view('reports/transaction_statistics', $v_data, true);
 	}
 	
 	public function all_transactions_old($module = 'admin')

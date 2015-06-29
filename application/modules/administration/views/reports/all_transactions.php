@@ -1,7 +1,11 @@
 <!-- search -->
 <?php echo $this->load->view('search/transactions', '', TRUE);?>
 <!-- end search -->
-<?php echo $this->load->view('transaction_statistics', '', TRUE);?>
+<?php //echo $this->load->view('transaction_statistics', '', TRUE);?>
+
+<div id="transaction_statistics">
+	<div class="preloader"></div>
+</div>
 
 <div class="row">
     <div class="col-md-12">
@@ -175,3 +179,13 @@
       </div>
     </div>
   </div>
+  
+  <script type="text/javascript">
+  	$(document).ready(function(){
+			$.get( "<?php echo site_url();?>/administration/reports/load_statistics", function( data ) {
+				  $( "#transaction_statistics" ).html( data );
+			});
+		}
+	);
+	
+  </script>
