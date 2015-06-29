@@ -2240,6 +2240,20 @@ class Reception_model extends CI_Model
 		
 		//consultation
 		$this->db->where($where);
+		$this->db->select('SUM(invoice_clinic_meds.clinic_meds) AS clinic_meds');
+		$query = $this->db->get('invoice_clinic_meds');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$clinic_meds = $row->clinic_meds;
+		}
+		else
+		{
+			$clinic_meds = 0;
+		}
+		
+		//consultation
+		$this->db->where($where);
 		$this->db->select('SUM(invoice_consultation.consultation) AS consultation');
 		$query = $this->db->get('invoice_consultation');
 		if($query->num_rows() > 0)
@@ -2428,6 +2442,7 @@ class Reception_model extends CI_Model
 			'total_debit_notes' => $total_debit_notes,
 			'total_credit_notes' => $total_credit_notes,
 			'consultation' => $consultation,
+			'clinic_meds' => $clinic_meds,
 			'counseling' => $counseling,
 			'dental' => $dental,
 			'ecg' => $ecg,
@@ -2440,6 +2455,38 @@ class Reception_model extends CI_Model
 			'procedures' => $procedures,
 			'radiology' => $radiology,
 			'ultrasound' => $ultrasound
+		);
+		
+		$this->db->where('visit_id', $visit_id);
+		if($this->db->update('visit', $data))
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	public function update_clinic_meds($visit_id)
+	{
+		$where['visit_id'] = $visit_id;
+		
+		//clinic meds
+		$this->db->where($where);
+		$this->db->select('SUM(invoice_clinic_meds.clinic_meds) AS clinic_meds');
+		$query = $this->db->get('invoice_clinic_meds');
+		if($query->num_rows() > 0)
+		{
+			$row = $query->row();
+			$clinic_meds = $row->clinic_meds;
+		}
+		else
+		{
+			$clinic_meds = 0;
+		}
+		
+		$data = array(
+			'clinic_meds' => $clinic_meds
 		);
 		
 		$this->db->where('visit_id', $visit_id);

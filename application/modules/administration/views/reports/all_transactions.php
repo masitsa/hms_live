@@ -97,11 +97,18 @@
 				$procedures = $row->procedures;
 				$radiology = $row->radiology;
 				$ultrasound = $row->ultrasound;
-				$invoice_total = $consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound;
+				$clinic_meds = $row->clinic_meds;
+				$invoice_total = $consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound + $clinic_meds;
 				
 				$total_invoiced = ($invoice_total + $total_debit_notes) - $total_credit_notes;
-				$balance = $total_payments - $total_invoiced;
+				$balance = $total_invoiced - $total_payments;
 				$doctor = $personnel_othernames.' '.$personnel_fname;
+				
+				if($balance < 0)
+				{
+					$balance = $balance * -1;
+					$balance = '('.$balance.')';
+				}
 				
 				if($debtors == 'true' && ($balance > 0))
 				{
@@ -116,7 +123,7 @@
 								<td>'.$strath_no.'</td>
 								<td>'.$total_invoiced.'</td>
 								<td>'.$total_payments.'</td>
-								<td>'.($balance).'</td>
+								<td>'.$balance.'</td>
 								<td><a href="'.site_url().'/accounts/print_receipt_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-info">Receipt</a></td>
 								<td><a href="'.site_url().'/accounts/print_invoice_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-success">Invoice </a></td>
 							</tr> 
@@ -137,7 +144,7 @@
 								<td>'.$strath_no.'</td>
 								<td>'.$total_invoiced.'</td>
 								<td>'.$total_payments.'</td>
-								<td>'.($balance).'</td>
+								<td>'.$balance.'</td>
 								<td><a href="'.site_url().'/accounts/print_receipt_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-info">Receipt</a></td>
 								<td><a href="'.site_url().'/accounts/print_invoice_new/'.$visit_id.'" target="_blank" class="btn btn-sm btn-success">Invoice </a></td>
 							</tr> 

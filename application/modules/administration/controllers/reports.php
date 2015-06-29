@@ -69,7 +69,6 @@ class Reports extends auth
 	public function all_transactions($module = 'admin')
 	{
 		$where = 'visit.visit_date = \''.date('Y-m-d').'\'';
-		$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
 		
 		$table = 'visit';
 		$visit_search = '';
@@ -79,6 +78,11 @@ class Reports extends auth
 		{
 			$visit_search = $_SESSION['all_transactions_search'];
 			$table_search = $_SESSION['all_transactions_tables'];
+		}
+		
+		else
+		{
+			$this->session->set_userdata('search_title', ' Reports for '.date('jS M Y',strtotime(date('Y-m-d'))));
 		}
 		
 		if(!empty($visit_search))

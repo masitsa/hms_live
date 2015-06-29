@@ -2462,4 +2462,29 @@ class Reception extends auth
 			}
 		}
 	}
+	
+	public function update_visits_with_clinic_meds()
+	{
+		$this->db->where('visit_charge.service_charge_id = service_charge.service_charge_id AND service_charge.service_id = 15');
+		$this->db->select('visit_charge.visit_id');
+		$query = $this->db->get('visit_charge, service_charge');
+		
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $res)
+			{
+				$visit_id = $res->visit_id;
+				//udpate invoice data
+				if($this->reception_model->update_clinic_meds($visit_id))
+				{
+					echo $visit_id.' updated<br/>';
+				}
+				
+				else
+				{
+					echo $visit_id.' not updated<br/>';
+				}
+			}
+		}
+	}
 }

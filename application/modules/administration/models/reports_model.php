@@ -220,7 +220,7 @@ class Reports_model extends CI_Model
 		$this->db->join('patients', 'patients.patient_id = visit.patient_id', 'inner');
 		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
 		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
-		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
+		$this->db->order_by('visit.visit_date ASC, visit.visit_time ASC, visit.visit_id ASC');
 		$query = $this->db->get();
 		return $query;
 	}
@@ -655,10 +655,10 @@ class Reports_model extends CI_Model
 		$this->db->join('patients', 'patients.patient_id = visit.patient_id', 'inner');
 		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
 		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
-		$this->db->order_by('visit.visit_date DESC, visit.visit_time DESC, visit.visit_id ASC');
+		$this->db->order_by('visit.visit_date ASC, visit.visit_time ASC, visit.visit_id ASC');
 		$visits_query = $this->db->get();
 		
-		$title = 'Transactions export '.date('jS M Y H:i a');;
+		$title = 'Transactions export '.date('jS M Y H:i a');
 		
 		if($visits_query->num_rows() > 0)
 		{
@@ -676,23 +676,24 @@ class Reports_model extends CI_Model
 			$report[$row_count][4] = 'Doctor';
 			$report[$row_count][5] = 'School/faculty/department';
 			$report[$row_count][6] = 'Staff/Student/ID No.';
-			$report[$row_count][7] = 'Consultation';
-			$report[$row_count][8] = 'Counseling';
-			$report[$row_count][9] = 'Dental';
-			$report[$row_count][10] = 'ECG';
-			$report[$row_count][11] = 'Laboratory';
-			$report[$row_count][12] = 'Nursing fee';
-			$report[$row_count][13] = 'Paediatrics';
-			$report[$row_count][14] = 'Pharmacy';
-			$report[$row_count][15] = 'Physician';
-			$report[$row_count][16] = 'Physiotherapy';
-			$report[$row_count][17] = 'Procedures';
-			$report[$row_count][18] = 'Radiology';
-			$report[$row_count][19] = 'Ultrasound';
-			$report[$row_count][20] = 'Debit Note Total';
-			$report[$row_count][21] = 'Credit Note Total';
-			$report[$row_count][22] = 'Invoice Total';
-			$current_column = 23;
+			$report[$row_count][7] = 'Clinic meds';
+			$report[$row_count][8] = 'Consultation';
+			$report[$row_count][9] = 'Counseling';
+			$report[$row_count][10] = 'Dental';
+			$report[$row_count][11] = 'ECG';
+			$report[$row_count][12] = 'Laboratory';
+			$report[$row_count][13] = 'Nursing fee';
+			$report[$row_count][14] = 'Paediatrics';
+			$report[$row_count][15] = 'Pharmacy';
+			$report[$row_count][16] = 'Physician';
+			$report[$row_count][17] = 'Physiotherapy';
+			$report[$row_count][18] = 'Procedures';
+			$report[$row_count][19] = 'Radiology';
+			$report[$row_count][20] = 'Ultrasound';
+			$report[$row_count][21] = 'Debit Note Total';
+			$report[$row_count][22] = 'Credit Note Total';
+			$report[$row_count][23] = 'Invoice Total';
+			$current_column = 24;
 			
 			//get & display all services
 			$payment_method_query = $this->get_all_active_payment_method();
@@ -746,6 +747,7 @@ class Reports_model extends CI_Model
 				$procedures = $row->procedures;
 				$radiology = $row->radiology;
 				$ultrasound = $row->ultrasound;
+				$clinic_meds = $row->clinic_meds;
 				$doctor = $personnel_othernames.' '.$personnel_fname;
 				$faculty = '';
 				$invoice_total = ($consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound + $total_debit_notes) - $total_credit_notes;
@@ -764,23 +766,24 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$report[$row_count][7] = $consultation;
-					$report[$row_count][8] = $counseling;
-					$report[$row_count][9] = $dental;
-					$report[$row_count][10] = $ecg;
-					$report[$row_count][11] = $laboratory;
-					$report[$row_count][12] = $nursing_fee;
-					$report[$row_count][13] = $paediatrics;
-					$report[$row_count][14] = $pharmacy;
-					$report[$row_count][15] = $physician;
-					$report[$row_count][16] = $physiotherapy;
-					$report[$row_count][17] = $procedures;
-					$report[$row_count][18] = $radiology;
-					$report[$row_count][19] = $ultrasound;
-					$report[$row_count][20] = $total_debit_notes;
-					$report[$row_count][21] = $total_credit_notes;
-					$report[$row_count][22] = $invoice_total;
-					$current_column = 23;
+					$report[$row_count][7] = $clinic_meds;
+					$report[$row_count][8] = $consultation;
+					$report[$row_count][9] = $counseling;
+					$report[$row_count][10] = $dental;
+					$report[$row_count][11] = $ecg;
+					$report[$row_count][12] = $laboratory;
+					$report[$row_count][13] = $nursing_fee;
+					$report[$row_count][14] = $paediatrics;
+					$report[$row_count][15] = $pharmacy;
+					$report[$row_count][16] = $physician;
+					$report[$row_count][17] = $physiotherapy;
+					$report[$row_count][18] = $procedures;
+					$report[$row_count][19] = $radiology;
+					$report[$row_count][20] = $ultrasound;
+					$report[$row_count][21] = $total_debit_notes;
+					$report[$row_count][22] = $total_credit_notes;
+					$report[$row_count][23] = $invoice_total;
+					$current_column = 24;
 					$total_paid = 0;
 					// display amounts collected on every payment method
 					foreach($payment_method_query->result() as $paymentmethod)
@@ -811,23 +814,24 @@ class Reports_model extends CI_Model
 					$report[$row_count][4] = $doctor;
 					$report[$row_count][5] = $faculty;
 					$report[$row_count][6] = $strath_no;
-					$report[$row_count][7] = $consultation;
-					$report[$row_count][8] = $counseling;
-					$report[$row_count][9] = $dental;
-					$report[$row_count][10] = $ecg;
-					$report[$row_count][11] = $laboratory;
-					$report[$row_count][12] = $nursing_fee;
-					$report[$row_count][13] = $paediatrics;
-					$report[$row_count][14] = $pharmacy;
-					$report[$row_count][15] = $physician;
-					$report[$row_count][16] = $physiotherapy;
-					$report[$row_count][17] = $procedures;
-					$report[$row_count][18] = $radiology;
-					$report[$row_count][19] = $ultrasound;
-					$report[$row_count][20] = $total_debit_notes;
-					$report[$row_count][21] = $total_credit_notes;
-					$report[$row_count][22] = $invoice_total;
-					$current_column = 23;
+					$report[$row_count][7] = $clinic_meds;
+					$report[$row_count][8] = $consultation;
+					$report[$row_count][9] = $counseling;
+					$report[$row_count][10] = $dental;
+					$report[$row_count][11] = $ecg;
+					$report[$row_count][12] = $laboratory;
+					$report[$row_count][13] = $nursing_fee;
+					$report[$row_count][14] = $paediatrics;
+					$report[$row_count][15] = $pharmacy;
+					$report[$row_count][16] = $physician;
+					$report[$row_count][17] = $physiotherapy;
+					$report[$row_count][18] = $procedures;
+					$report[$row_count][19] = $radiology;
+					$report[$row_count][20] = $ultrasound;
+					$report[$row_count][21] = $total_debit_notes;
+					$report[$row_count][22] = $total_credit_notes;
+					$report[$row_count][23] = $invoice_total;
+					$current_column = 24;
 					$total_paid = 0;
 					// display amounts collected on every payment method
 					foreach($payment_method_query->result() as $paymentmethod)
@@ -839,10 +843,16 @@ class Reports_model extends CI_Model
 						$total_paid += $amount_paid;
 					}
 					// //display total for the current visit
+					$balance = $invoice_total - $total_paid;
+					if($balance < 0)
+					{
+						$balance = $balance * -1;
+						$balance = '('.$balance.')';
+					}
 
 					$report[$row_count][$current_column] = ($total_paid);
 					$current_column++;
-					$report[$row_count][$current_column] = ($total_paid - $invoice_total);
+					$report[$row_count][$current_column] = $balance;
 					$current_column++;
 				}
 			}
