@@ -80,20 +80,13 @@
 				$visit_type_id = $row->visit_type_id;
 				$created = $row->patient_date;
 				$last_modified = $row->last_modified;
-				$patient_phone1 = $row->patient_phone1;
 				$last_visit = $row->last_visit;
-				$staff_number = $row->Staff_Number;
-				$patient_othernames = $row->Other_names;
-				$patient_surname = $row->Surname;
-				$patient_date_of_birth = $row->DOB;
-				$gender = $row->gender;
+				$patient_phone1 = $row->patient_phone1;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
+				$patient_type_id = $row->visit_type_id;
 
-				$patient = $this->reception_model->patient_names2($patient_id);
-				$patient_type = $patient['patient_type'];
-				$patient_othernames = $patient['patient_othernames'];
-				$patient_surname = $patient['patient_surname'];
-				$patient_type_id = $patient['visit_type_id'];
-				$account_balance = $patient['account_balance'];
+				$account_balance = $this->administration_model->patient_account_balance($patient_id);
 				
 				if($last_visit != NULL)
 				{
@@ -149,7 +142,7 @@
 				'
 					<tr>
 						<td>'.$count.'</td>
-						<td>'.$staff_number.'</td>
+						<td>'.$strath_no.'</td>
 						<td>'.$patient_surname.'</td>
 						<td>'.$patient_othernames.'</td>
 						<td>'.$patient_phone1.'</td>

@@ -519,9 +519,23 @@ class Reception extends auth
 	public function get_found_patients($patient_id,$place_id)
 	{
 		//  1 for students 2 for staff 3 for others 4 for dependants
-		$this->session->set_userdata('patient_search', ' AND patients.patient_id = '.$patient_id);
-	
-		redirect('reception/all-patients');
+
+		if($place_id == 1)
+		{
+			$this->session->set_userdata('patient_student_search', ' AND patients.patient_id = '.$patient_id);
+			redirect('reception/students');
+		}
+		else if ($place_id == 2)
+		{
+			$this->session->set_userdata('patient_staff_search', ' AND patients.patient_id = '.$patient_id);
+			redirect('reception/staff');
+		}
+		else
+		{
+			$this->session->set_userdata('patient_search', ' AND patients.patient_id = '.$patient_id);
+			redirect('reception/all-patients');
+		}
+		
 		
 
 		
@@ -1639,20 +1653,19 @@ class Reception extends auth
 		
 		$patient_search = $this->session->userdata('patient_student_search');
 		
+		
+		$where = 'patients.visit_type_id = 1 AND patients.patient_delete = 0';
 		if(!empty($patient_search))
 		{
-			$where = 'patients.visit_type_id = 1  AND patients.strath_no = student.student_Number AND patients.patient_delete = 0';
 			$where .= $patient_search;
-			$table = 'patients, student';
-			$items = 'student.*, patients.*';
 		}
-		
 		else
 		{
-			$where = 'patients.visit_type_id = 1 AND patients.patient_delete = 0';
-			$table = 'patients';
-			$items = 'patients.*';
+
 		}
+		$table = 'patients';
+		$items = 'patients.*';
+		
 		//pagination
 		$this->load->library('pagination');
 		$config['base_url'] = site_url().'/reception/students';
@@ -1707,14 +1720,14 @@ class Reception extends auth
 		$segment = 3;
 		
 		$patient_search = $this->session->userdata('patient_staff_search');
-		$where = 'patients.visit_type_id = 2  AND patients.strath_no = staff.Staff_Number AND patients.patient_delete = 0 AND patients.dependant_id = 0';
+		$where = 'patients.visit_type_id = 2  AND patients.patient_delete = 0 AND patients.dependant_id = 0';
 		
 		if(!empty($patient_search))
 		{
 			$where .= $patient_search;
 		}
 		
-		$table = 'patients, staff';
+		$table = 'patients';
 		$items = '*';
 		//pagination
 		$this->load->library('pagination');
@@ -1878,12 +1891,12 @@ class Reception extends auth
 			{
 				if($count == $total)
 				{
-					$surname .= ' staff.Surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' staff.Surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1907,12 +1920,12 @@ class Reception extends auth
 			{
 				if($count == $total)
 				{
-					$other_name .= ' staff.Other_names LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' staff.Other_names LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1937,7 +1950,7 @@ class Reception extends auth
 		
 		if(!empty($strath_no))
 		{
-			$strath_no = ' AND student.student_Number LIKE \'%'.$strath_no.'%\'';
+			$strath_no = ' AND patients.strath_no LIKE \'%'.$strath_no.'%\'';
 		}
 		
 		if(!empty($registration_date))
@@ -1957,12 +1970,12 @@ class Reception extends auth
 			{
 				if($count == $total)
 				{
-					$surname .= ' student.Surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' student.Surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1986,12 +1999,12 @@ class Reception extends auth
 			{
 				if($count == $total)
 				{
-					$other_name .= ' student.Other_names LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' student.Other_names LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}

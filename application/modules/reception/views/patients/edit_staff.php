@@ -14,12 +14,9 @@ $patient_national_id = $row->patient_national_id;
 $next_of_kin_contact = $row->patient_kin_phonenumber1;
 $patient_phone1 = $row->patient_phone1;
 $patient_phone2 = $row->patient_phone2;
-$Surname = $row->Surname;
-$Other_names = $row->Other_names;
-$Staff_Number = $row->Staff_Number;
-$gender = $row->gender;
-$DOB = $row->DOB;
-if($gender == 'F')
+$Staff_Number = $row->strath_no;
+$gender = $row->gender_id;
+if($gender == 2)
 {
 	$gender_name = 'Female';
 }
@@ -64,7 +61,7 @@ if(!empty($validation_error))
 <div class="widget boxed">
     <!-- Widget head -->
     <div class="widget-head">
-        <h4 class="pull-left"><i class="icon-reorder"></i>Edit <?php echo $Surname;?> <?php echo $Other_names;?></h4>
+        <h4 class="pull-left"><i class="icon-reorder"></i>Edit <?php echo $patient_surname;?> <?php echo $patient_othernames;?></h4>
         <div class="widget-icons pull-right">
             <a href="#" class="wminimize"><i class="icon-chevron-up"></i></a> 
             <a href="#" class="wclose"><i class="icon-remove"></i></a>
@@ -128,7 +125,7 @@ if(!empty($validation_error))
             <label class="col-lg-4 control-label">Surname: </label>
             
             <div class="col-lg-8">
-            	<input type="text" class="form-control" name="patient_surname" placeholder="Surname" value="<?php echo $Surname;?>" readonly>
+            	<input type="text" class="form-control" name="patient_surname" placeholder="Surname" value="<?php echo $patient_surname;?>" readonly>
             </div>
         </div>
         
@@ -136,7 +133,7 @@ if(!empty($validation_error))
             <label class="col-lg-4 control-label">Other Names: </label>
             
             <div class="col-lg-8">
-            	<input type="text" class="form-control" name="patient_othernames" placeholder="Other Names" value="<?php echo $Other_names?>" readonly>
+            	<input type="text" class="form-control" name="patient_othernames" placeholder="Other Names" value="<?php echo $patient_othernames?>" readonly>
             </div>
         </div>
         
@@ -149,7 +146,7 @@ if(!empty($validation_error))
             
             <div class="col-lg-8">
                 <div id="datetimepicker1" class="input-append">
-                    <input data-format="yyyy-MM-dd" class="form-control" type="text" name="patient_dob" placeholder="Date of Birth" value="<?php echo $DOB;?>" readonly>
+                    <input data-format="yyyy-MM-dd" class="form-control" type="text" name="patient_dob" placeholder="Date of Birth" value="<?php echo $patient_date_of_birth;?>" readonly>
                     <span class="add-on">
                         &nbsp;<i data-time-icon="icon-time" data-date-icon="icon-calendar">
                         </i>
