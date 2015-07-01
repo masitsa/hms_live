@@ -28,11 +28,15 @@
                             <th>Other</th>
                             <td><?php echo $other;?></td>
                         </tr>
+                        <tr>
+                            <th>Unclosed visits</th>
+                            <td><?php echo $unclosed_visits;?></td>
+                        </tr>
                     </tbody>
                 </table>
                 <!-- Text -->
                 <div class="datas-text">
-                	Total Visits <span class="bold"><?php echo number_format($total_patients, 0);?></span>
+                	Total Visits <span class="bold"><?php echo number_format(($total_patients + $unclosed_visits), 0);?></span>
                 </div>
                 
                 <div class="clearfix"></div>
@@ -45,25 +49,20 @@
             <li class="overall-datas">
                 <div class="row">
                     <div class="col-md-3">
-						<?php
-                        	$total_services_revenue = ($total_services_revenue + $debit_notes) - $credit_notes;
-                            $total_searched_revenue = ($total_payments + $debit_notes) - $credit_notes;
-
-                        ?>
                         <h5>Revenue Type</h5>
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
                                 <tr>
-                                    <th>Cash</th>
-                                    <td><?php echo number_format($total_cash_collection, 2);?></td>
+                                    <th>Payments</th>
+                                    <td><?php echo number_format($total_payments, 2);?></td>
                                 </tr>
                                 <tr>
                                     <th>Debtors</th>
-                                    <td><?php echo number_format(($total_services_revenue - $total_cash_collection), 2);?></td>
+                                    <td><?php echo number_format(($total_services_revenue - $total_payments), 2);?></td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td><?php echo number_format((($total_services_revenue - $total_cash_collection) + $total_cash_collection), 2);?></td>
+                                    <td><?php echo number_format($total_services_revenue, 2);?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -82,36 +81,25 @@
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
 								<?php
-								$total_cash_breakdown = 0;
-                                if($payment_methods->num_rows() > 0)
-                                {
-                                    foreach($payment_methods->result() as $res)
-                                    {
-                                        $method_name = $res->payment_method;
-                                        $payment_method_id = $res->payment_method_id;
-                                        $total = 0;
-                                    }
-                                    
 									echo 
 									'
-										<tr>
-											<th>Cash</th>
-											<td>'.number_format($total_cash, 2).'</td>
-										</tr>
-										<tr>
-											<th>Cheque</th>
-											<td>'.number_format($total_cheque, 2).'</td>
-										</tr>
-										<tr>
-											<th>Mpesa</th>
-											<td>'.number_format($total_mpesa, 2).'</td>
-										</tr>
-										<tr>
-											<th>Total</th>
-											<td>'.number_format($normal_payments, 2).'</td>
-										</tr>
+									<tr>
+										<th>Cash</th>
+										<td>'.number_format($total_cash, 2).'</td>
+									</tr>
+									<tr>
+										<th>Cheque</th>
+										<td>'.number_format($total_cheque, 2).'</td>
+									</tr>
+									<tr>
+										<th>Mpesa</th>
+										<td>'.number_format($total_mpesa, 2).'</td>
+									</tr>
+									<tr>
+										<th>Total</th>
+										<td>'.number_format($total_payments, 2).'</td>
+									</tr>
 									';
-                                }
                                 ?>
                             </tbody>
                         </table>
@@ -124,28 +112,28 @@
 					{
 					?>
                     <div class="col-md-3">
-                        <h5>Debt Breakdown</h5>
+                        <h5>Debtors Breakdown</h5>
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
                                 <tr>
-                                    <th>Student Debt</th>
+                                    <th>Students</th>
                                     <td><?php echo number_format($total_students_debt, 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Staff Debt</th>
+                                    <th>Staff</th>
                                     <td><?php echo number_format(($total_staff_debt), 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Insurance Debt</th>
+                                    <th>Insurance</th>
                                     <td><?php echo number_format(($total_insurance_debt), 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Other Debt</th>
-                                    <td><?php echo number_format(($total_other_debt - $total_cash_collection), 2);?></td>
+                                    <th>Other</th>
+                                    <td><?php echo number_format($total_other_debt, 2);?></td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td><?php echo number_format((($total_other_debt - $total_cash_collection) + $total_insurance_debt + $total_staff_debt + $total_students_debt), 2);?></td>
+                                    <td><?php echo number_format(($total_services_revenue - $total_payments), 2);?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -158,7 +146,7 @@
 					?>
                     <div class="col-md-3">
                         <div class="datas-text pull-right">Total Revenue <span class="bold">
-                            KSH <?php echo number_format(($total_services_revenue - $total_cash_breakdown), 2);?></span>
+                            KSH <?php echo number_format($total_services_revenue, 2);?></span>
                         </div>
                     </div>
                 </div>

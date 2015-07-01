@@ -349,7 +349,34 @@ class Reports_model extends CI_Model
 	{
 		//invoiced for all except pharmacy
 		$this->db->from($table);
-		$this->db->select('SUM(visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound) AS total_invoiced');
+		$this->db->select('(((SUM(visit.clinic_meds + visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound)) + visit.total_debit_notes) - visit.total_credit_notes) AS total_invoiced');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_invoiced = $cash->total_invoiced;
+		
+		if($total_invoiced > 0)
+		{
+			
+		}
+		
+		else
+		{
+			$total_invoiced = 0;
+		}
+		
+		return $total_invoiced;
+	}
+	/*
+	*	Retrieve total revenue
+	*
+	*/
+	public function get_total_services_revenue_old($where, $table)
+	{
+		//invoiced for all except pharmacy
+		$this->db->from($table);
+		$this->db->select('SUM(visit.clinic_meds + visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound) AS total_invoiced');
 		$this->db->where($where);
 		$query = $this->db->get();
 		

@@ -196,11 +196,9 @@ class Reports extends auth
 			}
 		}
 		$v_data['title'] = $this->session->userdata('page_title');
-		//total unclosed visits
-		$where_visit = $where.' AND visit.close_card = 0';
-		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
 		
-		$where .= ' AND visit.close_card = 1';
+		/******* VISITS ************/
+		$v_data['total_patients'] = $this->reports_model->get_total_visits($where, $table);
 		
 		//count student visits
 		$where2 = $where.' AND visit.visit_type = 1';
@@ -217,73 +215,47 @@ class Reports extends auth
 		//count insurance visits
 		$where2 = $where.' AND visit.visit_type = 4';
 		$v_data['insurance'] = $this->reception_model->count_items($table, $where2);
+		//total unclosed visits
+		$where_visit = $where.' AND visit.close_card = 0';
+		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
 		
-		//total patients
-		$v_data['total_patients'] = $this->reception_model->count_items($table, $where);
-		
-		//total revenue
+		/******* REVENUE ************/
 		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
-		$v_data['total_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
-		$v_data['total_cash'] = $this->reports_model->get_total_cash($where, $table);
-		$v_data['total_cheque'] = $this->reports_model->get_total_cheque($where, $table);
-		$v_data['total_mpesa'] = $this->reports_model->get_total_mpesa($where, $table);
+		
 		//var_dump($v_data['total_payments']);die();
 		//total students debt
 		$where2 = $where.' AND visit.visit_type = 1';
 		$total_students_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 1';
-		$student_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 1';
-		$student_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_students_debt'] = ($total_students_debt + $student_debit_notes) - $student_credit_notes;
+		//total students payments
+		$total_studens_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_students_debt'] = $total_students_debt - $total_studens_payments;
 		
 		//total staff debt
 		$where2 = $where.' AND visit.visit_type = 2';
 		$total_staff_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 2';
-		$staff_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 2';
-		$staff_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_staff_debt'] = ($total_staff_debt + $staff_debit_notes) - $staff_credit_notes;
+		//total staff payments
+		$total_staff_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_staff_debt'] = $total_staff_debt - $total_staff_payments;
 		
 		//total other debt
 		$where2 = $where.' AND visit.visit_type = 3';
 		$total_other_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 3';
-		$other_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 3';
-		$other_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_other_debt'] = ($total_other_debt + $other_debit_notes) - $other_credit_notes;
+		//total other payments
+		$total_other_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_other_debt'] = $total_other_debt - $total_other_payments;
 		
 		//total insurance debt
 		$where2 = $where.' AND visit.visit_type = 4';
 		$total_insurance_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 4';
-		$insurance_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 4';
-		$insurance_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_insurance_debt'] = ($total_insurance_debt + $insurance_debit_notes) - $insurance_credit_notes;
+		//total insurance payments
+		$total_insurance_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_insurance_debt'] = $total_insurance_debt - $total_insurance_payments;
 		
-		//all normal payments
-		$v_data['normal_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
-		$v_data['payment_methods'] = $this->reports_model->get_payment_methods($where2, $table);
-		
-		//normal payments
-		$v_data['total_cash_collection'] = $this->reports_model->get_total_cash_collection($where, $table);
-		
-		//debit notes
-		$v_data['debit_notes'] = $this->reports_model->get_total_debit_notes($where, $table);
-		
-		//credit notes
-		$v_data['credit_notes'] = $this->reports_model->get_total_credit_notes($where, $table);
+		/******* PAYMENTS ************/
+		$v_data['total_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
+		$v_data['total_cash'] = $this->reports_model->get_total_cash($where, $table);
+		$v_data['total_cheque'] = $this->reports_model->get_total_cheque($where, $table);
+		$v_data['total_mpesa'] = $this->reports_model->get_total_mpesa($where, $table);
 		
 		echo $this->load->view('reports/transaction_statistics', $v_data, true);
 	}
@@ -692,89 +664,9 @@ class Reports extends auth
 		{
 			$order_method = 'DESC';
 		}
+		
+		/******* VISITS ************/
 		$v_data['total_patients'] = $this->reports_model->get_total_visits($where, $table);
-		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
-		$v_data['total_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
-		$v_data['total_cash'] = $this->reports_model->get_total_cash($where, $table);
-		$v_data['total_cheque'] = $this->reports_model->get_total_cheque($where, $table);
-		$v_data['total_mpesa'] = $this->reports_model->get_total_mpesa($where, $table);
-		//var_dump($v_data['total_payments']);die();
-		//total students debt
-		$where2 = $where.' AND visit.visit_type = 1';
-		$total_students_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 1';
-		$student_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 1';
-		$student_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_students_debt'] = ($total_students_debt + $student_debit_notes) - $student_credit_notes;
-		
-		//total staff debt
-		$where2 = $where.' AND visit.visit_type = 2';
-		$total_staff_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 2';
-		$staff_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 2';
-		$staff_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_staff_debt'] = ($total_staff_debt + $staff_debit_notes) - $staff_credit_notes;
-		
-		//total other debt
-		$where2 = $where.' AND visit.visit_type = 3';
-		$total_other_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 3';
-		$other_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 3';
-		$other_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_other_debt'] = ($total_other_debt + $other_debit_notes) - $other_credit_notes;
-		
-		//total insurance debt
-		$where2 = $where.' AND visit.visit_type = 4';
-		$total_insurance_debt = $this->reports_model->get_total_services_revenue($where2, $table);
-		//students debit notes
-		$where2 = $where.' AND visit.visit_type = 4';
-		$insurance_debit_notes = $this->reports_model->get_total_debit_notes($where2, $table);
-		//students credit notes
-		$where2 = $where.' AND visit.visit_type = 4';
-		$insurance_credit_notes = $this->reports_model->get_total_credit_notes($where2, $table);
-		$v_data['total_insurance_debt'] = ($total_insurance_debt + $insurance_debit_notes) - $insurance_credit_notes;
-		
-		//all normal payments
-		$v_data['normal_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
-		$v_data['payment_methods'] = $this->reports_model->get_payment_methods($where2, $table);
-		
-		//normal payments
-		$v_data['total_cash_collection'] = $this->reports_model->get_total_cash_collection($where, $table);
-		
-		//debit notes
-		$v_data['debit_notes'] = $this->reports_model->get_total_debit_notes($where, $table);
-		
-		//credit notes
-		$v_data['credit_notes'] = $this->reports_model->get_total_credit_notes($where, $table);
-		
-		//credit notes
-		$v_data['title'] = 'Debtors reports';
-		
-		//all normal payments
-		/*$where2 = $where.' AND payments.payment_type = 1';
-		$v_data['normal_payments'] = $this->reports_model->get_normal_payments($where2, $table);
-		$v_data['payment_methods'] = $this->reports_model->get_payment_methods($where2, $table);
-		
-		//normal payments
-		$where2 = $where.' AND payments.payment_type = 1';
-		$v_data['total_cash_collection'] = $this->reports_model->get_total_cash_collection($where2, $table);
-		
-		//debit notes
-		$where2 = $where.' AND payments.payment_type = 2';
-		$v_data['debit_notes'] = $this->reports_model->get_total_cash_collection($where2, $table);
-		
-		//credit notes
-		$where2 = $where.' AND payments.payment_type = 3';
-		$v_data['credit_notes'] = $this->reports_model->get_total_cash_collection($where2, $table);*/
 		
 		//count student visits
 		$where2 = $where.' AND visit.visit_type = 1';
@@ -791,6 +683,48 @@ class Reports extends auth
 		//count insurance visits
 		$where2 = $where.' AND visit.visit_type = 4';
 		$v_data['insurance'] = $this->reception_model->count_items($table, $where2);
+		//total unclosed visits
+		$where_visit = $where.' AND visit.close_card = 0';
+		$v_data['unclosed_visits'] = $this->reception_model->count_items($table, $where_visit);
+		
+		/******* REVENUE ************/
+		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
+		
+		//var_dump($v_data['total_payments']);die();
+		//total students debt
+		$where2 = $where.' AND visit.visit_type = 1';
+		$total_students_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//total students payments
+		$total_studens_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_students_debt'] = $total_students_debt - $total_studens_payments;
+		
+		//total staff debt
+		$where2 = $where.' AND visit.visit_type = 2';
+		$total_staff_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//total staff payments
+		$total_staff_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_staff_debt'] = $total_staff_debt - $total_staff_payments;
+		
+		//total other debt
+		$where2 = $where.' AND visit.visit_type = 3';
+		$total_other_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//total other payments
+		$total_other_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_other_debt'] = $total_other_debt - $total_other_payments;
+		
+		//total insurance debt
+		$where2 = $where.' AND visit.visit_type = 4';
+		$total_insurance_debt = $this->reports_model->get_total_services_revenue($where2, $table);
+		//total insurance payments
+		$total_insurance_payments = $this->reports_model->get_total_cash_collection($where2, $table);
+		$v_data['total_insurance_debt'] = $total_insurance_debt - $total_insurance_payments;
+		
+		/******* PAYMENTS ************/
+		$v_data['total_payments'] = $this->reports_model->get_total_cash_collection($where, $table);
+		$v_data['total_cash'] = $this->reports_model->get_total_cash($where, $table);
+		$v_data['total_cheque'] = $this->reports_model->get_total_cheque($where, $table);
+		$v_data['total_mpesa'] = $this->reports_model->get_total_mpesa($where, $table);
+		$v_data['title'] = 'Debtors Report';
 		
 		echo $this->load->view('reports/debt_statistics', $v_data, true);
 	}

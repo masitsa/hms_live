@@ -49,25 +49,20 @@
             <li class="overall-datas">
                 <div class="row">
                     <div class="col-md-3">
-						<?php
-                        	$total_services_revenue = ($total_services_revenue + $debit_notes) - $credit_notes;
-                            $total_searched_revenue = ($total_payments + $debit_notes) - $credit_notes;
-
-                        ?>
                         <h5>Revenue Type</h5>
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
                                 <tr>
-                                    <th>Cash</th>
-                                    <td><?php echo number_format($total_cash_collection, 2);?></td>
+                                    <th>Payments</th>
+                                    <td><?php echo number_format($total_payments, 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Creditors</th>
-                                    <td><?php echo number_format(($total_services_revenue - $total_cash_collection), 2);?></td>
+                                    <th>Debtors</th>
+                                    <td><?php echo number_format(($total_services_revenue - $total_payments), 2);?></td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td><?php echo number_format((($total_services_revenue - $total_cash_collection) + $total_cash_collection), 2);?></td>
+                                    <td><?php echo number_format($total_services_revenue, 2);?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -86,39 +81,6 @@
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
 								<?php
-								$total_cash_breakdown = 0;
-                                if($payment_methods->num_rows() > 0)
-                                {
-                                    /*foreach($payment_methods->result() as $res)
-                                    {
-                                        $method_name = $res->payment_method;
-                                        $payment_method_id = $res->payment_method_id;
-                                        $total = 0;
-                                        
-                                        if($normal_payments->num_rows() > 0)
-                                        {
-                                            foreach($normal_payments->result() as $res2)
-                                            {
-                                                $payment_method_id2 = $res2->payment_method_id;
-                                            
-                                                if($payment_method_id == $payment_method_id2)
-                                                {
-                                                    $total += $res2->amount_paid;
-                                                }
-                                            }
-                                        }
-										
-										$total_cash_breakdown += $total;
-                                    
-                                        echo 
-										'
-										<tr>
-											<th>'.$method_name.'</th>
-											<td>'.number_format($total, 2).'</td>
-										</tr>
-										';
-                                    }*/
-                                    
 									echo 
 									'
 									<tr>
@@ -135,10 +97,9 @@
 									</tr>
 									<tr>
 										<th>Total</th>
-										<td>'.number_format($normal_payments, 2).'</td>
+										<td>'.number_format($total_payments, 2).'</td>
 									</tr>
 									';
-                                }
                                 ?>
                             </tbody>
                         </table>
@@ -151,28 +112,28 @@
 					{
 					?>
                     <div class="col-md-3">
-                        <h5>Debt Breakdown</h5>
+                        <h5>Debtors Breakdown</h5>
                         <table class="table table-striped table-hover table-condensed">
                             <tbody>
                                 <tr>
-                                    <th>Student Debt</th>
+                                    <th>Students</th>
                                     <td><?php echo number_format($total_students_debt, 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Staff Debt</th>
+                                    <th>Staff</th>
                                     <td><?php echo number_format(($total_staff_debt), 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Insurance Debt</th>
+                                    <th>Insurance</th>
                                     <td><?php echo number_format(($total_insurance_debt), 2);?></td>
                                 </tr>
                                 <tr>
-                                    <th>Other Debt</th>
-                                    <td><?php echo number_format(($total_other_debt - $total_cash_collection), 2);?></td>
+                                    <th>Other</th>
+                                    <td><?php echo number_format($total_other_debt, 2);?></td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td><?php echo number_format((($total_other_debt - $total_cash_collection) + $total_insurance_debt + $total_staff_debt + $total_students_debt), 2);?></td>
+                                    <td><?php echo number_format(($total_services_revenue - $total_payments), 2);?></td>
                                 </tr>
                             </tbody>
                         </table>
