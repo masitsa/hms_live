@@ -221,7 +221,7 @@ class Reports_model extends CI_Model
 		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_type', 'inner');
 		$this->db->join('personnel', 'personnel.personnel_id = visit.personnel_id', 'inner');
 		$this->db->order_by('visit.visit_date ASC, visit.visit_time ASC, visit.visit_id ASC');
-		$query = $this->db->get();
+		$query = $this->db->get('', $per_page, $page);
 		return $query;
 	}
 	
