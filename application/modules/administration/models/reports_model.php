@@ -720,7 +720,11 @@ class Reports_model extends CI_Model
 			$report[$row_count][21] = 'Debit Note Total';
 			$report[$row_count][22] = 'Credit Note Total';
 			$report[$row_count][23] = 'Invoice Total';
-			$current_column = 24;
+			$report[$row_count][24] = 'Cash';
+			$report[$row_count][25] = 'Cheque';
+			$report[$row_count][26] = 'Mpesa';
+			$report[$row_count][27] = 'Total payments';
+			$current_column = 28;
 			
 			//get & display all services
 			$payment_method_query = $this->get_all_active_payment_method();
@@ -775,6 +779,10 @@ class Reports_model extends CI_Model
 				$radiology = $row->radiology;
 				$ultrasound = $row->ultrasound;
 				$clinic_meds = $row->clinic_meds;
+				$cash = $row->cash;
+				$cheque = $row->cheque;
+				$mpesa = $row->mpesa;
+				$total_payments = $row->total_payments;
 				$doctor = $personnel_othernames.' '.$personnel_fname;
 				$faculty = '';
 				$invoice_total = ($consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound + $total_debit_notes) - $total_credit_notes;
@@ -810,10 +818,14 @@ class Reports_model extends CI_Model
 					$report[$row_count][21] = $total_debit_notes;
 					$report[$row_count][22] = $total_credit_notes;
 					$report[$row_count][23] = $invoice_total;
-					$current_column = 24;
+					$report[$row_count][24] = $cash;
+					$report[$row_count][25] = $cheque;
+					$report[$row_count][26] = $mpesa;
+					$report[$row_count][27] = $total_payments;
+					$current_column = 28;
 					$total_paid = 0;
 					// display amounts collected on every payment method
-					foreach($payment_method_query->result() as $paymentmethod)
+					/*foreach($payment_method_query->result() as $paymentmethod)
 					{
 						$payment_method_id = $paymentmethod->payment_method_id;
 						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
@@ -826,7 +838,7 @@ class Reports_model extends CI_Model
 					$report[$row_count][$current_column] = ($total_paid);
 					$current_column++;
 					$report[$row_count][$current_column] = ($total_paid - $invoice_total);
-					$current_column++;
+					$current_column++;*/
 				}
 				
 				//display cash & all transactions
@@ -858,10 +870,14 @@ class Reports_model extends CI_Model
 					$report[$row_count][21] = $total_debit_notes;
 					$report[$row_count][22] = $total_credit_notes;
 					$report[$row_count][23] = $invoice_total;
-					$current_column = 24;
+					$report[$row_count][24] = $cash;
+					$report[$row_count][25] = $cheque;
+					$report[$row_count][26] = $mpesa;
+					$report[$row_count][27] = $total_payments;
+					$current_column = 28;
 					$total_paid = 0;
 					// display amounts collected on every payment method
-					foreach($payment_method_query->result() as $paymentmethod)
+					/*foreach($payment_method_query->result() as $paymentmethod)
 					{
 						$payment_method_id = $paymentmethod->payment_method_id;
 						$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
@@ -880,7 +896,7 @@ class Reports_model extends CI_Model
 					$report[$row_count][$current_column] = ($total_paid);
 					$current_column++;
 					$report[$row_count][$current_column] = $balance;
-					$current_column++;
+					$current_column++;*/
 				}
 			}
 		}
