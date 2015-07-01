@@ -222,7 +222,6 @@ class Reports extends auth
 		/******* REVENUE ************/
 		$v_data['total_services_revenue'] = $this->reports_model->get_total_services_revenue($where, $table);
 		
-		//var_dump($v_data['total_payments']);die();
 		//total students debt
 		$where2 = $where.' AND visit.visit_type = 1';
 		$total_students_debt = $this->reports_model->get_total_services_revenue($where2, $table);
