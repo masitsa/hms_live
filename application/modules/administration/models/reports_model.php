@@ -349,7 +349,7 @@ class Reports_model extends CI_Model
 	{
 		//invoiced for all except pharmacy
 		$this->db->from($table);
-		$this->db->select('(SUM(visit.clinic_meds + visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound + visit.total_debit_notes) - visit.total_credit_notes) AS total_invoiced');
+		$this->db->select('SUM(visit.clinic_meds + visit.consultation + visit.counseling + visit.dental + visit.ecg + visit.laboratory + visit.nursing_fee + visit.paediatrics + visit.pharmacy + visit.physician + visit.physiotherapy + visit.procedures + visit.radiology + visit.ultrasound + visit.total_debit_notes) AS total_invoiced');
 		$this->db->where($where);
 		$query = $this->db->get();
 		
@@ -366,7 +366,26 @@ class Reports_model extends CI_Model
 			$total_invoiced = 0;
 		}
 		
-		return $total_invoiced;
+		//Credit notes total
+		$this->db->from($table);
+		$this->db->select('SUM(visit.total_credit_notes) AS total_credit_notes');
+		$this->db->where($where);
+		$query = $this->db->get();
+		
+		$cash = $query->row();
+		$total_credit_notes = $cash->total_credit_notes;
+		
+		if($total_credit_notes > 0)
+		{
+			
+		}
+		
+		else
+		{
+			$total_credit_notes = 0;
+		}
+		
+		return ($total_invoiced - $total_credit_notes);
 	}
 	/*
 	*	Retrieve total revenue
