@@ -1,7 +1,10 @@
 <!-- search -->
 <?php echo $this->load->view('search/debtors_report', '', TRUE);?>
 <!-- end search -->
-<?php echo $this->load->view('debt_statistics', '', TRUE);?>
+
+<div id="transaction_statistics">
+	<div class="preloader"></div>
+</div>
 <style type="text/css">
 .bootstrap-datetimepicker-widget{z-index:2000;}
 </style>
@@ -262,3 +265,13 @@
       </div>
     </div>
   </div>
+  
+  <script type="text/javascript">
+  	$(document).ready(function(){
+			$.get( "<?php echo site_url();?>/administration/reports/load_debtors_statistics/<?php echo $bill_to_id;?>/<?php echo $order_method;?>", function( data ) {
+				  $( "#transaction_statistics" ).html( data );
+			});
+		}
+	);
+	
+  </script>
