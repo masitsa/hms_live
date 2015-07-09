@@ -77,6 +77,17 @@
 				$strath_no = $row->strath_no;
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
+				$dependant_id = $row->dependant_id;
+				if($dependant_id > 0)
+				{
+					$visit_type = 'Staff Dependant';
+					$strath_no = $row->dependant_id;
+				}
+				else
+				{
+					$visit_type = $row->visit_type_name;
+					$strath_no = $row->strath_no;
+				}
 				
 				$visit_type = $row->visit_type_name;
 				$personnel_othernames = $row->personnel_onames;
@@ -88,6 +99,22 @@
 				$counseling = $row->counseling;
 				$dental = $row->dental;
 				$ecg = $row->ecg;
+
+				$visit_type_id = $row->visit_type_id;
+
+				if($visit_type_id == 1)
+				{
+					$faculty = $row->faculty;
+				}
+				else if($visit_type_id == 2)
+				{
+					$faculty = $row->department;
+				}
+				else
+				{
+					$faculty = '';
+				}
+				
 				$laboratory = $row->laboratory;
 				$nursing_fee = $row->nursing_fee;
 				$paediatrics = $row->paediatrics;

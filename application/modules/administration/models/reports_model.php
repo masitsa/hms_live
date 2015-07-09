@@ -207,7 +207,9 @@ class Reports_model extends CI_Model
 		$this->db->select('
 		visit.*,
 		patients.visit_type_id, 
-		patients.visit_type_id, 
+		patients.visit_type_id,
+		patients.department,
+		patients.faculty, 
 		patients.patient_othernames, 
 		patients.patient_surname, 
 		patients.dependant_id, 
@@ -766,17 +768,19 @@ class Reports_model extends CI_Model
 
 
 				$visit_id = $row->visit_id;
-				$strath_no = $row->strath_no;
+				
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
 				$dependant_id = $row->dependant_id;
 				if($dependant_id > 0)
 				{
 					$visit_type = 'Staff Dependant';
+					$strath_no = $row->dependant_id;
 				}
 				else
 				{
 					$visit_type = $row->visit_type_name;
+					$strath_no = $row->strath_no;
 				}
 				
 				$personnel_othernames = $row->personnel_onames;
