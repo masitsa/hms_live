@@ -405,6 +405,18 @@ $(document).ready(function(){
     $( "#todaydate" ).datepicker();
   });
 
+   $(function() {
+    $('#datetimepicker_start').datetimepicker({
+      pickTime: true
+    });
+  });
+
+   $(function() {
+    $('#datetimepicker_end').datetimepicker({
+      pickTime: true
+    });
+  });
+
 
 
 /* CL Editor */

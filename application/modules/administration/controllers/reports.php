@@ -1093,7 +1093,7 @@ class Reports extends auth
 		
 		$this->session->unset_userdata('search_title');
 		
-		$search = ' AND debtor_invoice_item.visit_id = visit.visit_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id;
+		$search = 'debtor_invoice_item.visit_id = visit.visit_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id;
 		$table = ', debtor_invoice_item';
 		
 		//create title

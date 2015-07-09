@@ -644,7 +644,7 @@ class Reports_model extends CI_Model
 	
 	function export_debt_transactions($debtor_invoice_id)
 	{
-		$where = ' AND visit.visit_id = debtor_invoice_item.visit_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id;
+		$where = 'visit.visit_id = debtor_invoice_item.visit_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id;
 		$table = ', debtor_invoice_item';
 		$_SESSION['all_transactions_search'] = $where;
 		$_SESSION['all_transactions_tables'] = $table;
@@ -1157,8 +1157,8 @@ class Reports_model extends CI_Model
 		
 		$total_services_revenue = $this->reports_model->get_total_services_revenue($where, $table);
 		
-		$where2 = $where.' AND payments.payment_type = 1';
-		$total_cash_collection = $this->reports_model->get_total_cash_collection($where2, $table);
+		//$where2 = $where.' AND payments.payment_type = 1';
+		$total_cash_collection = $this->reports_model->get_total_cash_collection($where, $table);
 		
 		return $total_services_revenue - $total_cash_collection;
 	}
