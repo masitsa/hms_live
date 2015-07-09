@@ -738,6 +738,7 @@ class Reception_model extends CI_Model
 		$patient_surname = '';
 		$patient_othernames = '';
 		$patient_date_of_birth = '';
+		$faculty = '';
 		$patient_phone1 = '';//$student_result->patient_phone1;
 		$gender = 0;
 		
@@ -811,7 +812,7 @@ class Reception_model extends CI_Model
 					$patient_date_of_birth = $staff_result->DOB;
 					$patient_phone1 = '';//$staff_result->patient_phone1;
 					$gender = $staff_result->gender;
-					$faculty = '';//$staff_result->department;
+					$faculty = $staff_result->department;
 				}
 
 				else if(($row->patient_surname != '0.00') && ($row->patient_othernames != '0.00'))
@@ -860,6 +861,7 @@ class Reception_model extends CI_Model
 				$patient_date_of_birth = date('Y-m-d',strtotime($student_result->DOB));
 				$patient_phone1 = '';//$student_result->patient_phone1;
 				$gender = $student_result->gender;
+				$faculty = $student_result->faculty;
 			}
 		}
 
@@ -901,7 +903,7 @@ class Reception_model extends CI_Model
 		$patient['patient_surname'] = $patient_surname;
 		$patient['patient_date_of_birth'] = $patient_date_of_birth;
 		$patient['gender'] = $gender;
-		$patient['faculty'] = '';//$faculty;
+		$patient['faculty'] = $faculty;
 		$patient['gender_id'] = $gender_id;
 
 		return $patient;
@@ -2100,42 +2102,73 @@ class Reception_model extends CI_Model
 				}
 				
 				//update db
-				$data = array(
+
+				if($visit_type_id == 1)
+				{
+					// this is a student
+					$data = array(
+						'patient_surname'=>ucwords(strtolower($patient_surname)),
+						'patient_othernames'=>ucwords(strtolower($patient_othernames)),
+						//'title_id'=>$this->input->post('title_id'),
+						'patient_date_of_birth'=>$patient_date_of_birth,
+						'patient_phone1'=>$contact,
+						'gender_id'=>$gender_id,
+						'faculty'=> $faculty
+					);
+					
+					$this->db->where('patient_id', $patient_id);
+					if($this->db->update('patients', $data))
+					{
+						echo $check_id.' - '.$visit_id.' - '.$strath_no.' - '.$dependant_id.' - '.$visit_type_id.' - '.$patient_id.'- '.$faculty.'<br/>';
+					}
+					else{
+						echo 'Unable to insert <br/>';
+					}
+				}
+				else if($visit_type_id == 2)
+				{
+					$data = array(
 					'patient_surname'=>ucwords(strtolower($patient_surname)),
 					'patient_othernames'=>ucwords(strtolower($patient_othernames)),
 					//'title_id'=>$this->input->post('title_id'),
 					'patient_date_of_birth'=>$patient_date_of_birth,
 					'patient_phone1'=>$contact,
 					'gender_id'=>$gender_id,
-					//'religion_id'=>$this->input->post('religion_id'),
-					//'civil_status_id'=>$this->input->post('civil_status_id'),
-					//'patient_email'=>$this->input->post('patient_email'),
-					//'patient_address'=>$this->input->post('patient_address'),
-					//'patient_postalcode'=>$this->input->post('patient_postalcode'),
-					//'patient_town'=>$this->input->post('patient_town'),
-					//'patient_phone1'=>$this->input->post('patient_phone1'),
-					//'patient_phone2'=>$this->input->post('patient_phone2'),
-					//'patient_kin_sname'=>$this->input->post('patient_kin_sname'),
-					//'patient_kin_othernames'=>$this->input->post('patient_kin_othernames'),
-					//'relationship_id'=>$this->input->post('relationship_id'),
-					//'patient_national_id'=>$this->input->post('patient_national_id'),
-					//'patient_date'=>date('Y-m-d H:i:s'),
-					//'patient_number'=>$this->strathmore_population->create_patient_number(),
-					//'created_by'=>$this->session->userdata('personnel_id'),
-					//'modified_by'=>$this->session->userdata('personnel_id'),
-					//'visit_type_id'=>3,
-					//'dependant_id'=>$this->input->post('dependant_id'),
-					//'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact')
-				);
-				
-				$this->db->where('patient_id', $patient_id);
-				if($this->db->update('patients', $data))
+					'department'=> $faculty
+					);
+					
+					$this->db->where('patient_id', $patient_id);
+					if($this->db->update('patients', $data))
+					{
+						echo $check_id.' - '.$visit_id.' - '.$strath_no.' - '.$dependant_id.' - '.$visit_type_id.' - '.$patient_id.'- '.$faculty.'<br/>';
+					}
+					else{
+						echo 'Unable to insert <br/>';
+					}
+
+				}
+				else
 				{
-					echo $check_id.' - '.$visit_id.' - '.$strath_no.' - '.$dependant_id.' - '.$visit_type_id.' - '.$patient_id.'<br/>';
+					$data = array(
+					'patient_surname'=>ucwords(strtolower($patient_surname)),
+					'patient_othernames'=>ucwords(strtolower($patient_othernames)),
+					//'title_id'=>$this->input->post('title_id'),
+					'patient_date_of_birth'=>$patient_date_of_birth,
+					'patient_phone1'=>$contact,
+					'gender_id'=>$gender_id
+					);
+					
+					$this->db->where('patient_id', $patient_id);
+					if($this->db->update('patients', $data))
+					{
+						echo $check_id.' - '.$visit_id.' - '.$strath_no.' - '.$dependant_id.' - '.$visit_type_id.' - '.$patient_id.'<br/>';
+					}
+					else{
+						echo 'Unable to insert <br/>';
+					}
 				}
-				else{
-					echo 'Unable to insert <br/>';
-				}
+
+				
 			}
 		}
 	}

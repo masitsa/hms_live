@@ -688,7 +688,9 @@ class Reports_model extends CI_Model
 		$this->db->select('
 		visit.*,
 		patients.visit_type_id, 
-		patients.visit_type_id, 
+		patients.visit_type_id,
+		patients.department,
+		patients.faculty, 
 		patients.patient_othernames, 
 		patients.patient_surname, 
 		patients.dependant_id, 
@@ -761,12 +763,22 @@ class Reports_model extends CI_Model
 				{
 					$visit_time_out = '-';
 				}
+
+
 				$visit_id = $row->visit_id;
 				$strath_no = $row->strath_no;
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
+				$dependant_id = $row->dependant_id;
+				if($dependant_id > 0)
+				{
+					$visit_type = 'Staff Dependant';
+				}
+				else
+				{
+					$visit_type = $row->visit_type_name;
+				}
 				
-				$visit_type = $row->visit_type_name;
 				$personnel_othernames = $row->personnel_onames;
 				$personnel_fname = $row->personnel_fname;
 				$total_payments = $row->total_payments;
@@ -791,7 +803,21 @@ class Reports_model extends CI_Model
 				$mpesa = $row->mpesa;
 				$total_payments = $row->total_payments;
 				$doctor = $personnel_othernames.' '.$personnel_fname;
-				$faculty = '';
+				$visit_type_id = $row->visit_type_id;
+
+				if($visit_type_id == 1)
+				{
+					$faculty = $row->faculty;
+				}
+				else if($visit_type_id == 2)
+				{
+					$faculty = $row->department;
+				}
+				else
+				{
+					$faculty = '';
+				}
+				
 				$invoice_total = ($consultation + $counseling + $dental + $ecg + $laboratory + $nursing_fee + $paediatrics + $pharmacy + $physician + $physiotherapy + $procedures + $radiology + $ultrasound + $total_debit_notes) - $total_credit_notes;
 				
 				//display all debtors
