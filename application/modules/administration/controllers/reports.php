@@ -880,17 +880,17 @@ class Reports extends auth
 		
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
-			$visit_date = 'visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$visit_date = 'AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 		}
 		
 		else if(!empty($visit_date_from))
 		{
-			$visit_date = 'visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_date = 'AND visit.visit_date = \''.$visit_date_from.'\'';
 		}
 		
 		else if(!empty($visit_date_to))
 		{
-			$visit_date = 'visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_date = 'AND visit.visit_date = \''.$visit_date_to.'\'';
 		}
 		
 		else
