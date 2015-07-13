@@ -186,20 +186,35 @@ class Strathmore_population extends CI_Model
 				$exists = $this->staff_exists($staff_no);
 				$date = date("Y-m-d H:i:s");
 				//  insert data into the staff table
-				$data = array('patient_number'=>$this->create_patient_number(),'created_by'=>$this->session->userdata('personnel_id'),'modified_by'=>$this->session->userdata('personnel_id'),'patient_date'=>$date,'patient_surname'=>$emp_lastname,'patient_other_names'=>$other_name,'patient_date_of_birth'=>$emp_birthday,'patient_phone1'=>$emp_mobile,'gender_id'=>$gender,'strath_no'=>$staff_no,'visit_type_id'=>2,'department'=>$department);
+				$data = array(
+					'patient_number'=>$this->create_patient_number(),
+					'created_by'=>$this->session->userdata('personnel_id'),
+					'modified_by'=>$this->session->userdata('personnel_id'),
+					'patient_date'=>$date,'patient_surname'=>$emp_lastname,
+					'patient_othernames'=>$other_name,
+					'patient_date_of_birth'=>$emp_birthday,
+					'patient_phone1'=>$emp_mobile,
+					'gender_id'=>$emp_gender,
+					'strath_no'=>$staff_no,
+					'visit_type_id'=>2,
+					'department'=>$department
+				);
 				if($exists == FALSE)
 				{
 					//echo 'title='.$Title.'<br/>Surname='.$Surname1.'<br/>Other_names='.$Other_Name1.'<br/>DOB='.$DOB.'<br/>contact='.$Tel_1.'<br/>gender='.$Gender.'<br/>Staff_Number='.$Employee_Code.'<br/>staff_system_id='.$E_ID;
-					$this->db->insert('staff', $data);
+					$this->db->insert('patients', $data);
+					$patient_id = $this->db->insert_id();
+					
+					return $patient_id;
 				}				
 				else
 				{
-					$this->db->where('strath_no', $staff_no);
-					$this->db->update('patients', $data);
-					//$this->session->set_userdata("error_message","Staff seems to exist");
+					/*$this->db->where('strath_no', $staff_no);
+					$this->db->update('patients', $data);*/
+					$this->session->set_userdata("error_message","Staff seems to exist");
+					return FALSE;
 				}
 			}
-			return TRUE;
 		}		
 		else
 		{

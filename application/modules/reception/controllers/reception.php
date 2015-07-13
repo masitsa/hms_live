@@ -583,12 +583,14 @@ class Reception extends auth
 				
 			}
 			
+			//staff from hr db
 			else if (!isset($_POST['dependant']))
 			{
 				if($this->strathmore_population->get_hr_staff($this->input->post('staff_number')))
 				{
 					$patient_id = $this->reception_model->insert_into_patients($this->input->post('staff_number'),2);
-					if($patient_id != FALSE){
+					if($patient_id != FALSE)
+					{
 						// $this->get_found_patients($patient_id,2);
 						if(!empty($patient_id))
 						{
