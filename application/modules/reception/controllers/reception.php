@@ -2502,4 +2502,34 @@ class Reception extends auth
 			}
 		}
 	}
+	
+	public function get_students_from_ams($student_number = NULL)
+	{
+		if($student_number == NULL)
+		{
+			$result = $this->strathmore_population->get_students_from_ams();
+		}
+		
+		else
+		{
+			$result = $this->strathmore_population->get_students_from_ams($student_number);
+		}
+		
+		echo $result;
+	}
+	
+	public function get_staff_from_hr($staff_number = NULL)
+	{
+		if($staff_number == NULL)
+		{
+			$result = $this->strathmore_population->get_staff_from_hr();
+		}
+		
+		else
+		{
+			$result = $this->strathmore_population->get_staff_from_hr($staff_number);
+		}
+		
+		echo $result;
+	}
 }
