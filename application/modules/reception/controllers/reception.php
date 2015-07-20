@@ -2532,4 +2532,11 @@ class Reception extends auth
 		
 		echo $result;
 	}
+	
+	public function update_staff_departments($staff_number = NULL)
+	{
+		$result = $this->strathmore_population->update_staff_department($staff_number);
+		
+		echo $result;
+	}
 }
