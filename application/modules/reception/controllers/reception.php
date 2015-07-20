@@ -2539,4 +2539,18 @@ class Reception extends auth
 		
 		echo $result;
 	}
+	
+	public function update_housekeeping_departments($staff_number = NULL)
+	{
+		$result = $this->reception_model->update_housekeeping_departments($staff_number);
+		
+		echo $result;
+	}
+	
+	public function update_sbs_departments($staff_number = NULL)
+	{
+		$result = $this->reception_model->update_sbs_departments($staff_number);
+		
+		echo $result;
+	}
 }

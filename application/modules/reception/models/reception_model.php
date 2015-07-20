@@ -2521,5 +2521,90 @@ class Reception_model extends CI_Model
 			return FALSE;
 		}
 	}
+	
+	public function update_sbs_departments($staff_number = NULL)
+	{
+		$where = "(strath_no LIKE 'sbs%') OR (strath_no LIKE 'SBS%')";
+		
+		if($staff_number != NULL)
+		{
+			$where = " strath_no = '".$staff_number."'";
+		}
+		
+		$this->db->where($where);
+		$query = $this->db->get('patients');
+		
+		if($query->num_rows() > 0)
+		{
+			$return = '';
+			foreach($query->result() as $res)
+			{
+				$surname = $res->patient_surname;
+				$othernames = $res->patient_othernames;
+				$patient_id = $res->patient_id;
+				$data['department'] = 'SBS';
+				
+				$this->db->where('patient_id', $patient_id);
+				if($this->db->update('patients', $data))
+				{
+					$return .= $surname.' '.$othernames.' department updated to SBS<br/>';
+				}
+				
+				else
+				{
+					$return .= 'Unable to update '.$surname.' '.$othernames.'<br/>';
+				}
+			}
+		}
+		
+		else
+		{
+			$return = 'No patients found';
+		}
+		
+		return $return;
+	}
+	
+	public function update_housekeeping_departments($staff_number = NULL)
+	{
+		$where = "CHAR_LENGTH(strath_no) >= 7";
+		
+		if($staff_number != NULL)
+		{
+			$where = " strath_no = '".$staff_number."'";
+		}
+		$this->db->where($where);
+		$query = $this->db->get('patients');
+		
+		if($query->num_rows() > 0)
+		{
+			$return = '';
+			foreach($query->result() as $res)
+			{
+				$surname = $res->patient_surname;
+				$othernames = $res->patient_othernames;
+				$patient_id = $res->patient_id;
+				$data['department'] = 'Housekeeping';
+				
+				$this->db->where('patient_id', $patient_id);
+				if($this->db->update('patients', $data))
+				{
+					$return .= $surname.' '.$othernames.' department updated to Housekeeping<br/>';
+				}
+				
+				else
+				{
+					$return .= 'Unable to update '.$surname.' '.$othernames.'<br/>';
+				}
+			}
+		}
+		
+		else
+		{
+			$return = 'No patients found';
+		}
+		
+		return $return;
+	}
 }
 ?>
