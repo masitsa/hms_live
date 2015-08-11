@@ -177,6 +177,7 @@ class Strathmore_population extends CI_Model
 				$GUARDIAN_NAME=str_replace("'", "", "$GUARDIAN_NAME1");
 				
 				$data .= '
+					<table>
 						<tr>
 							<td>'.$t.'</td>
 							<td>'.$name.'</td>
@@ -294,6 +295,7 @@ class Strathmore_population extends CI_Model
 				$other_name = $emp_firstname." ".$emp_middle_name;
 				
 				$data .= '
+					<table>
 						<tr>
 							<td>'.$t.'</td>
 							<td>'.$emp_lastname.'</td>
@@ -528,114 +530,6 @@ class Strathmore_population extends CI_Model
 
 		
 		return TRUE;
-	}
-
-	public function update_staff_department($staff_number = NULL)
-	{
-		include_once(__DIR__.'/../../../config/database.php');
-		global $db_hr;
-		
-		//connect to database
-        $connect_hr = mysqli_connect($db_hr['hostname'], $db_hr['username'], $db_hr['password'])
-                    or die("Unable to connect to MySQL".mysql_error());
-
-        //selecting a database
-        mysqli_select_db($connect_hr, $db_hr['database'])
-                    or die("Could not select database".mysql_error());
-		
-		if($staff_number != NULL)
-		{
-			
-			 $sql1 = "select 
-						`emp_no` AS `staff_system_id`,
-						`employee_id` AS `staff_no`,
-						`emp_lastname` AS `emp_lastname`,
-						`emp_firstname` AS `emp_firstname`,
-						`emp_middle_name` AS `emp_middle_name`,
-						`emp_birthday` AS `emp_birthday`,
-						`emp_gender` AS `emp_gender`,
-						`emp_marital_status` AS `marital_status`,
-						`emp_mobile` AS `emp_mobile`,
-						`dept`	 AS `department`,
-						`emp_nationality` AS `nationality`,
-						`emp_work_email` AS `emp_work_email`
-					from  vw_payroll_details
-					where employee_id = '$staff_number' 
-					ORDER BY emp_no ASC";
-		}
-		
-		else
-		{
-			$sql1 = "select 
-						`emp_no` AS `staff_system_id`,
-						`employee_id` AS `staff_no`,
-						`emp_lastname` AS `emp_lastname`,
-						`emp_firstname` AS `emp_firstname`,
-						`emp_middle_name` AS `emp_middle_name`,
-						`emp_birthday` AS `emp_birthday`,
-						`emp_gender` AS `emp_gender`,
-						`emp_marital_status` AS `marital_status`,
-						`emp_mobile` AS `emp_mobile`,
-						`dept` AS `department`,
-						`emp_nationality` AS `nationality`,
-						`emp_work_email` AS `emp_work_email`
-					from  vw_payroll_details
-					where 1=1  
-					ORDER BY emp_no ASC";
-		}
-		
-		$t = 0;
-		
-        $rs1 = mysqli_query($connect_hr, $sql1);        	
-		$rows2 = mysqli_num_rows($rs1);		
-		
-		if($rows2 > 0){
-			$return = '';
-			while ($row = mysqli_fetch_assoc($rs1)) {
-				$staff_no = $row['staff_no'];
-				$emp_lastname = $row['emp_lastname'];
-				$emp_firstname = $row['emp_firstname'];
-				$emp_mobile = $row['emp_mobile'];
-				$department = $row['department'];
-				$emp_work_email = $row['emp_work_email'];
-
-				$other_name = $emp_firstname;
-				
-				$patients_data = array
-				(
-					'department' => $department,
-					'patient_email' => $emp_work_email,
-					'patient_phone1' => $emp_mobile,
-				);
-				
-				$this->db->where(array(
-					'strath_no' => $staff_no,
-					'visit_type_id' => 2
-				));
-				
-				//update staff
-				if($this->db->update('patients', $patients_data))
-				{
-					$return .= $other_name.' '.$staff_no.' updated<br/>';
-					//update dependants
-					$this->db->where(
-						array(
-							'dependant_id' => $staff_no,
-							'visit_type_id' => 2
-						));
-						if($this->db->update('patients', $patients_data))
-						{
-							$return .= $other_name.' '.$staff_no.' dependant updated<br/>';
-						}
-				}
-			}
-		}		
-		else
-		{
-			$return = 'Unable to find staff';
-		}
-		
-		return $return;
 	}
 }
 
