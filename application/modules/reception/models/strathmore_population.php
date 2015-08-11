@@ -186,7 +186,7 @@ class Strathmore_population extends CI_Model
 							<td>'.$COURSES.'</td>
 							<td>'.$MOBILE_NO.'</td>
 							<td>'.$STUDENT_NO.'</td>
-							<td>'.$DOB.'</td>
+							<td>'.$dob.'</td>
 							<td>'.$GUARDIAN_NAME.'</td>
 							<td>'.$EMAIL.'</td>
 						</tr>
